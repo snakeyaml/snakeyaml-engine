@@ -2173,8 +2173,6 @@ public final class ScannerImpl implements Scanner {
    * '\r'     : '\n'
    * '\n'     : '\n'
    * '\x85'   : '\n'
-   * '\u2028' : '\u2028'
-   * '\u2029  : '\u2029'
    * default : ''
    * </pre>
    *
@@ -2189,9 +2187,6 @@ public final class ScannerImpl implements Scanner {
         reader.forward();
       }
       return Optional.of("\n");
-    } else if (c == '\u2028' || c == '\u2029') {
-      reader.forward();
-      return Optional.of(String.valueOf(Character.toChars(c)));
     }
     return Optional.empty();
   }

@@ -27,17 +27,17 @@ public class JRubyPsychTest {
   @Test
   @DisplayName("Issue 46: parse different values")
   void parseDifferentValues() {
-    parse("\\n\\u2029*");
-    parse("\\n\\u2028 C");
-    parse("\\n\\u2028* C");
-    parse("\\n\\u2029* 1");
-    parse("\\n\\u2029");
+    parse("\n\u2029*");
+    parse("\n\u2028 C");
+    parse("\n\u2028* C");
+    parse("\n\u2029* 1");
+    parse("\n\u2029");
   }
 
   private void parse(String data) {
     LoadSettings loadSettings = LoadSettings.builder().build();
     Load load = new Load(loadSettings);
-    Object obj = load.loadFromString(data);
-    assertEquals(data, obj);
+    String obj = (String) load.loadFromString(data);
+    assertEquals(data.trim(), obj.trim());
   }
 }

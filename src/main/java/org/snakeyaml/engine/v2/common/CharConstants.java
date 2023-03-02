@@ -113,8 +113,6 @@ public final class CharConstants {
     escapes.put(Character.valueOf('\\'), "\\");// ASCII backslash
     escapes.put(Character.valueOf('N'), "\u0085");// Unicode next line
     escapes.put(Character.valueOf('_'), "\u00A0");// Unicode non-breaking-space
-    escapes.put(Character.valueOf('L'), "\u2028");// Unicode line-separator
-    escapes.put(Character.valueOf('P'), "\u2029");// Unicode paragraph separator
     ESCAPE_REPLACEMENTS = Collections.unmodifiableMap(escapes);
 
     Map<Character, Integer> escapeCodes = new HashMap<>();

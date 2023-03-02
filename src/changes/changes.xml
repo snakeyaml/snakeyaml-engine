@@ -7,6 +7,9 @@
     <body>
         <release version="2.7" date="in GIT" description="Maintenance">
             <action dev="asomov" type="fix" issue="46">
+                Treat \u2028 and \u2029 as normal chars (not as separators)
+            </action>
+            <action dev="asomov" type="fix" issue="46">
                 Add test for failure in JRuby
             </action>
             <action dev="asomov" type="fix" issue="42">

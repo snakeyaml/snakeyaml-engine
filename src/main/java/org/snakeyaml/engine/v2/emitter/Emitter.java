@@ -90,8 +90,6 @@ public final class Emitter implements Emitable {
     ESCAPE_REPLACEMENTS.put('\\', "\\");
     ESCAPE_REPLACEMENTS.put('\u0085', "N");
     ESCAPE_REPLACEMENTS.put('\u00A0', "_");
-    ESCAPE_REPLACEMENTS.put('\u2028', "L");
-    ESCAPE_REPLACEMENTS.put('\u2029', "P");
   }
 
   private static final Map<String, String> DEFAULT_TAG_PREFIXES = new LinkedHashMap<>();
