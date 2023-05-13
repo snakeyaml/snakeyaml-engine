@@ -20,6 +20,7 @@ import java.io.StringWriter;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.snakeyaml.engine.v2.api.Dump;
 import org.snakeyaml.engine.v2.api.DumpSettings;
 import org.snakeyaml.engine.v2.api.StreamDataWriter;
 import org.snakeyaml.engine.v2.common.ScalarStyle;
@@ -33,12 +34,14 @@ import org.snakeyaml.engine.v2.events.StreamStartEvent;
 
 /**
  * https://bitbucket.org/snakeyaml/snakeyaml-engine/issues/47/strings-with-spaces-are-incorrectly
+ *
+ * https://yaml.org/spec/1.2.2/#3231-node-styles
  */
 public class SetWidthTest {
 
   @Test
-  @DisplayName("Issue 46: parse different values")
-  void parseDifferentValues() {
+  @DisplayName("Issue 47: emit plain and split")
+  void emitPlain() {
     DumpSettings settings = DumpSettings.builder().setWidth(80) // Intentionally limited.
         .build();
     StreamDataWriter writer = new StreamToStringWriter();
@@ -58,8 +61,47 @@ public class SetWidthTest {
         "arn:aws:iam::12345678901234567890:foobarbaz:testing:testing2:role/github-actions-role/${{\n  \\ github.token }}";
     assertEquals(expected, yaml);
   }
-}
 
+  @Test
+  @DisplayName("Issue 47: emit plain and no split")
+  void emitPlainNoSplit() {
+    DumpSettings settings = DumpSettings.builder().setWidth(180) // Intentionally limited.
+        .build();
+    StreamDataWriter writer = new StreamToStringWriter();
+    Emitter emitter = new Emitter(settings, writer);
+    emitter.emit(new StreamStartEvent());
+    emitter.emit(new DocumentStartEvent(false, Optional.empty(), emptyMap()));
+
+    String stringToSerialize =
+        "arn:aws:iam::12345678901234567890:foobarbaz:testing:testing2:role/github-actions-role/${{ github.token }}";
+    emitter.emit(new ScalarEvent(Optional.empty(), Optional.empty(), new ImplicitTuple(true, true),
+        stringToSerialize, ScalarStyle.PLAIN));
+
+    emitter.emit(new DocumentEndEvent(false));
+    emitter.emit(new StreamEndEvent());
+    String yaml = writer.toString();
+    String expected =
+        "arn:aws:iam::12345678901234567890:foobarbaz:testing:testing2:role/github-actions-role/${{ github.token }}\n";
+    assertEquals(expected, yaml);
+  }
+
+  @Test
+  @DisplayName("Issue 47: emit folded")
+  void emitFolded2() {
+    DumpSettings settings = DumpSettings.builder().setWidth(80) // Intentionally limited.
+        .setDefaultScalarStyle(ScalarStyle.FOLDED)
+        .build();
+    Dump dump = new Dump(settings);
+    String stringToSerialize =
+        "arn:aws:iam::12345678901234567890:foobarbaz:testing:testing2:role/github-actions-role/${{ github.token }}";
+    String yaml = dump.dumpToString(stringToSerialize);
+    String expected =
+        ">-\n"
+            + "  arn:aws:iam::12345678901234567890:foobarbaz:testing:testing2:role/github-actions-role/${{\n"
+            + "  github.token }}\n";
+    assertEquals(expected, yaml);
+  }
+}
 
 class StreamToStringWriter extends StringWriter implements StreamDataWriter {
 
