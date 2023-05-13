@@ -6,6 +6,10 @@
     </properties>
     <body>
         <release version="2.7" date="in GIT" description="Maintenance">
+            <action dev="asomov" type="fix" issue="47">
+                Strings with spaces are incorrectly divided into more lines
+                (thanks to Piotr Krzemiński)
+            </action>
             <action dev="asomov" type="update">
                 Use identity in toString() for sequences to avoid OutOfMemoryError
                 (thanks to 郭逸帆)
