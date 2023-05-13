@@ -55,7 +55,7 @@ public class SetWidthTest {
     emitter.emit(new StreamEndEvent());
     String yaml = writer.toString();
     String expected =
-        "arn:aws:iam::12345678901234567890:foobarbaz:testing:testing2:role/github-actions-role/${{ github.token }}";
+        "arn:aws:iam::12345678901234567890:foobarbaz:testing:testing2:role/github-actions-role/${{\n  \\ github.token }}";
     assertEquals(expected, yaml);
   }
 }
