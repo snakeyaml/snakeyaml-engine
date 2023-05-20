@@ -34,7 +34,7 @@ public class JRubyPsychTest {
   void parseDifferentValues() {
     parse(null, "\n \u2029");
     crash("while scanning an alias", "\n\u2029* "); // empty alias is not accepted
-    crash("", "\n\u2029*"); // empty alias is not accepted
+    crash("while scanning an alias", "\n\u2029*"); // empty alias is not accepted
     crash("while scanning an alias", "\n\u2029* 1"); // empty alias is not accepted
     parse(null, "\n\u2029");
     parse(Integer.valueOf(1), "\n\u2029 1");
