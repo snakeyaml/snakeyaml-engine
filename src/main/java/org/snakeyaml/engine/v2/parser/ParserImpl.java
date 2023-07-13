@@ -480,6 +480,7 @@ public class ParserImpl implements Parser {
       // Parse an explicit document.
       Event event;
       if (!scanner.checkToken(Token.ID.StreamEnd)) {
+        scanner.resetDocumentIndex();
         Token token = scanner.peekToken();
         Optional<Mark> startMark = token.getStartMark();
         VersionTagsTuple tuple = processDirectives();
@@ -543,7 +544,6 @@ public class ParserImpl implements Parser {
             + scanner.peekToken().getTokenId() + "'", scanner.peekToken().getStartMark());
       }
       directiveTags.clear(); // directive tags do not survive between the documents
-      scanner.resetDocumentIndex();
       Event event = new DocumentEndEvent(explicit, startMark, endMark);
       // Prepare the next state.
       state = Optional.of(new ParseDocumentStart());
