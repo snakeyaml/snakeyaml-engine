@@ -480,6 +480,7 @@ public class ParserImpl implements Parser {
       // Parse an explicit document.
       Event event;
       if (!scanner.checkToken(Token.ID.StreamEnd)) {
+        scanner.resetDocumentIndex();
         Token token = scanner.peekToken();
         Optional<Mark> startMark = token.getStartMark();
         VersionTagsTuple tuple = processDirectives();

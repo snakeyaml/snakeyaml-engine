@@ -263,10 +263,10 @@ public final class LoadSettingsBuilder {
   }
 
   /**
-   * The max amount of code points in the input YAML document. Please be aware that byte limit
-   * depends on the encoding. It is 3MB by default
+   * The max amount of code points for every input YAML document in the stream. Please be aware that
+   * byte limit depends on the encoding.
    *
-   * @param codePointLimit - the max allowed size of the YAML data
+   * @param codePointLimit - the max allowed size of a single YAML document in a stream
    * @return the builder with the provided value
    */
   public LoadSettingsBuilder setCodePointLimit(int codePointLimit) {

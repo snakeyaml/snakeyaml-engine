@@ -284,7 +284,7 @@ public final class ScannerImpl implements Scanner {
    * Fetch one or more tokens from the StreamReader.
    */
   private void fetchMoreTokens() {
-    if (reader.getIndex() > settings.getCodePointLimit()) {
+    if (reader.getDocumentIndex() > settings.getCodePointLimit()) {
       throw new YamlEngineException("The incoming YAML document exceeds the limit: "
           + settings.getCodePointLimit() + " code points.");
     }
@@ -1286,7 +1286,13 @@ public final class ScannerImpl implements Scanner {
     while (Character.isDigit(reader.peek(length))) {
       length++;
     }
-    return Integer.parseInt(reader.prefixForward(length));
+    String number = reader.prefixForward(length);
+    if (length > 3) {
+      throw new ScannerException("while scanning a YAML directive", startMark,
+          "found a number which cannot represent a valid version: " + number, reader.getMark());
+    }
+    Integer value = Integer.parseInt(number);
+    return value;
   }
 
   /**
@@ -1809,9 +1815,14 @@ public final class ScannerImpl implements Scanner {
                 reader.getMark());
           }
           int decimal = Integer.parseInt(hex, 16);
-          String unicode = new String(Character.toChars(decimal));
-          chunks.append(unicode);
-          reader.forward(length);
+          try {
+            String unicode = new String(Character.toChars(decimal));
+            chunks.append(unicode);
+            reader.forward(length);
+          } catch (IllegalArgumentException e) {
+            throw new ScannerException("while scanning a double-quoted scalar", startMark,
+                "found unknown escape character " + hex, reader.getMark());
+          }
         } else if (scanLineBreak().isPresent()) {
           chunks.append(scanFlowScalarBreaks(startMark));
         } else {
@@ -2209,6 +2220,11 @@ public final class ScannerImpl implements Scanner {
       tokenList.add(tokens[ix]);
     }
     return tokenList;
+  }
+
+  @Override
+  public void resetDocumentIndex() {
+    this.reader.resetDocumentIndex();
   }
 
   static class Chomping {
