@@ -5,7 +5,7 @@
         <title>YAML 1.2 parser and emitter for Java 8+</title>
     </properties>
     <body>
-        <release version="2.7" date="in GIT" description="Maintenance">
+        <release version="2.7" date="2023-08-26" description="Maintenance">
             <action dev="asomov" type="update">
                 Use identity in toString() for sequences to avoid OutOfMemoryError
                 (thanks to 郭逸帆)
