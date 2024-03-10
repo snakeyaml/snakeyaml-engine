@@ -49,7 +49,7 @@ public class DumpToStringTest {
           e.getMessage());
     }
     String output = dump.dumpToString(data);
-    System.out.print("actual " + output);
+    // System.out.print("actual " + output);
     assertEquals("before: bla\n", output);
   }
 }

@@ -96,7 +96,6 @@ public class JRubyPsychTest {
     Object obj = load.loadAllFromString("\n\u2028* C");
     Iterable iter = (Iterable) obj;
     for (Object o : iter) {
-      System.out.println(o);
       assertEquals("\u2028* C", o);
     }
   }
