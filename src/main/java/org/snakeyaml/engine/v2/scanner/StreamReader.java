@@ -243,7 +243,7 @@ public final class StreamReader {
 
   private void update() {
     try {
-      int read = stream.read(buffer, 0, bufferSize - 1);
+      int read = stream.read(buffer, 0, bufferSize);
       if (read > 0) {
         int cpIndex = (dataLength - pointer);
         codePointsWindow = Arrays.copyOfRange(codePointsWindow, pointer, dataLength + read);
