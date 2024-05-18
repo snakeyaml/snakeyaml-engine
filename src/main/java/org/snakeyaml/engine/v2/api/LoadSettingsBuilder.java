@@ -225,13 +225,13 @@ public final class LoadSettingsBuilder {
   }
 
   /**
-   * Define EnvConfig to parse EVN format. If not set explicitly the variable substitution is not
-   * applied
+   * Define EnvConfig to parse ENV format. If not set explicitly the variable substitution is not
+   * applied.
    *
    * @param envConfig - non-empty configuration to substitute variables
    * @return the builder with the provided value
    * @see <a href=
-   *      "https://bitbucket.org/snakeyaml/snakeyaml-engine/wiki/Documentation#markdown-header-variable-substitution">Variable
+   *      "https://bitbucket.org/snakeyaml/snakeyaml-engine/wiki/Documentation#markdown-header-env-variable-substitution">Variable
    *      substitution</a>
    */
   public LoadSettingsBuilder setEnvConfig(Optional<EnvConfig> envConfig) {
