@@ -408,7 +408,7 @@ public final class Emitter implements Emitable {
       if (nextEvent.getEventId() == Event.ID.Scalar) {
         ScalarEvent e = (ScalarEvent) nextEvent;
         return !e.getAnchor().isPresent() && !e.getTag().isPresent() && e.getImplicit() != null
-            && e.getValue().length() == 0;
+            && e.getValue().isEmpty();
       }
       return false;
     }
@@ -1005,7 +1005,7 @@ public final class Emitter implements Emitable {
   private static final Pattern HANDLE_FORMAT = Pattern.compile("^![-_\\w]*!$");
 
   private String prepareTagHandle(String handle) {
-    if (handle.length() == 0) {
+    if (handle.isEmpty()) {
       throw new EmitterException("tag handle must not be empty");
     } else if (handle.charAt(0) != '!' || handle.charAt(handle.length() - 1) != '!') {
       throw new EmitterException("tag handle must start and end with '!': " + handle);
@@ -1016,7 +1016,7 @@ public final class Emitter implements Emitable {
   }
 
   private String prepareTagPrefix(String prefix) {
-    if (prefix.length() == 0) {
+    if (prefix.isEmpty()) {
       throw new EmitterException("tag prefix must not be empty");
     }
     StringBuilder chunks = new StringBuilder();
@@ -1033,7 +1033,7 @@ public final class Emitter implements Emitable {
   }
 
   private String prepareTag(String tag) {
-    if (tag.length() == 0) {
+    if (tag.isEmpty()) {
       throw new EmitterException("tag must not be empty");
     }
     if ("!".equals(tag)) {
@@ -1064,7 +1064,7 @@ public final class Emitter implements Emitable {
 
   private ScalarAnalysis analyzeScalar(String scalar) {
     // Empty scalar is a special case.
-    if (scalar.length() == 0) {
+    if (scalar.isEmpty()) {
       return new ScalarAnalysis(scalar, true, false, false, true, true, false);
     }
     // Indicators and special characters.
@@ -1635,7 +1635,7 @@ public final class Emitter implements Emitable {
     if (rootContext) {
       openEnded = true;
     }
-    if (text.length() == 0) {
+    if (text.isEmpty()) {
       return;
     }
     if (!this.whitespace) {

@@ -1570,7 +1570,7 @@ public final class ScannerImpl implements Scanner {
         // This is the folding according to the specification:
         if (style == ScalarStyle.FOLDED && "\n".equals(lineBreakOpt.orElse("")) && leadingNonSpace
             && " \t".indexOf(reader.peek()) == -1) {
-          if (breaks.length() == 0) {
+          if (breaks.isEmpty()) {
             stringBuilder.append(" ");
           }
         } else {
@@ -1858,7 +1858,7 @@ public final class ScannerImpl implements Scanner {
       String breaks = scanFlowScalarBreaks(startMark);
       if (!"\n".equals(lineBreakOpt.get())) {
         chunks.append(lineBreakOpt.get());
-      } else if (breaks.length() == 0) {
+      } else if (breaks.isEmpty()) {
         chunks.append(" ");
       }
       chunks.append(breaks);
@@ -1932,7 +1932,7 @@ public final class ScannerImpl implements Scanner {
       chunks.append(reader.prefixForward(length));
       endMark = reader.getMark();
       spaces = scanPlainSpaces();
-      if (spaces.length() == 0 || reader.peek() == '#'
+      if (spaces.isEmpty() || reader.peek() == '#'
           || (isBlockContext() && this.reader.getColumn() < plainIndent)) {
         break;
       }
