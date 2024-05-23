@@ -896,6 +896,9 @@ public final class Emitter implements Emitable {
     preparedAnchor = Optional.empty();
   }
 
+  /**
+   * Emit the tag for the current event
+   */
   private void processTag() {
     Optional<String> tag;
     if (event.getEventId() == Event.ID.Scalar) {
@@ -908,7 +911,7 @@ public final class Emitter implements Emitable {
           && ((!scalarStyle.isPresent() && ev.getImplicit().canOmitTagInPlainScalar())
               || (scalarStyle.isPresent() && ev.getImplicit().canOmitTagInNonPlainScalar()))) {
         preparedTag = null;
-        return;
+        return; // no tag required
       }
       if (ev.getImplicit().canOmitTagInPlainScalar() && !tag.isPresent()) {
         tag = Optional.of("!");
@@ -919,7 +922,7 @@ public final class Emitter implements Emitable {
       tag = ev.getTag();
       if ((!canonical || !tag.isPresent()) && ev.isImplicit()) {
         preparedTag = null;
-        return;
+        return; // no tag required
       }
     }
     if (!tag.isPresent()) {
@@ -932,6 +935,12 @@ public final class Emitter implements Emitable {
     preparedTag = null;
   }
 
+  /**
+   * Choose the scalar style based on the contents of the scalar and scalar style chosen by
+   * Representer
+   *
+   * @return ScalarStyle to apply for this scala event
+   */
   private Optional<ScalarStyle> chooseScalarStyle(ScalarEvent ev) {
     if (analysis == null) {
       analysis = analyzeScalar(ev.getValue());
@@ -1032,6 +1041,12 @@ public final class Emitter implements Emitable {
     return chunks.toString();
   }
 
+  /**
+   * Detect whether the tag starts with a standard handle and add ! when it does not
+   *
+   * @param tag - raw (complete tag)
+   * @return formatted tag ready to emit
+   */
   private String prepareTag(String tag) {
     if (tag.isEmpty()) {
       throw new EmitterException("tag must not be empty");
@@ -1043,6 +1058,7 @@ public final class Emitter implements Emitable {
     String suffix = tag;
     // shall the tag prefixes be sorted as in PyYAML?
     for (String prefix : tagPrefixes.keySet()) {
+      // if tag starts with prefix and contains more than just prefix
       if (tag.startsWith(prefix) && ("!".equals(prefix) || prefix.length() < tag.length())) {
         handle = prefix;
       }
@@ -1052,13 +1068,11 @@ public final class Emitter implements Emitable {
       handle = tagPrefixes.get(handle);
     }
 
-    int end = suffix.length();
-    String suffixText = end > 0 ? suffix.substring(0, end) : "";
-
     if (handle != null) {
-      return handle + suffixText;
+      return handle + suffix;
+    } else {
+      return "!<" + suffix + ">";
     }
-    return "!<" + suffixText + ">";
   }
 
 
