@@ -6,6 +6,9 @@
     </properties>
     <body>
         <release version="2.8" date="in Git" description="Maintenance">
+            <action dev="maslovalex" type="update">
+                Allow to avoid dumping anchors (thanks to Mikael Ståldal)
+            </action>
             <action dev="asomov" type="fix" issue="51">
                 LoadSettings.setBufferSize truncates error messages
                 (thanks to Róbert Papp (TWiStErRob))

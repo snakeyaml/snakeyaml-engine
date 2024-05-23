@@ -38,6 +38,7 @@ public final class DumpSettings {
   private final Map<String, String> tagDirective;
   private final FlowStyle defaultFlowStyle;
   private final ScalarStyle defaultScalarStyle;
+  private final Boolean dereferenceAliases;
 
   // emitter
   private final boolean canonical;
@@ -60,7 +61,7 @@ public final class DumpSettings {
   DumpSettings(boolean explicitStart, boolean explicitEnd, Optional<Tag> explicitRootTag,
       AnchorGenerator anchorGenerator, Optional<SpecVersion> yamlDirective,
       Map<String, String> tagDirective, FlowStyle defaultFlowStyle, ScalarStyle defaultScalarStyle,
-      NonPrintableStyle nonPrintableStyle, Schema schema,
+      NonPrintableStyle nonPrintableStyle, Schema schema, Boolean dereferenceAliases,
       // emitter
       boolean canonical, boolean multiLineFlow, boolean useUnicodeEncoding, int indent,
       int indicatorIndent, int width, String bestLineBreak, boolean splitLines,
@@ -88,6 +89,7 @@ public final class DumpSettings {
     this.customProperties = customProperties;
     this.indentWithIndicator = indentWithIndicator;
     this.dumpComments = dumpComments;
+    this.dereferenceAliases = dereferenceAliases;
   }
 
   public static DumpSettingsBuilder builder() {
@@ -180,6 +182,10 @@ public final class DumpSettings {
 
   public Schema getSchema() {
     return schema;
+  }
+
+  public Boolean isDereferenceAliases() {
+    return dereferenceAliases;
   }
 }
 

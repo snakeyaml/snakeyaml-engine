@@ -45,6 +45,7 @@ public final class DumpSettingsBuilder {
   private Map<String, String> tagDirective;
   private FlowStyle defaultFlowStyle;
   private ScalarStyle defaultScalarStyle;
+  private boolean dereferenceAliases;
   // emitter
   private boolean canonical;
   private boolean multiLineFlow;
@@ -83,6 +84,7 @@ public final class DumpSettingsBuilder {
     this.indentWithIndicator = false;
     this.dumpComments = false;
     this.schema = new JsonSchema();
+    this.dereferenceAliases = false;
   }
 
   /**
@@ -372,6 +374,21 @@ public final class DumpSettingsBuilder {
   }
 
   /**
+   * Disable usage of anchors and aliases while serialising an instance. Recursive objects will not
+   * work when they are disabled. (Forces Serializer to skip emitting anchors names, emit Node
+   * content instead of Alias, fail with SerializationException if serialized structure is
+   * recursive.)
+   *
+   * @param dereferenceAliases - true to use copies of objects instead of references to the same
+   *        instance
+   * @return the builder with the provided value
+   */
+  public DumpSettingsBuilder setDereferenceAliases(Boolean dereferenceAliases) {
+    this.dereferenceAliases = dereferenceAliases;
+    return this;
+  }
+
+  /**
    * Create immutable DumpSettings
    *
    * @return DumpSettings with the provided values
@@ -379,7 +396,7 @@ public final class DumpSettingsBuilder {
   public DumpSettings build() {
     return new DumpSettings(explicitStart, explicitEnd, explicitRootTag, anchorGenerator,
         yamlDirective, tagDirective, defaultFlowStyle, defaultScalarStyle, nonPrintableStyle,
-        schema,
+        schema, dereferenceAliases,
         // emitter
         canonical, multiLineFlow, useUnicodeEncoding, indent, indicatorIndent, width, bestLineBreak,
         splitLines, maxSimpleKeyLength, customProperties, indentWithIndicator, dumpComments);
