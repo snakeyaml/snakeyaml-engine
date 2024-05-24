@@ -1259,7 +1259,7 @@ public final class Emitter implements Emitable {
     stream.write(indicator);
   }
 
-  void writeIndent() {
+  int writeIndent() {
     final int indentToWrite;
     if (this.indent != null) {
       indentToWrite = this.indent;
@@ -1270,7 +1270,9 @@ public final class Emitter implements Emitable {
         || (this.column == indentToWrite && !this.whitespace)) {
       writeLineBreak(null);
     }
-    writeWhitespace(indentToWrite - this.column);
+    int whitespaces = indentToWrite - this.column;
+    writeWhitespace(whitespaces);
+    return whitespaces;
   }
 
   private void writeWhitespace(int length) {
@@ -1466,7 +1468,7 @@ public final class Emitter implements Emitable {
   private boolean writeCommentLines(List<CommentLine> commentLines) {
     boolean wroteComment = false;
     if (emitComments) {
-      int indentColumns = 0;
+      int indentColumns = 0, prevColumns = 0;
       boolean firstComment = true;
       for (CommentLine commentLine : commentLines) {
         if (commentLine.getCommentType() != CommentType.BLANK_LINE) {
@@ -1475,14 +1477,15 @@ public final class Emitter implements Emitable {
             writeIndicator("#", commentLine.getCommentType() == CommentType.IN_LINE, false, false);
             indentColumns = this.column > 0 ? this.column - 1 : 0;
           } else {
-            writeWhitespace(indentColumns);
+            writeWhitespace(indentColumns - prevColumns);
             writeIndicator("#", false, false, false);
           }
           stream.write(commentLine.getValue());
           writeLineBreak(null);
+          prevColumns = 0;
         } else {
           writeLineBreak(null);
-          writeIndent();
+          prevColumns = writeIndent();
         }
         wroteComment = true;
       }
