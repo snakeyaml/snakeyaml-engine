@@ -27,8 +27,7 @@ import org.snakeyaml.engine.v2.exceptions.Mark;
 public final class ScalarEvent extends NodeEvent {
 
   private final Optional<String> tag;
-  // style flag of a scalar event indicates the style of the scalar. Possible
-  // values are None, '', '\'', '"', '|', '>'
+  // style flag of a scalar event indicates the style of the scalar.
   private final ScalarStyle style;
   private final String value;
   // The implicit flag of a scalar event is a pair of boolean values that
