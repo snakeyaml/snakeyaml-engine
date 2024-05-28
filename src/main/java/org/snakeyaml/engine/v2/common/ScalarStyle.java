@@ -39,6 +39,13 @@ public enum ScalarStyle {
    */
   FOLDED(Optional.of('>')),
   /**
+   * Mixture of scalar styles to dump JSON format. Double-quoted style for !!str, !!binary,
+   * !!timestamp. Plain style - for !!bool, !!float, !!int, !!null
+   *
+   * These are never dumped - !!merge, !!value, !!yaml
+   */
+  JSON_SCALAR_STYLE(Optional.of('J')),
+  /**
    * Plain scalar
    */
   PLAIN(Optional.empty());

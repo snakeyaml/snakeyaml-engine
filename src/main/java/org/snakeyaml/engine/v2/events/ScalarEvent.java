@@ -107,6 +107,26 @@ public final class ScalarEvent extends NodeEvent {
     return style == ScalarStyle.PLAIN;
   }
 
+  public boolean isLiteral() {
+    return style == ScalarStyle.LITERAL;
+  }
+
+  public boolean isSQuoted() {
+    return style == ScalarStyle.SINGLE_QUOTED;
+  }
+
+  public boolean isDQuoted() {
+    return style == ScalarStyle.DOUBLE_QUOTED;
+  }
+
+  public boolean isFolded() {
+    return style == ScalarStyle.FOLDED;
+  }
+
+  public boolean isJson() {
+    return style == ScalarStyle.JSON_SCALAR_STYLE;
+  }
+
   @Override
   public String toString() {
     StringBuilder builder = new StringBuilder("=VAL");

@@ -155,7 +155,7 @@ public final class Emitter implements Emitable {
 
   // Scalar analysis and style.
   private ScalarAnalysis analysis;
-  private Optional<ScalarStyle> scalarStyle;
+  private ScalarStyle scalarStyle;
 
   // Comment processing
   private final CommentEventsCollector blockCommentsCollector;
@@ -226,7 +226,7 @@ public final class Emitter implements Emitable {
 
     // Scalar analysis and style.
     this.analysis = null;
-    this.scalarStyle = Optional.empty();
+    this.scalarStyle = null;
 
     // Comment processing
     this.blockCommentsCollector =
@@ -904,12 +904,13 @@ public final class Emitter implements Emitable {
     if (event.getEventId() == Event.ID.Scalar) {
       ScalarEvent ev = (ScalarEvent) event;
       tag = ev.getTag();
-      if (!scalarStyle.isPresent()) {
+      if (scalarStyle == null) {
         scalarStyle = chooseScalarStyle(ev);
       }
-      if ((!canonical || !tag.isPresent())
-          && ((!scalarStyle.isPresent() && ev.getImplicit().canOmitTagInPlainScalar())
-              || (scalarStyle.isPresent() && ev.getImplicit().canOmitTagInNonPlainScalar()))) {
+      // check when no tag is required
+      if ((!canonical || !tag.isPresent()) && ((scalarStyle == ScalarStyle.PLAIN
+          && ev.getImplicit().canOmitTagInPlainScalar())
+          || (scalarStyle != ScalarStyle.PLAIN && ev.getImplicit().canOmitTagInNonPlainScalar()))) {
         preparedTag = null;
         return; // no tag required
       }
@@ -941,32 +942,35 @@ public final class Emitter implements Emitable {
    *
    * @return ScalarStyle to apply for this scala event
    */
-  private Optional<ScalarStyle> chooseScalarStyle(ScalarEvent ev) {
+  private ScalarStyle chooseScalarStyle(ScalarEvent ev) {
     if (analysis == null) {
       analysis = analyzeScalar(ev.getValue());
     }
-    if (!ev.isPlain() && ev.getScalarStyle() == ScalarStyle.DOUBLE_QUOTED || this.canonical) {
-      return Optional.of(ScalarStyle.DOUBLE_QUOTED);
+    if (!ev.isPlain() && ev.isDQuoted() || this.canonical) {
+      return ScalarStyle.DOUBLE_QUOTED;
     }
-    if (ev.isPlain() && ev.getImplicit().canOmitTagInPlainScalar()) {
+    if (ev.isJson() && Optional.of(Tag.STR.getValue()).equals(ev.getTag())) {
+      // special case for strings which are always double-quoted in JSON
+      return ScalarStyle.DOUBLE_QUOTED;
+    }
+    if ((ev.isPlain() || ev.isJson()) && ev.getImplicit().canOmitTagInPlainScalar()) {
       if (!(simpleKeyContext && (analysis.isEmpty() || analysis.isMultiline()))
           && ((flowLevel != 0 && analysis.isAllowFlowPlain())
               || (flowLevel == 0 && analysis.isAllowBlockPlain()))) {
-        return Optional.empty();
+        return ScalarStyle.PLAIN;
       }
     }
-    if (!ev.isPlain() && (ev.getScalarStyle() == ScalarStyle.LITERAL
-        || ev.getScalarStyle() == ScalarStyle.FOLDED)) {
+    if (ev.isLiteral() || ev.isFolded()) {
       if (flowLevel == 0 && !simpleKeyContext && analysis.isAllowBlock()) {
-        return Optional.of(ev.getScalarStyle());
+        return ev.getScalarStyle();
       }
     }
-    if (ev.isPlain() || ev.getScalarStyle() == ScalarStyle.SINGLE_QUOTED) {
+    if (ev.isPlain() || ev.isSQuoted()) {
       if (analysis.isAllowSingleQuoted() && !(simpleKeyContext && analysis.isMultiline())) {
-        return Optional.of(ScalarStyle.SINGLE_QUOTED);
+        return ScalarStyle.SINGLE_QUOTED;
       }
     }
-    return Optional.of(ScalarStyle.DOUBLE_QUOTED);
+    return ScalarStyle.DOUBLE_QUOTED;
   }
 
   private void processScalar() {
@@ -974,32 +978,29 @@ public final class Emitter implements Emitable {
     if (analysis == null) {
       analysis = analyzeScalar(ev.getValue());
     }
-    if (!scalarStyle.isPresent()) {
-      scalarStyle = chooseScalarStyle(ev);
-    }
     boolean split = !simpleKeyContext && splitLines;
-    if (!scalarStyle.isPresent()) {
-      writePlain(analysis.getScalar(), split);
-    } else {
-      switch (scalarStyle.get()) {
-        case DOUBLE_QUOTED:
-          writeDoubleQuoted(analysis.getScalar(), split);
-          break;
-        case SINGLE_QUOTED:
-          writeSingleQuoted(analysis.getScalar(), split);
-          break;
-        case FOLDED:
-          writeFolded(analysis.getScalar(), split);
-          break;
-        case LITERAL:
-          writeLiteral(analysis.getScalar());
-          break;
-        default:
-          throw new YamlEngineException("Unexpected scalarStyle: " + scalarStyle);
-      }
+    switch (scalarStyle) {
+      case PLAIN:
+        writePlain(analysis.getScalar(), split);
+        break;
+      case DOUBLE_QUOTED:
+        writeDoubleQuoted(analysis.getScalar(), split);
+        break;
+      case SINGLE_QUOTED:
+        writeSingleQuoted(analysis.getScalar(), split);
+        break;
+      case FOLDED:
+        writeFolded(analysis.getScalar(), split);
+        break;
+      case LITERAL:
+        writeLiteral(analysis.getScalar());
+        break;
+      default:
+        throw new YamlEngineException("Unexpected scalarStyle: " + scalarStyle);
     }
+    // reset scalar style for another scalar
     analysis = null;
-    scalarStyle = Optional.empty();
+    scalarStyle = null;
   }
 
   // Analyzers.
