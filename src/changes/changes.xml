@@ -6,6 +6,9 @@
     </properties>
     <body>
         <release version="2.8" date="in Git" description="Maintenance">
+            <action dev="asomov" type="update">
+                Improve indentation for comments after a blank line comment (thanks to David Kepic)
+            </action>
             <action dev="asomov" type="update" issue="1084">
                 Dump as JSON (Mikael Ståldal)
             </action>
