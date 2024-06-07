@@ -330,7 +330,7 @@ public class EmitterWithCommentEnabledTest {
         + "  *a #comment not ok here\n";
     String expected = "dummy: &a test\n" + "conf:\n" + "- *a\n";
     String result = runEmitterWithCommentsEnabled(data);
-    assertEquals(expected.replace("a", "id001"), result);
+    assertEquals(expected, result);
   }
 
   @Test
