@@ -225,13 +225,12 @@ public class Serializer {
   }
 
   private void serializeComments(List<CommentLine> comments) {
-    if (comments == null) {
-      return;
-    }
-    for (CommentLine line : comments) {
-      CommentEvent commentEvent = new CommentEvent(line.getCommentType(), line.getValue(),
-          line.getStartMark(), line.getEndMark());
-      this.emitable.emit(commentEvent);
+    if (settings.getDumpComments() && comments != null) {
+      for (CommentLine line : comments) {
+        CommentEvent commentEvent = new CommentEvent(line.getCommentType(), line.getValue(),
+            line.getStartMark(), line.getEndMark());
+        this.emitable.emit(commentEvent);
+      }
     }
   }
 }
