@@ -13,14 +13,6 @@
  */
 package org.snakeyaml.engine.v2.comments;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.snakeyaml.engine.v2.api.DumpSettings;
 import org.snakeyaml.engine.v2.api.LoadSettings;
@@ -33,6 +25,15 @@ import org.snakeyaml.engine.v2.events.Event.ID;
 import org.snakeyaml.engine.v2.parser.ParserImpl;
 import org.snakeyaml.engine.v2.scanner.StreamReader;
 import org.snakeyaml.engine.v2.serializer.Serializer;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SerializerWithCommentEnabledTest {
 
@@ -65,7 +66,7 @@ public class SerializerWithCommentEnabledTest {
   public List<Event> serializeWithCommentsEnabled(String data) throws IOException {
     TestEmitter emitter = new TestEmitter();
     DumpSettings dumpSettings = DumpSettings.builder().setDefaultScalarStyle(ScalarStyle.PLAIN)
-        .setDefaultFlowStyle(FlowStyle.BLOCK).build();
+        .setDumpComments(true).setDefaultFlowStyle(FlowStyle.BLOCK).build();
     Serializer serializer = new Serializer(dumpSettings, emitter);
     serializer.emitStreamStart();
     LoadSettings settings = LoadSettings.builder().setParseComments(true).build();
@@ -114,8 +115,7 @@ public class SerializerWithCommentEnabledTest {
 
   @Test
   public void testCommentEndingALine() throws Exception {
-    String data = "" + //
-        "key: # Comment\n" + //
+    String data = "key: # Comment\n" + //
         "  value\n";
 
     List<ID> expectedEventIdList = Arrays.asList(//
@@ -134,8 +134,7 @@ public class SerializerWithCommentEnabledTest {
 
   @Test
   public void testMultiLineComment() throws Exception {
-    String data = "" + //
-        "key: # Comment\n" + //
+    String data = "key: # Comment\n" + //
         "     # lines\n" + //
         "  value\n" + //
         "\n";
@@ -156,8 +155,7 @@ public class SerializerWithCommentEnabledTest {
 
   @Test
   public void testBlankLine() throws Exception {
-    String data = "" + //
-        "\n";
+    String data = "\n";
 
     List<ID> expectedEventIdList = Arrays.asList(//
         ID.StreamStart, //
@@ -173,8 +171,7 @@ public class SerializerWithCommentEnabledTest {
 
   @Test
   public void testBlankLineComments() throws Exception {
-    String data = "" + //
-        "\n" + //
+    String data = "\n" + //
         "abc: def # comment\n" + //
         "\n" + //
         "\n";
@@ -198,8 +195,7 @@ public class SerializerWithCommentEnabledTest {
 
   @Test
   public void test_blockScalar() throws Exception {
-    String data = "" + //
-        "abc: > # Comment\n" + //
+    String data = "abc: > # Comment\n" + //
         "    def\n" + //
         "    hij\n" + //
         "\n";
@@ -239,8 +235,7 @@ public class SerializerWithCommentEnabledTest {
 
   @Test
   public void testSequence() throws Exception {
-    String data = "" + //
-        "# Comment\n" + //
+    String data = "# Comment\n" + //
         "list: # InlineComment1\n" + //
         "# Block Comment\n" + //
         "- item # InlineComment2\n" + //
@@ -269,8 +264,7 @@ public class SerializerWithCommentEnabledTest {
 
   @Test
   public void testAllComments1() throws Exception {
-    String data = "" + //
-        "# Block Comment1\n" + //
+    String data = "# Block Comment1\n" + //
         "# Block Comment2\n" + //
         "key: # Inline Comment1a\n" + //
         "     # Inline Comment1b\n" + //
@@ -286,8 +280,7 @@ public class SerializerWithCommentEnabledTest {
         "- item3: { key3a: [ value3a1, value3a2 ], key3b: value3b } # InlineComment6\n" + //
         "# Block Comment6\n" + //
         "---\n" + //
-        "# Block Comment7\n" + //
-        "";
+        "# Block Comment7\n";
 
     List<ID> expectedEventIdList = Arrays.asList(//
         ID.StreamStart, //
@@ -344,16 +337,14 @@ public class SerializerWithCommentEnabledTest {
 
   @Test
   public void testAllComments2() throws Exception {
-    String data = "" + //
-        "# Block Comment1\n" + //
+    String data = "# Block Comment1\n" + //
         "# Block Comment2\n" + //
         "- item1 # Inline Comment1a\n" + //
         "        # Inline Comment1b\n" + //
         "# Block Comment3a\n" + //
         "# Block Comment3b\n" + //
         "- item2: value # Inline Comment2\n" + //
-        "# Block Comment4\n" + //
-        "";
+        "# Block Comment4\n";
 
     List<ID> expectedEventIdList = Arrays.asList(//
         ID.StreamStart, //
@@ -380,11 +371,9 @@ public class SerializerWithCommentEnabledTest {
 
   @Test
   public void testAllComments3() throws Exception {
-    String data = "" + //
-        "# Block Comment1\n" + //
+    String data = "# Block Comment1\n" + //
         "[ item1, item2: value2, {item3: value3} ] # Inline Comment1\n" + //
-        "# Block Comment2\n" + //
-        "";
+        "# Block Comment2\n";
 
     List<ID> expectedEventIdList = Arrays.asList(//
         ID.StreamStart, //
