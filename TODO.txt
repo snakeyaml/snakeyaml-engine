@@ -13,5 +13,4 @@ https://yaml.org/spec/1.2.2/#rule-ns-esc-non-breaking-space
 * parse Optional (non scalar)
 * parse Iterator
 * parse Enum
-* dump as JSON
 
