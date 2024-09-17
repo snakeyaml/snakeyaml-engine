@@ -6,6 +6,10 @@
     </properties>
     <body>
         <release version="2.8" date="in Git" description="Maintenance">
+            <action dev="asomov" type="fix">
+                Fix issue with a big YAML with emoji (thanks to Madalin Ilie).
+                Allow HighSurrogate to be the last char in the data window
+            </action>
             <action dev="asomov" type="add">
                 Refactor Scanner to improve performance (thanks to David Schlosnagle)
             </action>
