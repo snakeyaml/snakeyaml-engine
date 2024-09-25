@@ -5,6 +5,11 @@
         <title>YAML 1.2 parser and emitter for Java 8+</title>
     </properties>
     <body>
+        <release version="2.9" date="in GIT" description="Maintenance">
+            <action dev="asomov" type="fix" issue="54">
+                Do not allow colon to be a part of an anchor (thanks to Charles Oliver Nutter).
+            </action>
+        </release>
         <release version="2.8" date="2024-09-17" description="Maintenance">
             <action dev="asomov" type="fix">
                 Fix issue with a big YAML with emoji (thanks to Madalin Ilie).

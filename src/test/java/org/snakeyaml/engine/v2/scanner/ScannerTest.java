@@ -75,12 +75,12 @@ class ScannerTest {
   }
 
   @Test
-  @DisplayName("Y2GN: anchor may contain colon ':'")
+  @DisplayName("Y2GN: anchor may contain colon ':' in the spec, but not in SnakeYAML")
   void testAnchor() {
     Token token = scanTo("key: &an:chor value", 5);
     assertEquals(ID.Anchor, token.getTokenId());
     AnchorToken anchorToken = (AnchorToken) token;
-    assertEquals("an:chor", anchorToken.getValue().getValue());
+    assertEquals("an", anchorToken.getValue().getValue());
   }
 
   private Token scanTo(String input, int skip) {

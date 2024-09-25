@@ -1396,9 +1396,7 @@ public final class ScannerImpl implements Scanner {
    * The YAML 1.2 specification does not restrict characters for anchors and
    * aliases. This may lead to problems.
    * see <a href=
-   * "https://bitbucket.org/snakeyaml/snakeyaml/issues/485/alias-names-are-too-permissive-compared-to">issue 485</a>
-   * This implementation tries to follow <a href=
-   * "https://github.com/yaml/yaml-spec/blob/master/rfc/RFC-0003.md">RFC-0003</a>
+  "https://github.com/yaml/libyaml/issues/205#issuecomment-693634465">alias naming</a>
    * </pre>
    */
   private Token scanAnchor(boolean isAnchor) {
@@ -1408,8 +1406,8 @@ public final class ScannerImpl implements Scanner {
     reader.forward();
     int length = 0;
     int c = reader.peek(length);
-    // Anchor may not contain ",[]{}"
-    while (CharConstants.NULL_BL_T_LINEBR.hasNo(c, ",[]{}/.*&")) {
+    // Anchor may not contain :,[]{}/.*&
+    while (CharConstants.NULL_BL_T_LINEBR.hasNo(c, ":,[]{}/.*&")) {
       length++;
       c = reader.peek(length);
     }

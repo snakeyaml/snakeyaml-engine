@@ -23,22 +23,17 @@ import org.snakeyaml.engine.v2.api.LoadSettings;
 import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Issue 54
+ * Issue 54: do not allow : in the anchor name
  */
 @org.junit.jupiter.api.Tag("fast")
 public class DumpWithoutSpaceTest {
   @Test
   @DisplayName("The output does not include a space after the *1 alias")
   void parseWithoutSpaceAfterAlias() {
-    try {
-      Object obj = parse("--- &1\nhash:\n  :one: true\n  :two: true\n  *1: true");
-      assertNotNull(obj);
-    } catch (Exception e) {
-      assertTrue(e.getMessage().contains("could not find expected ':'"));
-    }
+    Object obj = parse("--- &1\nhash:\n  :one: true\n  :two: true\n  *1: true");
+    assertNotNull(obj);
   }
 
   @Test
@@ -64,10 +59,7 @@ public class DumpWithoutSpaceTest {
     Dump dump = new Dump(dumpSettings);
     String output = dump.dumpToString(map);
     // System.out.println(output);
-    try {
-      parse(output);
-    } catch (Exception e) {
-      assertTrue(e.getMessage().contains("could not find expected ':'"));
-    }
+    Object obj = parse(output);
+    assertNotNull(obj);
   }
 }
