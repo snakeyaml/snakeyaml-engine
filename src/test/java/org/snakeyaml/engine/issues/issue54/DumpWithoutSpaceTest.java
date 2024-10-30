@@ -22,20 +22,22 @@ import org.snakeyaml.engine.v2.api.LoadSettings;
 
 import java.util.HashMap;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
- * Issue 54
+ * Issue 54: add a space after anchor (when it is a simple key)
  */
 @org.junit.jupiter.api.Tag("fast")
 public class DumpWithoutSpaceTest {
   @Test
-  @DisplayName("The output does not include a space after the *1 alias")
-  void parseWithoutSpaceAfterAlias() {
+  @DisplayName("The document does not have a space after the *1 alias")
+  void failToParseWithoutSpaceAfterAlias() {
     try {
       Object obj = parse("--- &1\nhash:\n  :one: true\n  :two: true\n  *1: true");
-      assertNotNull(obj);
+      fail();
     } catch (Exception e) {
       assertTrue(e.getMessage().contains("could not find expected ':'"));
     }
@@ -63,11 +65,8 @@ public class DumpWithoutSpaceTest {
     DumpSettings dumpSettings = DumpSettings.builder().build();
     Dump dump = new Dump(dumpSettings);
     String output = dump.dumpToString(map);
-    // System.out.println(output);
-    try {
-      parse(output);
-    } catch (Exception e) {
-      assertTrue(e.getMessage().contains("could not find expected ':'"));
-    }
+    assertEquals("&id001\n" + ":one: true\n" + "*id001 : true\n", output);
+    Object recursive = parse(output);
+    assertNotNull(recursive);
   }
 }
