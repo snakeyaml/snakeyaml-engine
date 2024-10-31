@@ -456,10 +456,10 @@ public final class Emitter implements Emitable {
     mappingContext = mapping;
     simpleKeyContext = simpleKey;
     if (event.getEventId() == Event.ID.Alias) {
-      expectAlias();
+      expectAlias(simpleKey); // key indicator is needed to detect the trailing space for alias
     } else if (event.getEventId() == Event.ID.Scalar || event.getEventId() == Event.ID.SequenceStart
         || event.getEventId() == Event.ID.MappingStart) {
-      processAnchor("&");
+      processAnchor();
       processTag();
       handleNodeEvent(event.getEventId());
     } else {
@@ -493,9 +493,13 @@ public final class Emitter implements Emitable {
     }
   }
 
-  private void expectAlias() {
+  /**
+   *
+   * @param simpleKey - true when this is the alias for a simple key
+   */
+  private void expectAlias(boolean simpleKey) {
     if (event instanceof AliasEvent) {
-      processAnchor("*");
+      processAlias(simpleKey);
       state = states.pop();
     } else {
       throw new EmitterException("Expecting Alias.");
@@ -883,7 +887,7 @@ public final class Emitter implements Emitable {
 
   // Anchor, Tag, and Scalar processors.
 
-  private void processAnchor(String indicator) {
+  private void processAnchorOrAlias(String indicator, boolean trailingWhitespace) {
     NodeEvent ev = (NodeEvent) event;
     Optional<Anchor> anchorOption = ev.getAnchor();
     if (anchorOption.isPresent()) {
@@ -894,6 +898,19 @@ public final class Emitter implements Emitable {
       writeIndicator(indicator + anchor, true, false, false);
     }
     preparedAnchor = Optional.empty();
+    if (trailingWhitespace) {
+      writeWhitespace(1); // needed to separate ':' from the alias (not used for anchor)
+    }
+  }
+
+  private void processAnchor() {
+    // no need for trailing space
+    processAnchorOrAlias("&", false);
+  }
+
+  private void processAlias(boolean simpleKey) {
+    // because of ':' it needs to add trailing space for simple keys
+    processAnchorOrAlias("*", simpleKey);
   }
 
   /**

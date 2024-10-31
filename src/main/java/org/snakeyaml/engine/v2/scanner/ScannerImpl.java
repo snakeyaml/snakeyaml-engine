@@ -185,8 +185,23 @@ public final class ScannerImpl implements Scanner {
   }
 
   /**
+   * Check whether the next token is the given type.
+   */
+  @Override
+  public boolean checkToken(Token.ID choice) {
+    while (needMoreTokens()) {
+      fetchMoreTokens();
+    }
+    if (!this.tokens.isEmpty()) {
+      return this.tokens.get(0).getTokenId() == choice;
+    }
+    return false;
+  }
+
+  /**
    * Check whether the next token is one of the given types.
    */
+  @Override
   public boolean checkToken(Token.ID... choices) {
     while (needMoreTokens()) {
       fetchMoreTokens();
@@ -1380,10 +1395,13 @@ public final class ScannerImpl implements Scanner {
    * <pre>
    * The YAML 1.2 specification does not restrict characters for anchors and
    * aliases. This may lead to problems.
-   * see <a href=
+   * See <a href=
+   * "https://github.com/yaml/libyaml/issues/205#issuecomment-693634465">alias naming</a>
+   * </pre>
+   *
+   * <pre>
+   * See also <a href=
    * "https://bitbucket.org/snakeyaml/snakeyaml/issues/485/alias-names-are-too-permissive-compared-to">issue 485</a>
-   * This implementation tries to follow <a href=
-   * "https://github.com/yaml/yaml-spec/blob/master/rfc/RFC-0003.md">RFC-0003</a>
    * </pre>
    */
   private Token scanAnchor(boolean isAnchor) {
@@ -1393,7 +1411,10 @@ public final class ScannerImpl implements Scanner {
     reader.forward();
     int length = 0;
     int c = reader.peek(length);
-    // Anchor may not contain ",[]{}"
+    // The future implementation may try to follow <a href=
+    // "https://github.com/yaml/yaml-spec/blob/master/rfc/RFC-0003.md">RFC-0003</a>
+    // and exclude also ':' (colon)
+    // Anchor may not contain ,[]{}/.*&
     while (CharConstants.NULL_BL_T_LINEBR.hasNo(c, ",[]{}/.*&")) {
       length++;
       c = reader.peek(length);
@@ -1571,7 +1592,7 @@ public final class ScannerImpl implements Scanner {
         if (style == ScalarStyle.FOLDED && "\n".equals(lineBreakOpt.orElse("")) && leadingNonSpace
             && " \t".indexOf(reader.peek()) == -1) {
           if (breaks.isEmpty()) {
-            stringBuilder.append(" ");
+            stringBuilder.append(' ');
           }
         } else {
           stringBuilder.append(lineBreakOpt.orElse(""));
@@ -1759,10 +1780,10 @@ public final class ScannerImpl implements Scanner {
     Optional<Mark> startMark = reader.getMark();
     int quote = reader.peek();
     reader.forward();
-    chunks.append(scanFlowScalarNonSpaces(doubleValue, startMark));
+    scanFlowScalarNonSpaces(doubleValue, startMark, chunks);
     while (reader.peek() != quote) {
-      chunks.append(scanFlowScalarSpaces(startMark));
-      chunks.append(scanFlowScalarNonSpaces(doubleValue, startMark));
+      scanFlowScalarSpaces(startMark, chunks);
+      scanFlowScalarNonSpaces(doubleValue, startMark, chunks);
     }
     reader.forward();
     Optional<Mark> endMark = reader.getMark();
@@ -1772,9 +1793,9 @@ public final class ScannerImpl implements Scanner {
   /**
    * Scan some number of flow-scalar non-space characters.
    */
-  private String scanFlowScalarNonSpaces(boolean doubleQuoted, Optional<Mark> startMark) {
+  private void scanFlowScalarNonSpaces(boolean doubleQuoted, Optional<Mark> startMark,
+      StringBuilder chunks) {
     // See the specification for details.
-    StringBuilder chunks = new StringBuilder();
     while (true) {
       // Scan through any number of characters which are not: NUL, blank,
       // tabs, line breaks, single-quotes, double-quotes, or backslashes.
@@ -1789,7 +1810,7 @@ public final class ScannerImpl implements Scanner {
       // differing meanings.
       int c = reader.peek();
       if (!doubleQuoted && c == '\'' && reader.peek(1) == '\'') {
-        chunks.append("'");
+        chunks.append('\'');
         reader.forward(2);
       } else if ((doubleQuoted && c == '\'') || (!doubleQuoted && "\"\\".indexOf(c) != -1)) {
         chunks.appendCodePoint(c);
@@ -1816,8 +1837,7 @@ public final class ScannerImpl implements Scanner {
           }
           int decimal = Integer.parseInt(hex, 16);
           try {
-            String unicode = new String(Character.toChars(decimal));
-            chunks.append(unicode);
+            chunks.appendCodePoint(decimal);
             reader.forward(length);
           } catch (IllegalArgumentException e) {
             throw new ScannerException("while scanning a double-quoted scalar", startMark,
@@ -1831,14 +1851,13 @@ public final class ScannerImpl implements Scanner {
               "found unknown escape character " + s + "(" + c + ")", reader.getMark());
         }
       } else {
-        return chunks.toString();
+        return;
       }
     }
   }
 
-  private String scanFlowScalarSpaces(Optional<Mark> startMark) {
+  private void scanFlowScalarSpaces(Optional<Mark> startMark, StringBuilder chunks) {
     // See the specification for details.
-    StringBuilder chunks = new StringBuilder();
     int length = 0;
     // Scan through any number of whitespace (space, tab) characters,
     // consuming them.
@@ -1859,13 +1878,12 @@ public final class ScannerImpl implements Scanner {
       if (!"\n".equals(lineBreakOpt.get())) {
         chunks.append(lineBreakOpt.get());
       } else if (breaks.isEmpty()) {
-        chunks.append(" ");
+        chunks.append(' ');
       }
       chunks.append(breaks);
     } else {
       chunks.append(whitespaces);
     }
-    return chunks.toString();
   }
 
   private String scanFlowScalarBreaks(Optional<Mark> startMark) {
