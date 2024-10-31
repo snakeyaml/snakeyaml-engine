@@ -6,6 +6,9 @@
     </properties>
     <body>
         <release version="2.9" date="in GIT" description="Maintenance">
+            <action dev="asomov" type="add">
+                Add Java Microbenchmark Harness (JMH)
+            </action>
             <action dev="asomov" type="fix" issue="54">
                 Do allow colon to be a part of an anchor but insert a space when
                 it is a simple key (thanks to Charles Oliver Nutter).
