@@ -86,14 +86,14 @@ public abstract class MergeUtils {
           SequenceNode seqNode = (SequenceNode) valueNode;
           for (Node ref : seqNode.getValue()) {
             MappingNode mergable = asMappingNode(ref);
-            process = process || mergable.hasMergedTag();
+            process = process || mergable.hasMergeTag();
             Tuple<List<NodeTuple>, Set<String>> filtered = filter(mergable.getValue(), keys);
             updated.addAll(filtered._1());
             keys.addAll(filtered._2());
           }
         } else {
           MappingNode mergable = asMappingNode(valueNode);
-          process = process || mergable.hasMergedTag();
+          process = process || mergable.hasMergeTag();
           Tuple<List<NodeTuple>, Set<String>> filtered = filter(mergable.getValue(), keys);
           updated.addAll(filtered._1());
           keys.addAll(filtered._2());
