@@ -96,7 +96,7 @@ public class Composer implements Iterator<Node> {
     this.blockCommentsCollector =
         new CommentEventsCollector(parser, CommentType.BLANK_LINE, CommentType.BLOCK);
     this.inlineCommentsCollector = new CommentEventsCollector(parser, CommentType.IN_LINE);
-    mergeUtils = new MergeUtils() {
+    this.mergeUtils = new MergeUtils() {
       public MappingNode asMappingNode(Node node) {
         return Composer.this.asMappingNode(node);
       }
