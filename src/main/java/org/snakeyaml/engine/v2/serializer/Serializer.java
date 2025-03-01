@@ -219,7 +219,7 @@ public class Serializer {
             boolean implicitM = node.getTag().equals(Tag.MAP);
             MappingNode mappingNode = (MappingNode) node;
             List<NodeTuple> map = mappingNode.getValue();
-            if (this.dereferenceAliases && mappingNode.isMerged()) {
+            if (this.dereferenceAliases && mappingNode.hasMergedTag()) {
               map = mergeUtils.flatten(mappingNode);
             }
             this.emitable

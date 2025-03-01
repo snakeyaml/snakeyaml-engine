@@ -336,10 +336,10 @@ public class Composer implements Iterator<Node> {
     if (!inlineCommentsCollector.isEmpty()) {
       node.setInLineComments(inlineCommentsCollector.consume());
     }
-    if (node.isMerged()) {
+    if (node.hasMergedTag()) {
       List<NodeTuple> updatedValue = mergeUtils.flatten(node);
       node.setValue(updatedValue);
-      node.setMerged(false);
+      node.setHasMergedTag(false);
     }
     return node;
   }
@@ -353,7 +353,7 @@ public class Composer implements Iterator<Node> {
   protected void composeMappingChildren(List<NodeTuple> children, MappingNode node) {
     Node itemKey = composeKeyNode(node);
     if (itemKey.getTag().equals(Tag.MERGE)) {
-      node.setMerged(true);
+      node.setHasMergedTag(true);
     }
     Node itemValue = composeValueNode(node);
     children.add(new NodeTuple(itemKey, itemValue));

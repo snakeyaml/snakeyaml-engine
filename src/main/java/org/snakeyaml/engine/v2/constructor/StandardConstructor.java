@@ -71,7 +71,7 @@ public class StandardConstructor extends BaseConstructor {
   protected void flattenMapping(MappingNode node) {
     // perform merging only on nodes containing merge node(s)
     processDuplicateKeys(node);
-    if (node.isMerged()) {
+    if (node.hasMergedTag()) {
       node.setValue(mergeNode(node, true, new HashMap<>(), new ArrayList<>()));
     }
   }
