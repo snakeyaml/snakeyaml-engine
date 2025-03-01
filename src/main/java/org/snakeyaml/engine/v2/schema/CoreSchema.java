@@ -37,13 +37,15 @@ public class CoreSchema extends JsonSchema {
   }
 
   /**
-   * Create ScalarResolver
+   * Create ScalarResolver with the merge implemented
    *
+   * @see <a href"https://ktomk.github.io/writing/yaml-anchor-alias-and-merge-key.html">Support of
+   *      Merge Keys</a>
    * @return CoreScalarResolver
    */
   @Override
   public ScalarResolver getScalarResolver() {
-    return new CoreScalarResolver();
+    return new CoreScalarResolver(true);
   }
 
   /**

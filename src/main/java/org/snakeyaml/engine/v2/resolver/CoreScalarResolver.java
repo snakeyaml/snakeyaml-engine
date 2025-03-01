@@ -13,19 +13,18 @@
  */
 package org.snakeyaml.engine.v2.resolver;
 
-import java.util.regex.Pattern;
 import org.snakeyaml.engine.v2.nodes.Tag;
+
+import java.util.regex.Pattern;
 
 /**
  * ScalarResolver for Core Schema
  */
 public class CoreScalarResolver extends BaseScalarResolver {
-
   /**
    * Boolean as defined in Core
    */
   public static final Pattern BOOL = Pattern.compile("^(?:true|True|TRUE|false|False|FALSE)$");
-
   /**
    * Float as defined in JSON (Number which is Float)
    */
@@ -33,7 +32,10 @@ public class CoreScalarResolver extends BaseScalarResolver {
       Pattern.compile("^([-+]?(\\.[0-9]+|[0-9]+(\\.[0-9]*)?)([eE][-+]?[0-9]+)?)" + // float
           "|([-+]?\\.(?:inf|Inf|INF))" + // infinity
           "|(\\.(?:nan|NaN|NAN))$"); // not a number
-
+  /**
+   * Merge is optional, but not defined in YAML 1.2
+   */
+  public static final Pattern MERGE = Pattern.compile("^(?:<<)$");
   /**
    * Integer as defined in Core
    */
@@ -41,11 +43,16 @@ public class CoreScalarResolver extends BaseScalarResolver {
       "|(0o[0-7]+)" + // (base 8)
       "|(0x[0-9a-fA-F]+)$" // (base 16)
   );
-
   /**
    * Null as defined in Core
    */
   public static final Pattern NULL = Pattern.compile("^(?:~|null|Null|NULL| )$");
+
+  public CoreScalarResolver(boolean supportMerge) {
+    if (supportMerge) {
+      addImplicitResolver(Tag.MERGE, MERGE, "<");
+    }
+  }
 
   /**
    * Register all the resolvers to be applied

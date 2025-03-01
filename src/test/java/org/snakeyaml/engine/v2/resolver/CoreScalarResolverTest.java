@@ -23,7 +23,7 @@ import org.snakeyaml.engine.v2.nodes.Tag;
 @org.junit.jupiter.api.Tag("fast")
 class CoreScalarResolverTest {
 
-  private final ScalarResolver scalarResolver = new CoreScalarResolver();
+  private final ScalarResolver scalarResolver = new CoreScalarResolver(true);
 
   @Test
   void resolveImplicitInteger() {

@@ -46,6 +46,7 @@ import org.snakeyaml.engine.v2.nodes.SequenceNode;
 import org.snakeyaml.engine.v2.nodes.Tag;
 import org.snakeyaml.engine.v2.parser.Parser;
 import org.snakeyaml.engine.v2.resolver.ScalarResolver;
+import org.snakeyaml.engine.v2.util.MergeUtils;
 
 /**
  * Creates a node graph from parser events.
@@ -68,6 +69,7 @@ public class Composer implements Iterator<Node> {
   private final CommentEventsCollector blockCommentsCollector;
   private final CommentEventsCollector inlineCommentsCollector;
   private int nonScalarAliasesCount = 0;
+  private final MergeUtils mergeUtils;
 
   /**
    * @param parser - the input
@@ -94,6 +96,11 @@ public class Composer implements Iterator<Node> {
     this.blockCommentsCollector =
         new CommentEventsCollector(parser, CommentType.BLANK_LINE, CommentType.BLOCK);
     this.inlineCommentsCollector = new CommentEventsCollector(parser, CommentType.IN_LINE);
+    mergeUtils = new MergeUtils() {
+      public MappingNode asMappingNode(Node node) {
+        return Composer.this.asMappingNode(node);
+      }
+    };
   }
 
   /**
@@ -329,6 +336,11 @@ public class Composer implements Iterator<Node> {
     if (!inlineCommentsCollector.isEmpty()) {
       node.setInLineComments(inlineCommentsCollector.consume());
     }
+    if (node.isMerged()) {
+      List<NodeTuple> updatedValue = mergeUtils.flatten(node);
+      node.setValue(updatedValue);
+      node.setMerged(false);
+    }
     return node;
   }
 
@@ -340,8 +352,25 @@ public class Composer implements Iterator<Node> {
    */
   protected void composeMappingChildren(List<NodeTuple> children, MappingNode node) {
     Node itemKey = composeKeyNode(node);
+    if (itemKey.getTag().equals(Tag.MERGE)) {
+      node.setMerged(true);
+    }
     Node itemValue = composeValueNode(node);
     children.add(new NodeTuple(itemKey, itemValue));
+  }
+
+  protected MappingNode asMappingNode(Node node) {
+    if (node instanceof MappingNode) {
+      return (MappingNode) node;
+    } else {
+      Node ref = anchors.get(node.getAnchor());
+      if (ref instanceof MappingNode) {
+        return (MappingNode) ref;
+      }
+    }
+    Event ev = parser.peekEvent();
+    throw new ComposerException("Expected mapping node or an anchor referencing mapping",
+        ev.getStartMark());
   }
 
   /**

@@ -39,6 +39,7 @@ import org.snakeyaml.engine.v2.nodes.NodeType;
 import org.snakeyaml.engine.v2.nodes.ScalarNode;
 import org.snakeyaml.engine.v2.nodes.SequenceNode;
 import org.snakeyaml.engine.v2.nodes.Tag;
+import org.snakeyaml.engine.v2.util.MergeUtils;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -61,6 +62,8 @@ public class Serializer {
   private final Map<Node, Anchor> anchors;
   private final boolean dereferenceAliases;
   private final Set<Node> recursive;
+  private final MergeUtils mergeUtils;
+
 
   /**
    * Create Serializer
@@ -75,6 +78,16 @@ public class Serializer {
     this.anchors = new HashMap<>();
     this.dereferenceAliases = settings.isDereferenceAliases();
     this.recursive = Collections.newSetFromMap(new IdentityHashMap<Node, Boolean>());
+    mergeUtils = new MergeUtils() {
+      public MappingNode asMappingNode(Node node) {
+        if (node instanceof MappingNode) {
+          return (MappingNode) node;
+        }
+        // TODO: This need to be explored more to understand if only MappingNode possible.
+        // Or at least the error message needs to be improved.
+        throw new YamlEngineException("expecting MappingNode while processing merge.");
+      }
+    };
   }
 
   /**
@@ -202,10 +215,13 @@ public class Serializer {
           break;
         default:// instance of MappingNode
           serializeComments(node.getBlockComments());
-          boolean implicitM = node.getTag().equals(Tag.MAP);
-          MappingNode mappingNode = (MappingNode) node;
-          List<NodeTuple> map = mappingNode.getValue();
-          if (mappingNode.getTag() != Tag.COMMENT) {
+          if (node.getTag() != Tag.COMMENT) {
+            boolean implicitM = node.getTag().equals(Tag.MAP);
+            MappingNode mappingNode = (MappingNode) node;
+            List<NodeTuple> map = mappingNode.getValue();
+            if (this.dereferenceAliases && mappingNode.isMerged()) {
+              map = mergeUtils.flatten(mappingNode);
+            }
             this.emitable
                 .emit(new MappingStartEvent(tAlias, Optional.of(mappingNode.getTag().getValue()),
                     implicitM, mappingNode.getFlowStyle(), Optional.empty(), Optional.empty()));

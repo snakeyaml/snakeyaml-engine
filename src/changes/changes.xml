@@ -5,6 +5,11 @@
         <title>YAML 1.2 parser and emitter for Java 8+</title>
     </properties>
     <body>
+        <release version="2.10" date="in GIT" description="Merge is back">
+            <action dev="maslovalex" type="update" issue="56">
+                Implement the merge tag in the Node graph for the Core Schema
+            </action>
+        </release>
         <release version="2.9" date="2025-01-15" description="Fix for JRuby">
             <action dev="asomov" type="add">
                 Add Java Microbenchmark Harness (JMH)
