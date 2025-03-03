@@ -6,6 +6,10 @@
     </properties>
     <body>
         <release version="2.10" date="in GIT" description="Merge is back">
+            <action dev="asomov" type="fix" issue="58">
+                Provide default impl for YamlOutputStreamWriter.processIOException which wraps
+                the IOException in UncheckedIOException (thanks to Konrad Windszus)
+            </action>
             <action dev="asomov" type="fix" issue="57">
                 Improve Javadoc of Parser (thanks to Konrad Windszus)
             </action>
