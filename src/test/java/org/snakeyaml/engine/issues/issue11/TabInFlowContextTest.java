@@ -13,7 +13,9 @@
  */
 package org.snakeyaml.engine.issues.issue11;
 
+import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.DisplayName;
@@ -28,15 +30,10 @@ public class TabInFlowContextTest {
   @DisplayName("Do not fail to parse if TAB is used (issue 11)")
   void parseTabInFlowContext() {
     LoadSettings settings = LoadSettings.builder().build();
-    try {
-      String input = "{\n\t\"x\": \"y\"\n}";
-      Object obj = new Load(settings).loadFromString(input);
-      fail("TAB cannot start a token. Found: " + obj);
-    } catch (Exception e) {
-      assertEquals("while scanning for the next token\n"
-          + "found character '\\t(TAB)' that cannot start any token. (Do not use \\t(TAB) for indentation)\n"
-          + " in reader, line 2, column 1:\n" + "    \t\"x\": \"y\"\n" + "    ^\n", e.getMessage());
-    }
+    String input = "{\n\t\"x\": \"y\"\n}";
+    Object obj = new Load(settings).loadFromString(input);
+    Map<String, Object> map = (Map<String, Object>) obj;
+    assertEquals("y", map.get("x"));
   }
 
   @Test
@@ -51,5 +48,12 @@ public class TabInFlowContextTest {
           + "found character '\\t(TAB)' that cannot start any token. (Do not use \\t(TAB) for indentation)\n"
           + " in reader, line 1, column 1:\n" + "    \t  data: 1\n" + "    ^\n", e.getMessage());
     }
+  }
+
+  @Test
+  public void testIssue55() {
+    LoadSettings settings = LoadSettings.builder().build();
+    Object obj = new Load(settings).loadFromString("{ \"foo\":\t\"bar\" }");
+    assertNotNull(obj);
   }
 }

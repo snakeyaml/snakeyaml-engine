@@ -35,13 +35,13 @@ class ParseSuiteTest {
       SuiteUtils.getAll().stream().filter(data -> !data.getName().equals("JEF9-02"))
           .collect(Collectors.toList());
 
-  // @Test
+  @Test
   @DisplayName("Parse: Run one test")
   /**
    * This test is used to debug one test (which is given explicitly)
    */
   void runOne() {
-    SuiteData data = SuiteUtils.getOne("S98Z");
+    SuiteData data = SuiteUtils.getOne("Y79Y-002");
     LoadSettings settings = LoadSettings.builder().setLabel(data.getLabel()).build();
     Iterable<Event> iterable = new Parse(settings).parseString(data.getInput());
     for (Event event : iterable) {

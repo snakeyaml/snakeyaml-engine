@@ -1141,6 +1141,11 @@ public final class ScannerImpl implements Scanner {
       while (reader.peek(ff) == ' ') {
         ff++;
       }
+      // unfortunately, this check is too simple, but it helps to ignore TABs in JSON
+      // which is always flow context (see issue 55 and tests)
+      if (reader.peek(ff) == '\t' && isFlowContext()) {
+        ff++;
+      }
       if (ff > 0) {
         reader.forward(ff);
       }
