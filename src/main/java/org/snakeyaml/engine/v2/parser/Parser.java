@@ -15,6 +15,8 @@ package org.snakeyaml.engine.v2.parser;
 
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
+
 import org.snakeyaml.engine.v2.events.Event;
 import org.snakeyaml.engine.v2.exceptions.ParserException;
 
@@ -32,9 +34,9 @@ public interface Parser extends Iterator<Event> {
    * Check if the next event is one of the given type.
    *
    * @param choice Event ID to match
-   * @return <code>true</code> if the next event has the given ID. Returns <code>false</code> if no
-   *         more events are available.
-   * @throws ParserException Thrown in case of malformed input.
+   * @return <code>true</code> if the next event has the given ID, <code>false</code> otherwise.
+   * @throws ParserException in case of malformed input.
+   * @throws NoSuchElementException in case no next event is available.
    */
   boolean checkEvent(Event.ID choice);
 
@@ -42,8 +44,8 @@ public interface Parser extends Iterator<Event> {
    * Return the next event, but do not delete it from the stream.
    *
    * @return The event that will be returned on the next call to {@link #next}
-   * @throws ParserException Thrown in case of malformed input or NoSuchElementException in case no
-   *         event is available.
+   * @throws ParserException in case of malformed input
+   * @throws NoSuchElementException in case no next event is available.
    */
   Event peekEvent();
 
@@ -54,7 +56,8 @@ public interface Parser extends Iterator<Event> {
    * </p>
    *
    * @return the next parsed event
-   * @throws ParserException Thrown in case of malformed input.
+   * @throws ParserException in case of malformed input.
+   * @throws NoSuchElementException in case no next event is available.
    */
   Event next();
 }
