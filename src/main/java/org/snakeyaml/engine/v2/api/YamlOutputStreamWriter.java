@@ -16,13 +16,14 @@ package org.snakeyaml.engine.v2.api;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.UncheckedIOException;
 import java.nio.charset.Charset;
 
 /**
- * Provide an example of implementation of StreamDataWriter interface which does not throw
- * {@link IOException}
+ * Provide an implementation of StreamDataWriter interface which does not throw
+ * {@link IOException} but wraps those into {@link UncheckedIOException}s.
  */
-public abstract class YamlOutputStreamWriter extends OutputStreamWriter
+public class YamlOutputStreamWriter extends OutputStreamWriter
     implements StreamDataWriter {
 
   /**
@@ -36,11 +37,13 @@ public abstract class YamlOutputStreamWriter extends OutputStreamWriter
   }
 
   /**
-   * to be implemented
+   * Default implementation wraps the given {@code IOException} into an {@link UncheckedIOException}.
    *
    * @param e - the reason
    */
-  public abstract void processIOException(IOException e);
+  public void processIOException(IOException e) {
+      throw new UncheckedIOException(e);
+  }
 
   @Override
   public void flush() {
