@@ -20,11 +20,10 @@ import java.io.UncheckedIOException;
 import java.nio.charset.Charset;
 
 /**
- * Provide an implementation of StreamDataWriter interface which does not throw
- * {@link IOException} but wraps those into {@link UncheckedIOException}s.
+ * Provide an implementation of StreamDataWriter interface which does not throw {@link IOException}
+ * but wraps those into {@link UncheckedIOException}s.
  */
-public class YamlOutputStreamWriter extends OutputStreamWriter
-    implements StreamDataWriter {
+public class YamlOutputStreamWriter extends OutputStreamWriter implements StreamDataWriter {
 
   /**
    * Create
@@ -37,12 +36,13 @@ public class YamlOutputStreamWriter extends OutputStreamWriter
   }
 
   /**
-   * Default implementation wraps the given {@code IOException} into an {@link UncheckedIOException}.
+   * Default implementation wraps the given {@code IOException} into an
+   * {@link UncheckedIOException}.
    *
    * @param e - the reason
    */
   public void processIOException(IOException e) {
-      throw new UncheckedIOException(e);
+    throw new UncheckedIOException(e);
   }
 
   @Override
