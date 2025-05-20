@@ -70,19 +70,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-    <distributionManagement>
-        <repository>
-            <id>sonatype-nexus-staging</id>
-            <name>Nexus Release Repository</name>
-            <url>${release.repo.url}</url>
-        </repository>
-        <snapshotRepository>
-            <id>sonatype-nexus-staging</id>
-            <name>Sonatype Nexus Snapshots</name>
-            <url>${snapshot.repo.url}</url>
-            <uniqueVersion>false</uniqueVersion>
-        </snapshotRepository>
-    </distributionManagement>
     <build>
         <testResources>
             <testResource>
@@ -350,18 +337,16 @@
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <useReleaseProfile>false</useReleaseProfile>
                     <releaseProfiles>release</releaseProfiles>
-                    <goals>deploy nexus-staging:release</goals>
+                    <goals>deploy</goals>
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>1.6.8</version>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>0.7.0</version>
                 <extensions>true</extensions>
                 <configuration>
-                    <serverId>sonatype-nexus-staging</serverId>
-                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                    <autoReleaseAfterClose>false</autoReleaseAfterClose>
+                    <publishingServerId>snakeyaml-central</publishingServerId>
                 </configuration>
             </plugin>
             <plugin>

@@ -6,6 +6,9 @@
     </properties>
     <body>
         <release version="2.10" date="in GIT" description="Merge is back">
+            <action dev="asomov" type="update">
+                Maven Central account migration (thanks to Alexander Maslov)
+            </action>
             <action dev="asomov" type="fix" issue="58">
                 Provide default impl for YamlOutputStreamWriter.processIOException which wraps
                 the IOException in UncheckedIOException (thanks to Konrad Windszus)
