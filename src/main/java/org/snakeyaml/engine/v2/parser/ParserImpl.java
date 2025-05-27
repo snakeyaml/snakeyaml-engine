@@ -228,7 +228,7 @@ public class ParserImpl implements Parser {
   }
 
   private void produce() {
-    if (!currentEvent.isPresent()) {
+    if (currentEvent.isEmpty()) {
       state.ifPresent(production -> currentEvent = Optional.of(production.produce()));
     }
   }

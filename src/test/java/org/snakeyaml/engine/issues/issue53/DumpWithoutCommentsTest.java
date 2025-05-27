@@ -49,7 +49,8 @@ public class DumpWithoutCommentsTest {
     Parser parser =
         new ParserImpl(loadSettings, new StreamReader(loadSettings, new StringReader(source)));
     Composer composer = new Composer(loadSettings, parser);
-    Node node = composer.getSingleNode().orElseThrow();
+    Node node =
+        composer.getSingleNode().orElseThrow(() -> new IllegalStateException("No node found."));
     assertNotNull(node);
     return node;
   }
