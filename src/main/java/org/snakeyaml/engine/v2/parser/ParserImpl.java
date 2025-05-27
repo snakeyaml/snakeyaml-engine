@@ -952,10 +952,18 @@ public class ParserImpl implements Parser {
     }
 
     public Event produce() {
+      if (scanner.checkToken(Token.ID.Comment)) {
+        state = Optional.of(new ParseFlowMappingKey(first));
+        return produceCommentEvent((CommentToken) scanner.next());
+      }
       if (!scanner.checkToken(Token.ID.FlowMappingEnd)) {
         if (!first) {
           if (scanner.checkToken(Token.ID.FlowEntry)) {
             scanner.next();
+            if (scanner.checkToken(Token.ID.Comment)) {
+              state = Optional.of(new ParseFlowMappingKey(true));
+              return produceCommentEvent((CommentToken) scanner.next());
+            }
           } else {
             Token token = scanner.peekToken();
             throw new ParserException("while parsing a flow mapping", markPop(),

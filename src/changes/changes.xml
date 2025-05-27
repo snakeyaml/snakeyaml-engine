@@ -6,6 +6,9 @@
     </properties>
     <body>
         <release version="2.10" date="in GIT" description="Merge is back">
+            <action dev="asomov" type="fix">
+                Fix parsing comments inside flow mapping context
+            </action>
             <action dev="asomov" type="update">
                 Maven Central account migration (thanks to Alexander Maslov)
             </action>

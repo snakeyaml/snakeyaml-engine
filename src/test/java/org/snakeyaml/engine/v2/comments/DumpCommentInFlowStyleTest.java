@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.snakeyaml.engine.v2.api.DumpSettings;
 import org.snakeyaml.engine.v2.api.LoadSettings;
 import org.snakeyaml.engine.v2.api.lowlevel.Compose;
+import org.snakeyaml.engine.v2.api.lowlevel.Parse;
 import org.snakeyaml.engine.v2.api.lowlevel.Present;
 import org.snakeyaml.engine.v2.api.lowlevel.Serialize;
 import org.snakeyaml.engine.v2.events.Event;
@@ -31,69 +32,73 @@ import org.snakeyaml.engine.v2.nodes.NodeTuple;
 
 public class DumpCommentInFlowStyleTest {
 
-    private String extractInlineComment(Node node) {
-        MappingNode mapping = (MappingNode) node;
-        List<NodeTuple> value = mapping.getValue();
-        NodeTuple first = value.get(0);
-        Node textNode = first.getValueNode();
-        return textNode.getInLineComments().get(0).getValue();
+  private String extractInlineComment(Node node) {
+    MappingNode mapping = (MappingNode) node;
+    List<NodeTuple> value = mapping.getValue();
+    NodeTuple first = value.get(0);
+    Node textNode = first.getValueNode();
+    return textNode.getInLineComments().get(0).getValue();
+  }
+
+  @Test
+  public void testIgnoringComments() {
+    Compose loader = new Compose(LoadSettings.builder().setParseComments(false).build());
+    String content = "{ url: text # comment breaks it\n}";
+    Node node = loader.composeReader(new StringReader(content)).get();
+    // check that no comment is present
+    MappingNode mapping = (MappingNode) node;
+    List<NodeTuple> value = mapping.getValue();
+    NodeTuple first = value.get(0);
+    Node textNode = first.getValueNode();
+    assertTrue(textNode.getInLineComments().isEmpty());
+
+    Serialize serialize = new Serialize(DumpSettings.builder().setDumpComments(true).build());
+    List<Event> events = serialize.serializeOne(node);
+    for (Event event : events) {
+      // System.out.println(event);
+    }
+    assertEquals(8, events.size());
+  }
+
+  @Test
+  public void testFlowWithComments() {
+    LoadSettings loadSettings = LoadSettings.builder().setParseComments(true).build();
+    Compose loader = new Compose(loadSettings);
+    String content = "{ url: text # comment breaks it\n}";
+    Parse parser = new Parse(loadSettings);
+    for (Event event : parser.parseReader(new StringReader(content))) {
+      // System.out.println(event);
     }
 
-    @Test
-    public void testIgnoringComments() {
-        Compose loader = new Compose(LoadSettings.builder().setParseComments(false).build());
-        String content = "{ url: text # comment breaks it\n}";
-        Node node = loader.composeReader(new StringReader(content)).get();
-        // check that no comment is present
-        MappingNode mapping = (MappingNode) node;
-        List<NodeTuple> value = mapping.getValue();
-        NodeTuple first = value.get(0);
-        Node textNode = first.getValueNode();
-        assertTrue(textNode.getInLineComments().isEmpty());
+    Node node = loader.composeReader(new StringReader(content)).get();
+    assertEquals(" comment breaks it", extractInlineComment(node));
 
-        Serialize serialize = new Serialize(DumpSettings.builder().setDumpComments(true).build());
-        List<Event> events = serialize.serializeOne(node);
-        for (Event event : events) {
-            // System.out.println(event);
-        }
-        assertEquals(8, events.size());
+    Serialize serialize = new Serialize(DumpSettings.builder().setDumpComments(true).build());
+    List<Event> events = serialize.serializeOne(node);
+    for (Event event : events) {
+      // System.out.println(event);
     }
+    assertEquals(9, events.size());
+  }
 
-    // @Test
-    public void testFlowWithComments() {
-        Compose loader = new Compose(LoadSettings.builder().setParseComments(true).build());
-        String content = "{ url: text # comment breaks it\n}";
-        Node node = loader.composeReader(new StringReader(content)).get();
+  @Test
+  public void testBlockWithComments() {
+    Compose loader = new Compose(LoadSettings.builder().setParseComments(true).build());
+    String content = "url: text # comment breaks it\n";
+    Node node = loader.composeReader(new StringReader(content)).get();
 
-        // assertEquals(" comment breaks it", extractInlineComment(node));
+    assertEquals(" comment breaks it", extractInlineComment(node));
 
-        Serialize serialize = new Serialize(DumpSettings.builder().setDumpComments(true).build());
-        List<Event> events = serialize.serializeOne(node);
-        for (Event event : events) {
-            System.out.println(event);
-        }
-        assertEquals(8, events.size());
-        // yaml.serialize(node, output);
+    DumpSettings dumpSettings = DumpSettings.builder().setDumpComments(true).build();
+    Serialize serialize = new Serialize(dumpSettings);
+    List<Event> events = serialize.serializeOne(node);
+    for (Event event : events) {
+      // System.out.println(event);
     }
+    assertEquals(9, events.size());
 
-    @Test
-    public void testBlockWithComments() {
-        Compose loader = new Compose(LoadSettings.builder().setParseComments(true).build());
-        String content = "url: text # comment breaks it\n";
-        Node node = loader.composeReader(new StringReader(content)).get();
-
-        assertEquals(" comment breaks it", extractInlineComment(node));
-
-        DumpSettings dumpSettings = DumpSettings.builder().setDumpComments(true).build();
-        Serialize serialize = new Serialize(dumpSettings);
-        List<Event> events = serialize.serializeOne(node);
-        for (Event event : events) {
-            //System.out.println(event);
-        }
-        assertEquals(9, events.size());
-
-        Present present = new Present(dumpSettings);
-        String output = present.emitToString(events.iterator());
-        assertEquals(content, output);
-    }
+    Present present = new Present(dumpSettings);
+    String output = present.emitToString(events.iterator());
+    assertEquals(content, output);
+  }
 }
