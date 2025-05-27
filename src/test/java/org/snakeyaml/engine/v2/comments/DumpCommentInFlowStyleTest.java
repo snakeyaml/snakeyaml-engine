@@ -15,6 +15,7 @@ package org.snakeyaml.engine.v2.comments;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.StringReader;
 import java.util.List;
@@ -73,12 +74,22 @@ public class DumpCommentInFlowStyleTest {
     Node node = loader.composeReader(new StringReader(content)).get();
     assertEquals(" comment breaks it", extractInlineComment(node));
 
-    Serialize serialize = new Serialize(DumpSettings.builder().setDumpComments(true).build());
+    DumpSettings dumpSettings = DumpSettings.builder().setDumpComments(true).build();
+    Serialize serialize = new Serialize(dumpSettings);
     List<Event> events = serialize.serializeOne(node);
     for (Event event : events) {
       // System.out.println(event);
     }
     assertEquals(9, events.size());
+
+    try {
+      Present present = new Present(dumpSettings);
+      String output = present.emitToString(events.iterator());
+      fail("Inline comment in flow mapping does not work yet");
+    } catch (Exception e) {
+      // TODO fix the comment in mapping flow context
+      assertTrue(e.getMessage().contains("expected NodeEvent"), e.getMessage());
+    }
   }
 
   @Test
