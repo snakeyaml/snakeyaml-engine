@@ -81,7 +81,7 @@ public class DumpWithoutCommentsTest {
     Serialize serializer = new Serialize(dumpSettings);
     List<Event> events = serializer.serializeOne(createNodeWithComments(source));
     List<Event> commentEvents = events.stream().filter(e -> e.getEventId() == Event.ID.Comment)
-        .collect(Collectors.toUnmodifiableList());
+        .collect(Collectors.toList());
     assertEquals(0, commentEvents.size(), "Unexpected: " + commentEvents);
   }
 }
