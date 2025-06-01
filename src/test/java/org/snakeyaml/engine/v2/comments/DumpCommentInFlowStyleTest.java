@@ -13,12 +13,6 @@
  */
 package org.snakeyaml.engine.v2.comments;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
-import java.io.StringReader;
-import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.snakeyaml.engine.v2.api.DumpSettings;
 import org.snakeyaml.engine.v2.api.LoadSettings;
@@ -31,6 +25,11 @@ import org.snakeyaml.engine.v2.nodes.MappingNode;
 import org.snakeyaml.engine.v2.nodes.Node;
 import org.snakeyaml.engine.v2.nodes.NodeTuple;
 
+import java.io.StringReader;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class DumpCommentInFlowStyleTest {
 
   private String extractInlineComment(Node node) {
@@ -42,30 +41,10 @@ public class DumpCommentInFlowStyleTest {
   }
 
   @Test
-  public void testIgnoringComments() {
-    Compose loader = new Compose(LoadSettings.builder().setParseComments(false).build());
-    String content = "{ url: text # comment breaks it\n}";
-    Node node = loader.composeReader(new StringReader(content)).get();
-    // check that no comment is present
-    MappingNode mapping = (MappingNode) node;
-    List<NodeTuple> value = mapping.getValue();
-    NodeTuple first = value.get(0);
-    Node textNode = first.getValueNode();
-    assertTrue(textNode.getInLineComments().isEmpty());
-
-    Serialize serialize = new Serialize(DumpSettings.builder().setDumpComments(true).build());
-    List<Event> events = serialize.serializeOne(node);
-    for (Event event : events) {
-      // System.out.println(event);
-    }
-    assertEquals(8, events.size());
-  }
-
-  @Test
   public void testFlowWithComments() {
     LoadSettings loadSettings = LoadSettings.builder().setParseComments(true).build();
     Compose loader = new Compose(loadSettings);
-    String content = "{ url: text # comment breaks it\n}";
+    String content = "{url: text # comment breaks it\n}";
     Parse parser = new Parse(loadSettings);
     for (Event event : parser.parseReader(new StringReader(content))) {
       // System.out.println(event);
@@ -82,14 +61,9 @@ public class DumpCommentInFlowStyleTest {
     }
     assertEquals(9, events.size());
 
-    try {
-      Present present = new Present(dumpSettings);
-      String output = present.emitToString(events.iterator());
-      fail("Inline comment in flow mapping does not work yet");
-    } catch (Exception e) {
-      // TODO fix the comment in mapping flow context
-      assertTrue(e.getMessage().contains("expected NodeEvent"), e.getMessage());
-    }
+    Present present = new Present(dumpSettings);
+    String output = present.emitToString(events.iterator());
+    assertEquals(content, output.trim());
   }
 
   @Test

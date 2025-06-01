@@ -22,7 +22,7 @@ public enum CommentType {
    */
   BLANK_LINE,
   /**
-   * comment which start with #
+   * complete line comment which starts with #
    */
   BLOCK,
   /**
