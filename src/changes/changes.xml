@@ -6,6 +6,9 @@
     </properties>
     <body>
         <release version="2.10" date="in GIT" description="Merge is back">
+            <action dev="asomov" type="fix" issue="63">
+                Add examples for custom ScalarResolver (thanks to fernbread)
+            </action>
             <action dev="asomov" type="fix">
                 Fix Inline comments in flow mapping context (thanks to Vladimir Maslov)
             </action>
