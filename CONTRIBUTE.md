@@ -50,8 +50,4 @@ make clean data && make data-update && mv data orig && mkdir data; find orig -na
 
 Run the tests and fix the errors:
 
-    ./docker-run-jdk8.sh
-
-### Format source
-
-    ./mvnw clean install site -Preformat
+    ./docker-run-jdk11.sh
