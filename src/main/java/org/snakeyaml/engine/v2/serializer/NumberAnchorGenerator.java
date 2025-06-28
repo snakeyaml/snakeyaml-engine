@@ -14,6 +14,7 @@
 package org.snakeyaml.engine.v2.serializer;
 
 import java.text.NumberFormat;
+import java.util.Locale;
 import org.snakeyaml.engine.v2.common.Anchor;
 import org.snakeyaml.engine.v2.nodes.Node;
 
@@ -46,7 +47,7 @@ public class NumberAnchorGenerator implements AnchorGenerator {
       return node.getAnchor().get();
     }
     this.lastAnchorId++;
-    NumberFormat format = NumberFormat.getNumberInstance();
+    NumberFormat format = NumberFormat.getNumberInstance(Locale.ROOT);
     format.setMinimumIntegerDigits(3);
     format.setMaximumFractionDigits(0);// issue 172
     format.setGroupingUsed(false);
