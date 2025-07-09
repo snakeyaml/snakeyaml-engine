@@ -732,8 +732,15 @@ public final class Emitter implements Emitable {
           increaseIndent(false, false);
           writeBlockComment();
           if (event instanceof ScalarEvent) {
-            analysis = analyzeScalar(((ScalarEvent) event).getValue());
-            if (!analysis.isEmpty()) {
+            ScalarEvent scalarEvent = (ScalarEvent) event;
+            if (analysis == null) {
+              analysis = analyzeScalar(scalarEvent.getValue());
+            }
+            if (scalarStyle == null) {
+              scalarStyle = chooseScalarStyle(scalarEvent);
+            }
+            if (!analysis.isEmpty() || scalarStyle == ScalarStyle.SINGLE_QUOTED
+                || scalarStyle == ScalarStyle.DOUBLE_QUOTED) {
               writeIndent();
             }
           }
