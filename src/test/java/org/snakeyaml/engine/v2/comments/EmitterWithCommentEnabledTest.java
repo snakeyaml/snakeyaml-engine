@@ -169,7 +169,10 @@ public class EmitterWithCommentEnabledTest {
   @Test
   /*
    * Issue 64
-   * https://bitbucket.org/snakeyaml/snakeyaml-engine/issues/64/emitting-an-empty-string-as-a-list-element
+   *
+   * @see <a href=
+   * "https://bitbucket.org/snakeyaml/snakeyaml-engine/issues/64/emitting-an-empty-string-as-a-list-element"
+   * >issue 64</a>
    */
   public void testSequenceEmptyString() throws Exception {
     String data = "" + //
