@@ -6,6 +6,9 @@
     </properties>
     <body>
         <release version="2.10" date="in GIT" description="Merge is back">
+            <action dev="asomov" type="fix" issue="64">
+                Emitting an empty string, as a list element, with block comment, creates invalid YAML (thanks to Anand Beh)
+            </action>
             <action dev="asomov" type="fix" issue="63">
                 Add examples for custom ScalarResolver (thanks to fernbread)
             </action>
