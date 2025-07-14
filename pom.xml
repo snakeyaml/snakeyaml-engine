@@ -85,7 +85,7 @@
                     <version>${maven-javadoc-plugin.version}</version>
                     <configuration>
                         <excludePackageNames>org.snakeyaml.engine.external.*</excludePackageNames>
-                        <source>8</source>
+                        <source>11</source>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -509,8 +509,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.scm.id>bitbucket</project.scm.id>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
         <junit.jupiter.version>5.4.0</junit.jupiter.version>
         <maven.javadoc.failOnError>false</maven.javadoc.failOnError>
         <maven-bundle-plugin.version>5.1.1</maven-bundle-plugin.version>
