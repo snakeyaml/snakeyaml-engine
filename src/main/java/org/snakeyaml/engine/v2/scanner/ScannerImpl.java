@@ -121,7 +121,7 @@ public final class ScannerImpl implements Scanner {
   private Token lastToken;
 
   // Variables related to simple keys treatment.
-  // Number of tokens that were emitted through the `get_token` method.
+  // Number of tokens that were emitted through the 'getToken()' method.
   private int tokensTaken = 0;
   // The current indentation level.
   private int indent = -1;
@@ -539,18 +539,18 @@ public final class ScannerImpl implements Scanner {
    * 7) book two:
    * </pre>
    * <p>
-   * In flow context, tokens should respect indentation. Actually the condition should be
-   * `self.indent >= column` according to the spec. But this condition will prohibit intuitively
-   * correct constructions such 'as key : { }'
+   * In the flow context, tokens should respect indentation. Actually, the condition should be
+   * `this.indent >= column` according to the spec. But this condition will prohibit intuitively
+   * correct constructions such as 'key : { }'
    */
   private void unwindIndent(int col) {
     // In the flow context, indentation is ignored. We make the scanner less
-    // restrictive than specification requires.
+    // restrictive than the specification requires.
     if (isFlowContext()) {
       return;
     }
 
-    // In block context, we may need to issue the BLOCK-END tokens.
+    // In the block context, we may need to issue the BLOCK-END tokens.
     while (this.indent > col) {
       Optional<Mark> mark = reader.getMark();
       this.indent = this.indents.pop();
@@ -742,7 +742,7 @@ public final class ScannerImpl implements Scanner {
 
   /**
    * Fetch an entry in the flow style. Flow-style entries occur either immediately after the start
-   * of a collection, or else after a comma.
+   * of a collection or else after a comma.
    */
   private void fetchFlowEntry() {
     // Simple keys are allowed after ','.
@@ -780,7 +780,7 @@ public final class ScannerImpl implements Scanner {
       // It's an error for the block entry to occur in the flow
       // context, but we let the scanner detect this.
     }
-    // Simple keys are allowed after '-'.
+    // Simple keys are allowed after '-'
     this.allowSimpleKey = true;
 
     // Reset possible simple key on the current level.
@@ -1569,9 +1569,10 @@ public final class ScannerImpl implements Scanner {
 
     Optional<String> lineBreakOpt = Optional.empty();
     // Scan the inner part of the block scalar.
-    if (this.reader.getColumn() < blockIndent && this.indent != reader.getColumn()) {
+    if (this.reader.getColumn() < blockIndent && reader.getColumn() != this.indent
+        && reader.getColumn() != 0) {
       // it means that there is indent, but less than expected
-      // fix S98Z - Block scalar with more spaces than first content line
+      // fix S98Z - Block scalar with more spaces than the first content line
       throw new ScannerException("while scanning a block scalar", startMark,
           " the leading empty lines contain more spaces (" + blockIndent
               + ") than the first non-empty line.",

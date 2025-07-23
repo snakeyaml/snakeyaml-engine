@@ -41,7 +41,7 @@ public class DumpLineBreakTest {
   @Test
   @DisplayName("Dump literal scalar style")
   void dumpLiteralScalaStyle() {
-    // TODO check(ScalarStyle.LITERAL, "\n", "|2+\n\n");
+    check(ScalarStyle.LITERAL, "\n", "|2+\n\n");
     check(ScalarStyle.LITERAL, "", "\"\"\n");
     check(ScalarStyle.LITERAL, " ", "\" \"\n");
   }
@@ -57,7 +57,7 @@ public class DumpLineBreakTest {
   @Test
   @DisplayName("Dump PLAIN scalar style")
   void dumpPlainScalaStyle() {
-    // TODO check(ScalarStyle.PLAIN, "\n", "|2+\n\n");
+    check(ScalarStyle.PLAIN, "\n", "|2+\n\n");
     check(ScalarStyle.PLAIN, "", "''\n");
     check(ScalarStyle.PLAIN, " ", "' '\n");
   }
@@ -65,7 +65,7 @@ public class DumpLineBreakTest {
   @Test
   @DisplayName("Dump FOLDED scalar style")
   void dumpFoldedScalaStyle() {
-    // TODO check(ScalarStyle.FOLDED, "\n", ">2+\n\n");
+    check(ScalarStyle.FOLDED, "\n", ">2+\n\n");
     check(ScalarStyle.FOLDED, "", "\"\"\n");
     check(ScalarStyle.FOLDED, " ", "\" \"\n");
   }
