@@ -107,10 +107,16 @@ public class DumpLineBreakTest {
 
   @Test
   @DisplayName("Use Keep in Literal scalar: S98Z")
+  /**
+   * <a href="https://matrix.yaml.info/details/S98Z.html">YAML Test Matrix</a>
+   * <a href="https://github.com/yaml/yaml-test-suite/issues/37">S98Z under YAML 1.2</a>
+   * <a href="https://github.com/yaml/yaml-test-suite/blob/main/src/S98Z.yaml">yaml-test-suite</a>
+   */
   void parseLiteralS98Z() {
     String input = "empty block scalar: >\n" + " \n" + "  \n" + "   \n" + " # comment";
     System.out.println(input);
     Object obj = load.loadFromString(input);
+    // TODO expected a failure
     assertNotNull(obj);
   }
 }
