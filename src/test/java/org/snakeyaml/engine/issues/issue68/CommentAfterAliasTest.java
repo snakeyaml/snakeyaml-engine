@@ -35,8 +35,7 @@ public class CommentAfterAliasTest {
   @DisplayName("Issue 68: inline")
   void testCommentAfterAlias3() {
     Compose compose = new Compose(loadSettings);
-    String input = "field_with_alias: &alias_name # inline comment 1\n"
-             + "    555";
+    String input = "field_with_alias: &alias_name # inline comment 1\n  555";
     Optional<Node> node = compose.composeString(input);
     assertNotNull(node);
     assertTrue(node.isPresent());
