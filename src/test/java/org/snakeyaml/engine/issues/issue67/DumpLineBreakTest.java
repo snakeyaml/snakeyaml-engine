@@ -13,6 +13,11 @@
  */
 package org.snakeyaml.engine.issues.issue67;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.snakeyaml.engine.v2.api.Dump;
@@ -21,10 +26,9 @@ import org.snakeyaml.engine.v2.api.Load;
 import org.snakeyaml.engine.v2.api.LoadSettings;
 import org.snakeyaml.engine.v2.common.ScalarStyle;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 /**
- * Issue 67: ScannerException on block scalar "\n"
+ * Issue 67: ScannerException on block scalar "\n" See
+ * <a href="https://www.baeldung.com/yaml-multi-line#1-keep">Keep in Literal scalar</a>
  */
 @org.junit.jupiter.api.Tag("fast")
 public class DumpLineBreakTest {
@@ -92,5 +96,23 @@ public class DumpLineBreakTest {
     String dumpString = dump.dumpToString(yaml);
     assertEquals(expected, dumpString);
     assertEquals(yaml, load.loadFromString(dumpString));
+  }
+
+  @Test
+  @DisplayName("Use Keep in Literal scalar")
+  void parseLiteral() {
+    String input = "---\n" + "top:\n" + "  foo:\n" + "  - problem: |2+\n" + "\n" + "  bar: baz\n";
+    System.out.println(input);
+    try {
+      Object obj = load.loadFromString(input);
+      assertNotNull(obj);
+      // TODO fix issue 67
+      fail("Fix issue 67");
+    } catch (Exception e) {
+      assertTrue(
+          e.getMessage().contains(
+              "the leading empty lines contain more spaces (6) than the first non-empty line"),
+          e.getMessage());
+    }
   }
 }
