@@ -32,7 +32,18 @@ public class CommentAfterAliasTest {
   private final LoadSettings loadSettings = LoadSettings.builder().setParseComments(false).build();
 
   @Test
-  @DisplayName("flat")
+  @DisplayName("Issue 68: inline")
+  void testCommentAfterAlias3() {
+    Compose compose = new Compose(loadSettings);
+    String input = "field_with_alias: &alias_name # inline comment 1\n"
+             + "    555";
+    Optional<Node> node = compose.composeString(input);
+    assertNotNull(node);
+    assertTrue(node.isPresent());
+  }
+
+  @Test
+  @DisplayName("Issue 68: block comment and flat after")
   void testCommentAfterAlias1() {
     Compose compose = new Compose(loadSettings);
     String input = "field_with_alias: &alias_name\n"
@@ -43,7 +54,7 @@ public class CommentAfterAliasTest {
   }
 
   @Test
-  @DisplayName("nested")
+  @DisplayName("Issue 68: block comment and nested after")
   void testCommentAfterAlias() {
     Compose compose = new Compose(loadSettings);
     String input = "field_with_alias: &alias_name\n"
