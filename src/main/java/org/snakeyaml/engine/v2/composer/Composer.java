@@ -134,6 +134,12 @@ public class Composer implements Iterator<Node> {
     if (!parser.checkEvent(Event.ID.StreamEnd)) {
       document = Optional.of(next());
     }
+    if (document.isPresent()) {
+      // is there a better place for this code? Should it be in the Node?
+      Node node = document.get();
+      node.setInLineComments(inlineCommentsCollector.collectEvents().consume());
+      node.setBlockComments(blockCommentsCollector.collectEvents().consume());
+    }
     // Ensure that the stream contains no more documents.
     if (!parser.checkEvent(Event.ID.StreamEnd)) {
       Event event = parser.next();

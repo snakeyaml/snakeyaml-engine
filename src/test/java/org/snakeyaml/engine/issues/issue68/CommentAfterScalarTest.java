@@ -13,6 +13,7 @@
  */
 package org.snakeyaml.engine.issues.issue68;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -23,33 +24,35 @@ import org.snakeyaml.engine.v2.api.LoadSettings;
 import org.snakeyaml.engine.v2.api.lowlevel.Compose;
 import org.snakeyaml.engine.v2.nodes.Node;
 
-/**
- * Issue 68: Comments are not parsed correctly when they follow an alias
- */
 @org.junit.jupiter.api.Tag("fast")
-public class CommentAfterAliasTest {
-  // TODO parse comments
-  private final LoadSettings loadSettings = LoadSettings.builder().setParseComments(false).build();
+public class CommentAfterScalarTest {
+  private final LoadSettings loadSettings = LoadSettings.builder().setParseComments(true).build();
 
   @Test
-  @DisplayName("flat")
-  void testCommentAfterAlias1() {
+  @DisplayName("Respect inline comment for '!!str # comment'")
+  void testInLineCommentForScalarNode() {
     Compose compose = new Compose(loadSettings);
-    String input = "field_with_alias: &alias_name\n"
-        + "# separate line comment following the alias\n" + "    555";
-    Optional<Node> node = compose.composeString(input);
+    Optional<Node> node = compose.composeString("!!str # comment");
     assertNotNull(node);
     assertTrue(node.isPresent());
+    assertEquals(1, node.get().getInLineComments().size());
+    assertEquals(" comment", node.get().getInLineComments().stream().findFirst().get().getValue());
   }
 
   @Test
-  @DisplayName("nested")
-  void testCommentAfterAlias() {
+  @DisplayName("Respect inline and block comments for '!!str # comment\n# block comment1'")
+  void testInLineCommentForScalarNode2() {
     Compose compose = new Compose(loadSettings);
-    String input = "field_with_alias: &alias_name\n"
-        + "# separate line comment following the alias\n" + "    nested_field: nested_value";
-    Optional<Node> node = compose.composeString(input);
+    Optional<Node> node =
+        compose.composeString("!!str # comment\n# block comment1\n# block comment2");
     assertNotNull(node);
     assertTrue(node.isPresent());
+    assertEquals(1, node.get().getInLineComments().size());
+    assertEquals(" comment", node.get().getInLineComments().stream().findFirst().get().getValue());
+    assertEquals(2, node.get().getBlockComments().size());
+    assertEquals(" block comment1",
+        node.get().getBlockComments().stream().findFirst().get().getValue());
+    assertEquals(" block comment2",
+        node.get().getBlockComments().stream().skip(1).findFirst().get().getValue());
   }
 }
