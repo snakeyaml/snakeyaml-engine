@@ -15,8 +15,6 @@ package org.snakeyaml.engine.issues.issue67;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -103,16 +101,16 @@ public class DumpLineBreakTest {
   void parseLiteral() {
     String input = "---\n" + "top:\n" + "  foo:\n" + "  - problem: |2+\n" + "\n" + "  bar: baz\n";
     System.out.println(input);
-    try {
-      Object obj = load.loadFromString(input);
-      assertNotNull(obj);
-      // TODO fix issue 67
-      fail("Fix issue 67");
-    } catch (Exception e) {
-      assertTrue(
-          e.getMessage().contains(
-              "the leading empty lines contain more spaces (6) than the first non-empty line"),
-          e.getMessage());
-    }
+    Object obj = load.loadFromString(input);
+    assertNotNull(obj);
+  }
+
+  @Test
+  @DisplayName("Use Keep in Literal scalar: S98Z")
+  void parseLiteralS98Z() {
+    String input = "empty block scalar: >\n" + " \n" + "  \n" + "   \n" + " # comment";
+    System.out.println(input);
+    Object obj = load.loadFromString(input);
+    assertNotNull(obj);
   }
 }

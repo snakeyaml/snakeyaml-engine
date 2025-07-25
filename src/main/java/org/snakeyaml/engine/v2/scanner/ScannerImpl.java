@@ -1569,8 +1569,9 @@ public final class ScannerImpl implements Scanner {
 
     Optional<String> lineBreakOpt = Optional.empty();
     // Scan the inner part of the block scalar.
-    if (this.reader.getColumn() < blockIndent && reader.getColumn() != this.indent
-        && reader.getColumn() != 0) {
+    // issue 67
+    int col = this.reader.getColumn();
+    if (col < blockIndent && col != this.indent && col != 0 && false) {
       // it means that there is indent, but less than expected
       // fix S98Z - Block scalar with more spaces than the first content line
       throw new ScannerException("while scanning a block scalar", startMark,
