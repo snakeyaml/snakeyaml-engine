@@ -13,19 +13,6 @@
  */
 package org.snakeyaml.engine.v2.scanner;
 
-import static org.snakeyaml.engine.v2.common.CharConstants.ESCAPE_CODES;
-import static org.snakeyaml.engine.v2.common.CharConstants.ESCAPE_REPLACEMENTS;
-
-import java.nio.ByteBuffer;
-import java.nio.charset.CharacterCodingException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.regex.Pattern;
 import org.snakeyaml.engine.v2.api.LoadSettings;
 import org.snakeyaml.engine.v2.comments.CommentType;
 import org.snakeyaml.engine.v2.common.Anchor;
@@ -60,6 +47,20 @@ import org.snakeyaml.engine.v2.tokens.TagToken;
 import org.snakeyaml.engine.v2.tokens.TagTuple;
 import org.snakeyaml.engine.v2.tokens.Token;
 import org.snakeyaml.engine.v2.tokens.ValueToken;
+
+import java.nio.ByteBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.regex.Pattern;
+
+import static org.snakeyaml.engine.v2.common.CharConstants.ESCAPE_CODES;
+import static org.snakeyaml.engine.v2.common.CharConstants.ESCAPE_REPLACEMENTS;
 
 /**
  * <pre>
@@ -1569,16 +1570,6 @@ public final class ScannerImpl implements Scanner {
 
     Optional<String> lineBreakOpt = Optional.empty();
     // Scan the inner part of the block scalar.
-    // issue 67
-    int col = this.reader.getColumn();
-    if (col < blockIndent && col != this.indent && col != 0 && false) {
-      // it means that there is indent, but less than expected
-      // TODO fix S98Z - Block scalar with more spaces than the first content line
-      throw new ScannerException("while scanning a block scalar", startMark,
-          " the leading empty lines contain more spaces (" + blockIndent
-              + ") than the first non-empty line.",
-          reader.getMark());
-    }
     while (this.reader.getColumn() == blockIndent && reader.peek() != 0) {
       stringBuilder.append(breaks);
       boolean leadingNonSpace = " \t".indexOf(reader.peek()) == -1;
@@ -1624,8 +1615,8 @@ public final class ScannerImpl implements Scanner {
   }
 
   /**
-   * Scan a block scalar indicator. The block scalar indicator includes two optional components,
-   * which may appear in either order.
+   * Scan a block scalar indicator. The block scalar indicator includes two optional parts, which
+   * may appear in either order.
    * <p>
    * A block indentation indicator is a non-zero digit describing the indentation level of the block
    * scalar to follow. This indentation is an additional number of spaces relative to the current
@@ -1711,7 +1702,7 @@ public final class ScannerImpl implements Scanner {
   private BreakIntentHolder scanBlockScalarIndentation() {
     // See the specification for details.
     StringBuilder chunks = new StringBuilder();
-    int maxIndent = 0;
+    int maxIndent = 0; // max indented empty line
     Optional<Mark> endMark = reader.getMark();
     // Look ahead some number of lines until the first non-blank character
     // occurs; the determined indentation will be the maximum number of
@@ -1732,8 +1723,16 @@ public final class ScannerImpl implements Scanner {
         }
       }
     }
+    int nonEmptyIndent = reader.getColumn(); // non-empty line detected
+    if (nonEmptyIndent > 0 && maxIndent > nonEmptyIndent) {
+      // it means that there is indent, but less than implicitly expected (max indented empty line)
+      throw new ScannerException(
+          "while scanning a block scalar", endMark, " the leading empty lines contain more spaces ("
+              + maxIndent + ") than the first non-empty line (" + nonEmptyIndent + ").",
+          reader.getMark());
+    }
     // Pass several results back together (Java 8 does not have records)
-    return new BreakIntentHolder(chunks.toString(), maxIndent, endMark);
+    return new BreakIntentHolder(chunks.toString(), nonEmptyIndent, endMark);
   }
 
   private BreakIntentHolder scanBlockScalarBreaks(int indent) {

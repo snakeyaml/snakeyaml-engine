@@ -13,9 +13,6 @@
  */
 package org.snakeyaml.engine.issues.issue67;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.snakeyaml.engine.v2.api.Dump;
@@ -23,6 +20,12 @@ import org.snakeyaml.engine.v2.api.DumpSettings;
 import org.snakeyaml.engine.v2.api.Load;
 import org.snakeyaml.engine.v2.api.LoadSettings;
 import org.snakeyaml.engine.v2.common.ScalarStyle;
+import org.snakeyaml.engine.v2.exceptions.ScannerException;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Issue 67: ScannerException on block scalar "\n" See
@@ -100,7 +103,7 @@ public class DumpLineBreakTest {
   @DisplayName("Use Keep in Literal scalar")
   void parseLiteral() {
     String input = "---\n" + "top:\n" + "  foo:\n" + "  - problem: |2+\n" + "\n" + "  bar: baz\n";
-    System.out.println(input);
+    // System.out.println(input);
     Object obj = load.loadFromString(input);
     assertNotNull(obj);
   }
@@ -114,9 +117,29 @@ public class DumpLineBreakTest {
    */
   void parseLiteralS98Z() {
     String input = "empty block scalar: >\n" + " \n" + "  \n" + "   \n" + " # comment";
-    System.out.println(input);
+    // System.out.println(input);
+    try {
+      load.loadFromString(input);
+      fail("S98Z");
+    } catch (ScannerException e) {
+      assertTrue(
+          e.getMessage().contains(
+              "the leading empty lines contain more spaces (3) than the first non-empty line (1)."),
+          e.getMessage());
+    }
+  }
+
+  @Test
+  @DisplayName("Use Keep in Literal scalar: T26H")
+  /**
+   * <a href="https://matrix.yaml.info/details/T26H.html">YAML Test Matrix</a>
+   * <a href="https://github.com/yaml/yaml-test-suite/blob/main/src/T26H.yaml">yaml-test-suite</a>
+   */
+  void parseLiteralT26H() {
+    String input = "--- |\n" + " \n" + "  \n" + "  literal\n" + "   \n" + "  \n" + "  text\n" + "\n"
+        + " # Comment\n";
+    // System.out.println(input);
     Object obj = load.loadFromString(input);
-    // TODO expected a failure
-    assertNotNull(obj);
+    assertEquals("\n" + "\n" + "literal\n" + " \n" + "\n" + "text\n", obj);
   }
 }

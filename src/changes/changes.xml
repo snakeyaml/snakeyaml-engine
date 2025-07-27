@@ -6,6 +6,9 @@
     </properties>
     <body>
         <release version="2.11" date="in GIT" description="Maintenance">
+            <action dev="asomov" type="update">
+                Properly fix S98Z test case (thanks to Joseph Benken)
+            </action>
             <action dev="asomov" type="fix" issue="67">
                 Fix parsing a block scalar with LF, reverting S98Z test case (thanks to Joseph Benken)
             </action>
