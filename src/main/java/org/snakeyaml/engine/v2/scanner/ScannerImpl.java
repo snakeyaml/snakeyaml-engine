@@ -1702,7 +1702,7 @@ public final class ScannerImpl implements Scanner {
   private BreakIntentHolder scanBlockScalarIndentation() {
     // See the specification for details.
     StringBuilder chunks = new StringBuilder();
-    int maxIndent = 0; // max indented empty line
+    int maxIndentOnEmptyLine = 0; // max indented empty line
     Optional<Mark> endMark = reader.getMark();
     // Look ahead some number of lines until the first non-blank character
     // occurs; the determined indentation will be the maximum number of
@@ -1718,21 +1718,22 @@ public final class ScannerImpl implements Scanner {
         // character; if we surpass our previous maximum for indent
         // level, update that too.
         reader.forward();
-        if (this.reader.getColumn() > maxIndent) {
-          maxIndent = reader.getColumn();
+        if (this.reader.getColumn() > maxIndentOnEmptyLine) {
+          maxIndentOnEmptyLine = reader.getColumn();
         }
       }
     }
-    int nonEmptyIndent = reader.getColumn(); // non-empty line detected
-    if (nonEmptyIndent > 0 && maxIndent > nonEmptyIndent) {
-      // it means that there is indent, but less than implicitly expected (max indented empty line)
+    int indent = reader.getColumn(); // the first non-empty line detected
+    if (indent > 0 && indent < maxIndentOnEmptyLine) {
+      // it means that there is indent, but less than max indented empty line above the first
+      // non-empty line (the current line)
       throw new ScannerException(
           "while scanning a block scalar", endMark, " the leading empty lines contain more spaces ("
-              + maxIndent + ") than the first non-empty line (" + nonEmptyIndent + ").",
+              + maxIndentOnEmptyLine + ") than the first non-empty line (" + indent + ").",
           reader.getMark());
     }
-    // Pass several results back together (Java 8 does not have records)
-    return new BreakIntentHolder(chunks.toString(), nonEmptyIndent, endMark);
+    // Pass several results back together
+    return new BreakIntentHolder(chunks.toString(), indent, endMark);
   }
 
   private BreakIntentHolder scanBlockScalarBreaks(int indent) {
