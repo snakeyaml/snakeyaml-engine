@@ -82,7 +82,8 @@ public final class StreamReader {
     this.stream = reader;
     this.eof = false;
     this.bufferSize = loadSettings.getBufferSize();
-    this.buffer = new char[bufferSize];
+    // read one less because the last char may be HighSurrogate
+    this.buffer = new char[bufferSize + 1];
     this.useMarks = loadSettings.getUseMarks();
   }
 
@@ -243,14 +244,14 @@ public final class StreamReader {
 
   private void update() {
     try {
-      int read = stream.read(buffer, 0, bufferSize - 1);
+      int read = stream.read(buffer);
       if (read > 0) {
         int cpIndex = (dataLength - pointer);
         codePointsWindow = Arrays.copyOfRange(codePointsWindow, pointer, dataLength + read);
-
         if (Character.isHighSurrogate(buffer[read - 1])) {
           if (stream.read(buffer, read, 1) == -1) {
-            eof = true;
+            throw new ReaderException(name, index + read, buffer[read - 1],
+                "The last char is HighSurrogate (no LowSurrogate detected).");
           } else {
             read++;
           }
@@ -269,11 +270,10 @@ public final class StreamReader {
           }
           cpIndex++;
         }
-
         dataLength = cpIndex;
         pointer = 0;
         if (nonPrintable.isPresent()) {
-          throw new ReaderException(name, cpIndex - 1, nonPrintable.get(),
+          throw new ReaderException(name, index + cpIndex - 1, nonPrintable.get(),
               "special characters are not allowed");
         }
       } else {

@@ -480,10 +480,12 @@ public class ParserImpl implements Parser {
       // Parse an explicit document.
       Event event;
       if (!scanner.checkToken(Token.ID.StreamEnd)) {
+        scanner.resetDocumentIndex();
         Token token = scanner.peekToken();
         Optional<Mark> startMark = token.getStartMark();
         VersionTagsTuple tuple = processDirectives();
         while (scanner.checkToken(Token.ID.Comment)) {
+          // the comments in the directive are ignored because they are not part of the Node tree
           scanner.next();
         }
         if (!scanner.checkToken(Token.ID.StreamEnd)) {
@@ -543,7 +545,6 @@ public class ParserImpl implements Parser {
             + scanner.peekToken().getTokenId() + "'", scanner.peekToken().getStartMark());
       }
       directiveTags.clear(); // directive tags do not survive between the documents
-      scanner.resetDocumentIndex();
       Event event = new DocumentEndEvent(explicit, startMark, endMark);
       // Prepare the next state.
       state = Optional.of(new ParseDocumentStart());
@@ -951,10 +952,18 @@ public class ParserImpl implements Parser {
     }
 
     public Event produce() {
+      if (scanner.checkToken(Token.ID.Comment)) {
+        state = Optional.of(new ParseFlowMappingKey(first));
+        return produceCommentEvent((CommentToken) scanner.next());
+      }
       if (!scanner.checkToken(Token.ID.FlowMappingEnd)) {
         if (!first) {
           if (scanner.checkToken(Token.ID.FlowEntry)) {
             scanner.next();
+            if (scanner.checkToken(Token.ID.Comment)) {
+              state = Optional.of(new ParseFlowMappingKey(true));
+              return produceCommentEvent((CommentToken) scanner.next());
+            }
           } else {
             Token token = scanner.peekToken();
             throw new ParserException("while parsing a flow mapping", markPop(),

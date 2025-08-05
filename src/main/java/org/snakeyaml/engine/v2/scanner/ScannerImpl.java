@@ -13,19 +13,6 @@
  */
 package org.snakeyaml.engine.v2.scanner;
 
-import static org.snakeyaml.engine.v2.common.CharConstants.ESCAPE_CODES;
-import static org.snakeyaml.engine.v2.common.CharConstants.ESCAPE_REPLACEMENTS;
-
-import java.nio.ByteBuffer;
-import java.nio.charset.CharacterCodingException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.regex.Pattern;
 import org.snakeyaml.engine.v2.api.LoadSettings;
 import org.snakeyaml.engine.v2.comments.CommentType;
 import org.snakeyaml.engine.v2.common.Anchor;
@@ -60,6 +47,20 @@ import org.snakeyaml.engine.v2.tokens.TagToken;
 import org.snakeyaml.engine.v2.tokens.TagTuple;
 import org.snakeyaml.engine.v2.tokens.Token;
 import org.snakeyaml.engine.v2.tokens.ValueToken;
+
+import java.nio.ByteBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.regex.Pattern;
+
+import static org.snakeyaml.engine.v2.common.CharConstants.ESCAPE_CODES;
+import static org.snakeyaml.engine.v2.common.CharConstants.ESCAPE_REPLACEMENTS;
 
 /**
  * <pre>
@@ -121,7 +122,7 @@ public final class ScannerImpl implements Scanner {
   private Token lastToken;
 
   // Variables related to simple keys treatment.
-  // Number of tokens that were emitted through the `get_token` method.
+  // Number of tokens that were emitted through the 'getToken()' method.
   private int tokensTaken = 0;
   // The current indentation level.
   private int indent = -1;
@@ -185,8 +186,23 @@ public final class ScannerImpl implements Scanner {
   }
 
   /**
+   * Check whether the next token is the given type.
+   */
+  @Override
+  public boolean checkToken(Token.ID choice) {
+    while (needMoreTokens()) {
+      fetchMoreTokens();
+    }
+    if (!this.tokens.isEmpty()) {
+      return this.tokens.get(0).getTokenId() == choice;
+    }
+    return false;
+  }
+
+  /**
    * Check whether the next token is one of the given types.
    */
+  @Override
   public boolean checkToken(Token.ID... choices) {
     while (needMoreTokens()) {
       fetchMoreTokens();
@@ -524,18 +540,18 @@ public final class ScannerImpl implements Scanner {
    * 7) book two:
    * </pre>
    * <p>
-   * In flow context, tokens should respect indentation. Actually the condition should be
-   * `self.indent >= column` according to the spec. But this condition will prohibit intuitively
-   * correct constructions such 'as key : { }'
+   * In the flow context, tokens should respect indentation. Actually, the condition should be
+   * `this.indent >= column` according to the spec. But this condition will prohibit intuitively
+   * correct constructions such as 'key : { }'
    */
   private void unwindIndent(int col) {
     // In the flow context, indentation is ignored. We make the scanner less
-    // restrictive than specification requires.
+    // restrictive than the specification requires.
     if (isFlowContext()) {
       return;
     }
 
-    // In block context, we may need to issue the BLOCK-END tokens.
+    // In the block context, we may need to issue the BLOCK-END tokens.
     while (this.indent > col) {
       Optional<Mark> mark = reader.getMark();
       this.indent = this.indents.pop();
@@ -727,7 +743,7 @@ public final class ScannerImpl implements Scanner {
 
   /**
    * Fetch an entry in the flow style. Flow-style entries occur either immediately after the start
-   * of a collection, or else after a comma.
+   * of a collection or else after a comma.
    */
   private void fetchFlowEntry() {
     // Simple keys are allowed after ','.
@@ -765,7 +781,7 @@ public final class ScannerImpl implements Scanner {
       // It's an error for the block entry to occur in the flow
       // context, but we let the scanner detect this.
     }
-    // Simple keys are allowed after '-'.
+    // Simple keys are allowed after '-'
     this.allowSimpleKey = true;
 
     // Reset possible simple key on the current level.
@@ -1126,6 +1142,11 @@ public final class ScannerImpl implements Scanner {
       while (reader.peek(ff) == ' ') {
         ff++;
       }
+      // unfortunately, this check is too simple, but it helps to ignore TABs in JSON
+      // which is always flow context (see issue 55 and tests)
+      if (reader.peek(ff) == '\t' && isFlowContext()) {
+        ff++;
+      }
       if (ff > 0) {
         reader.forward(ff);
       }
@@ -1380,10 +1401,13 @@ public final class ScannerImpl implements Scanner {
    * <pre>
    * The YAML 1.2 specification does not restrict characters for anchors and
    * aliases. This may lead to problems.
-   * see <a href=
+   * See <a href=
+   * "https://github.com/yaml/libyaml/issues/205#issuecomment-693634465">alias naming</a>
+   * </pre>
+   *
+   * <pre>
+   * See also <a href=
    * "https://bitbucket.org/snakeyaml/snakeyaml/issues/485/alias-names-are-too-permissive-compared-to">issue 485</a>
-   * This implementation tries to follow <a href=
-   * "https://github.com/yaml/yaml-spec/blob/master/rfc/RFC-0003.md">RFC-0003</a>
    * </pre>
    */
   private Token scanAnchor(boolean isAnchor) {
@@ -1393,7 +1417,10 @@ public final class ScannerImpl implements Scanner {
     reader.forward();
     int length = 0;
     int c = reader.peek(length);
-    // Anchor may not contain ",[]{}"
+    // The future implementation may try to follow <a href=
+    // "https://github.com/yaml/yaml-spec/blob/master/rfc/RFC-0003.md">RFC-0003</a>
+    // and exclude also ':' (colon)
+    // Anchor may not contain ,[]{}/.*&
     while (CharConstants.NULL_BL_T_LINEBR.hasNo(c, ",[]{}/.*&")) {
       length++;
       c = reader.peek(length);
@@ -1543,14 +1570,6 @@ public final class ScannerImpl implements Scanner {
 
     Optional<String> lineBreakOpt = Optional.empty();
     // Scan the inner part of the block scalar.
-    if (this.reader.getColumn() < blockIndent && this.indent != reader.getColumn()) {
-      // it means that there is indent, but less than expected
-      // fix S98Z - Block scalar with more spaces than first content line
-      throw new ScannerException("while scanning a block scalar", startMark,
-          " the leading empty lines contain more spaces (" + blockIndent
-              + ") than the first non-empty line.",
-          reader.getMark());
-    }
     while (this.reader.getColumn() == blockIndent && reader.peek() != 0) {
       stringBuilder.append(breaks);
       boolean leadingNonSpace = " \t".indexOf(reader.peek()) == -1;
@@ -1570,8 +1589,8 @@ public final class ScannerImpl implements Scanner {
         // This is the folding according to the specification:
         if (style == ScalarStyle.FOLDED && "\n".equals(lineBreakOpt.orElse("")) && leadingNonSpace
             && " \t".indexOf(reader.peek()) == -1) {
-          if (breaks.length() == 0) {
-            stringBuilder.append(" ");
+          if (breaks.isEmpty()) {
+            stringBuilder.append(' ');
           }
         } else {
           stringBuilder.append(lineBreakOpt.orElse(""));
@@ -1596,8 +1615,8 @@ public final class ScannerImpl implements Scanner {
   }
 
   /**
-   * Scan a block scalar indicator. The block scalar indicator includes two optional components,
-   * which may appear in either order.
+   * Scan a block scalar indicator. The block scalar indicator includes two optional parts, which
+   * may appear in either order.
    * <p>
    * A block indentation indicator is a non-zero digit describing the indentation level of the block
    * scalar to follow. This indentation is an additional number of spaces relative to the current
@@ -1683,7 +1702,7 @@ public final class ScannerImpl implements Scanner {
   private BreakIntentHolder scanBlockScalarIndentation() {
     // See the specification for details.
     StringBuilder chunks = new StringBuilder();
-    int maxIndent = 0;
+    int maxIndentOnEmptyLine = 0; // max indented empty line
     Optional<Mark> endMark = reader.getMark();
     // Look ahead some number of lines until the first non-blank character
     // occurs; the determined indentation will be the maximum number of
@@ -1699,13 +1718,22 @@ public final class ScannerImpl implements Scanner {
         // character; if we surpass our previous maximum for indent
         // level, update that too.
         reader.forward();
-        if (this.reader.getColumn() > maxIndent) {
-          maxIndent = reader.getColumn();
+        if (this.reader.getColumn() > maxIndentOnEmptyLine) {
+          maxIndentOnEmptyLine = reader.getColumn();
         }
       }
     }
-    // Pass several results back together (Java 8 does not have records)
-    return new BreakIntentHolder(chunks.toString(), maxIndent, endMark);
+    int indent = reader.getColumn(); // the first non-empty line detected
+    if (indent > 0 && indent < maxIndentOnEmptyLine) {
+      // it means that there is indent, but less than max indented empty line above the first
+      // non-empty line (the current line)
+      throw new ScannerException(
+          "while scanning a block scalar", endMark, " the leading empty lines contain more spaces ("
+              + maxIndentOnEmptyLine + ") than the first non-empty line (" + indent + ").",
+          reader.getMark());
+    }
+    // Pass several results back together
+    return new BreakIntentHolder(chunks.toString(), indent, endMark);
   }
 
   private BreakIntentHolder scanBlockScalarBreaks(int indent) {
@@ -1759,10 +1787,10 @@ public final class ScannerImpl implements Scanner {
     Optional<Mark> startMark = reader.getMark();
     int quote = reader.peek();
     reader.forward();
-    chunks.append(scanFlowScalarNonSpaces(doubleValue, startMark));
+    scanFlowScalarNonSpaces(doubleValue, startMark, chunks);
     while (reader.peek() != quote) {
-      chunks.append(scanFlowScalarSpaces(startMark));
-      chunks.append(scanFlowScalarNonSpaces(doubleValue, startMark));
+      scanFlowScalarSpaces(startMark, chunks);
+      scanFlowScalarNonSpaces(doubleValue, startMark, chunks);
     }
     reader.forward();
     Optional<Mark> endMark = reader.getMark();
@@ -1772,9 +1800,9 @@ public final class ScannerImpl implements Scanner {
   /**
    * Scan some number of flow-scalar non-space characters.
    */
-  private String scanFlowScalarNonSpaces(boolean doubleQuoted, Optional<Mark> startMark) {
+  private void scanFlowScalarNonSpaces(boolean doubleQuoted, Optional<Mark> startMark,
+      StringBuilder chunks) {
     // See the specification for details.
-    StringBuilder chunks = new StringBuilder();
     while (true) {
       // Scan through any number of characters which are not: NUL, blank,
       // tabs, line breaks, single-quotes, double-quotes, or backslashes.
@@ -1789,7 +1817,7 @@ public final class ScannerImpl implements Scanner {
       // differing meanings.
       int c = reader.peek();
       if (!doubleQuoted && c == '\'' && reader.peek(1) == '\'') {
-        chunks.append("'");
+        chunks.append('\'');
         reader.forward(2);
       } else if ((doubleQuoted && c == '\'') || (!doubleQuoted && "\"\\".indexOf(c) != -1)) {
         chunks.appendCodePoint(c);
@@ -1816,8 +1844,7 @@ public final class ScannerImpl implements Scanner {
           }
           int decimal = Integer.parseInt(hex, 16);
           try {
-            String unicode = new String(Character.toChars(decimal));
-            chunks.append(unicode);
+            chunks.appendCodePoint(decimal);
             reader.forward(length);
           } catch (IllegalArgumentException e) {
             throw new ScannerException("while scanning a double-quoted scalar", startMark,
@@ -1831,14 +1858,13 @@ public final class ScannerImpl implements Scanner {
               "found unknown escape character " + s + "(" + c + ")", reader.getMark());
         }
       } else {
-        return chunks.toString();
+        return;
       }
     }
   }
 
-  private String scanFlowScalarSpaces(Optional<Mark> startMark) {
+  private void scanFlowScalarSpaces(Optional<Mark> startMark, StringBuilder chunks) {
     // See the specification for details.
-    StringBuilder chunks = new StringBuilder();
     int length = 0;
     // Scan through any number of whitespace (space, tab) characters,
     // consuming them.
@@ -1858,14 +1884,13 @@ public final class ScannerImpl implements Scanner {
       String breaks = scanFlowScalarBreaks(startMark);
       if (!"\n".equals(lineBreakOpt.get())) {
         chunks.append(lineBreakOpt.get());
-      } else if (breaks.length() == 0) {
-        chunks.append(" ");
+      } else if (breaks.isEmpty()) {
+        chunks.append(' ');
       }
       chunks.append(breaks);
     } else {
       chunks.append(whitespaces);
     }
-    return chunks.toString();
   }
 
   private String scanFlowScalarBreaks(Optional<Mark> startMark) {
@@ -1932,7 +1957,7 @@ public final class ScannerImpl implements Scanner {
       chunks.append(reader.prefixForward(length));
       endMark = reader.getMark();
       spaces = scanPlainSpaces();
-      if (spaces.length() == 0 || reader.peek() == '#'
+      if (spaces.isEmpty() || reader.peek() == '#'
           || (isBlockContext() && this.reader.getColumn() < plainIndent)) {
         break;
       }
@@ -2184,8 +2209,6 @@ public final class ScannerImpl implements Scanner {
    * '\r'     : '\n'
    * '\n'     : '\n'
    * '\x85'   : '\n'
-   * '\u2028' : '\u2028'
-   * '\u2029  : '\u2029'
    * default : ''
    * </pre>
    *
@@ -2200,9 +2223,6 @@ public final class ScannerImpl implements Scanner {
         reader.forward();
       }
       return Optional.of("\n");
-    } else if (c == '\u2028' || c == '\u2029') {
-      reader.forward();
-      return Optional.of(String.valueOf(Character.toChars(c)));
     }
     return Optional.empty();
   }

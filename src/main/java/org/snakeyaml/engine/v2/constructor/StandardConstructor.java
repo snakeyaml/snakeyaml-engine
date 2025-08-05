@@ -13,6 +13,7 @@
  */
 package org.snakeyaml.engine.v2.constructor;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -61,11 +62,6 @@ public class StandardConstructor extends BaseConstructor {
     this.tagConstructors.putAll(settings.getTagConstructors());
   }
 
-  /**
-   * Flattening is not required because merge was removed from YAML 1.2 Only check duplications
-   *
-   * @param node - mapping to check the duplications
-   */
   protected void flattenMapping(MappingNode node) {
     processDuplicateKeys(node);
   }

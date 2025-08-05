@@ -17,12 +17,14 @@ stream, but for simplification the diagram mentions only one Node graph)
 
 ## Testing
 
-### Import test date
+### Build the test data
 
 Engine uses [Comprehensive Test Suite for YAML](https://github.com/yaml/yaml-test-suite) for the
 tests.
 
-### Build the data
+When your contribution implements new topic from the spec or changes the core features, it should be checked with
+the latest spec tests.
+
 
 - clone [YAML Test Suite](https://github.com/yaml/yaml-test-suite)
 - take tag (the trunk is work in progress)
@@ -40,12 +42,12 @@ make clean data && make data-update && mv data orig && mkdir data; find orig -na
 
 - copy *data* folder to `src/test/resources/comprehensive-test-suite-data`
 
-### Check the import
+### Test locally
+
+    ./mvnw clean verify
+
+### Run tests in docker
 
 Run the tests and fix the errors:
 
-    ./docker-run-jdk8.sh
-
-### Format source
-
-    ./mvnw clean install site -Preformat
+    ./docker-run-jdk11.sh

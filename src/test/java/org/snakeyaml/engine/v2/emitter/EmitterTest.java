@@ -13,20 +13,6 @@
  */
 package org.snakeyaml.engine.v2.emitter;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.TreeMap;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -42,7 +28,20 @@ import org.snakeyaml.engine.v2.events.DocumentStartEvent;
 import org.snakeyaml.engine.v2.events.ImplicitTuple;
 import org.snakeyaml.engine.v2.events.ScalarEvent;
 import org.snakeyaml.engine.v2.events.StreamStartEvent;
-import org.snakeyaml.engine.v2.exceptions.ComposerException;
+
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.TreeMap;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @Tag("fast")
 public class EmitterTest {
@@ -269,7 +268,7 @@ public class EmitterTest {
   }
 
   @Test
-  @DisplayName("Expected space to separate anchor from colon")
+  @DisplayName("Expected space to separate alias from colon")
   public void testAliasAsKey() {
     DumpSettingsBuilder builder = DumpSettings.builder().setDefaultFlowStyle(FlowStyle.FLOW);
     // this is VERY BAD code
@@ -278,19 +277,12 @@ public class EmitterTest {
     f.put(f, "a");
 
     String output = dump(builder.build(), f);
-    // TODO FIXME this YAML is invalid, the colon will be part of Anchor and not the separator
-    // key:value in the flow.
-    assertEquals("&id001 {*id001: a}\n", output);
-    Load load = new Load(LoadSettings.builder().build());
-    try {
-      load.loadFromString(output);
-      fail("TODO fix anchor");
-    } catch (ComposerException e) {
-      assertTrue(e.getMessage().contains("found undefined alias id001:"), e.getMessage());
-    }
+    assertEquals("&id001 {*id001 : a}\n", output);
+    Load load = new Load(LoadSettings.builder().setAllowRecursiveKeys(true).build());
+    Object obj = load.loadFromString(output);
+    assertNotNull(obj);
   }
 
   public static class MyDumperWriter extends StringWriter implements StreamDataWriter {
-
   }
 }

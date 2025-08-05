@@ -92,7 +92,7 @@ public abstract class BaseScalarResolver implements ScalarResolver {
       return Tag.STR;
     }
     final List<ResolverTuple> resolvers;
-    if (value.length() == 0) {
+    if (value.isEmpty()) {
       resolvers = yamlImplicitResolvers.get('\0');
     } else {
       resolvers = yamlImplicitResolvers.get(value.charAt(0));

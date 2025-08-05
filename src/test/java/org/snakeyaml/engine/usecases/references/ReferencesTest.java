@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -36,18 +36,18 @@ public class ReferencesTest {
    * @return YAML to parse
    */
   private String createDump(int size) {
-    HashMap root = new HashMap();
-    HashMap s1, s2, t1, t2;
+    LinkedHashMap root = new LinkedHashMap();
+    LinkedHashMap s1, s2, t1, t2;
     s1 = root;
-    s2 = new HashMap();
+    s2 = new LinkedHashMap();
     /*
      * the time to parse grows very quickly SIZE -> time to parse in seconds 25 -> 1 26 -> 2 27 -> 3
      * 28 -> 8 29 -> 13 30 -> 28 31 -> 52 32 -> 113 33 -> 245 34 -> 500
      */
     for (int i = 0; i < size; i++) {
 
-      t1 = new HashMap();
-      t2 = new HashMap();
+      t1 = new LinkedHashMap();
+      t2 = new LinkedHashMap();
       t1.put("foo", "1");
       t2.put("bar", "2");
 
@@ -62,7 +62,7 @@ public class ReferencesTest {
 
     // this is VERY BAD code
     // the map has itself as a key (no idea why it may be used except of a DoS attack)
-    HashMap f = new HashMap();
+    LinkedHashMap f = new LinkedHashMap();
     f.put(f, "a");
     f.put("g", root);
 

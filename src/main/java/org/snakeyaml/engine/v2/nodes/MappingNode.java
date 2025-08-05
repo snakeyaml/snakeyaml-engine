@@ -28,6 +28,7 @@ import org.snakeyaml.engine.v2.exceptions.Mark;
 public class MappingNode extends CollectionNode<NodeTuple> {
 
   private List<NodeTuple> value;
+  private boolean mergeTag = false;
 
   /**
    * Create
@@ -101,5 +102,19 @@ public class MappingNode extends CollectionNode<NodeTuple> {
     }
     values = buf.toString();
     return "<" + this.getClass().getName() + " (tag=" + getTag() + ", values=" + values + ")>";
+  }
+
+  /**
+   * @param mergeTag - true if map contains merge node
+   */
+  public void setHasMergeTag(boolean mergeTag) {
+    this.mergeTag = mergeTag;
+  }
+
+  /**
+   * @return true if map contains merge node
+   */
+  public boolean hasMergeTag() {
+    return mergeTag;
   }
 }

@@ -19,6 +19,7 @@ import org.snakeyaml.engine.v2.common.UriEncoder;
 public final class Tag {
 
   public static final String PREFIX = "tag:yaml.org,2002:";
+  public static final Tag MERGE = new Tag(PREFIX + "merge");
   public static final Tag SET = new Tag(PREFIX + "set");
   public static final Tag BINARY = new Tag(PREFIX + "binary");
   public static final Tag INT = new Tag(PREFIX + "int");

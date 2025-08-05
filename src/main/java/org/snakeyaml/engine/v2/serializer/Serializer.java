@@ -13,12 +13,6 @@
  */
 package org.snakeyaml.engine.v2.serializer;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 import org.snakeyaml.engine.v2.api.DumpSettings;
 import org.snakeyaml.engine.v2.comments.CommentLine;
 import org.snakeyaml.engine.v2.common.Anchor;
@@ -36,6 +30,7 @@ import org.snakeyaml.engine.v2.events.SequenceEndEvent;
 import org.snakeyaml.engine.v2.events.SequenceStartEvent;
 import org.snakeyaml.engine.v2.events.StreamEndEvent;
 import org.snakeyaml.engine.v2.events.StreamStartEvent;
+import org.snakeyaml.engine.v2.exceptions.YamlEngineException;
 import org.snakeyaml.engine.v2.nodes.AnchorNode;
 import org.snakeyaml.engine.v2.nodes.MappingNode;
 import org.snakeyaml.engine.v2.nodes.Node;
@@ -44,6 +39,16 @@ import org.snakeyaml.engine.v2.nodes.NodeType;
 import org.snakeyaml.engine.v2.nodes.ScalarNode;
 import org.snakeyaml.engine.v2.nodes.SequenceNode;
 import org.snakeyaml.engine.v2.nodes.Tag;
+import org.snakeyaml.engine.v2.util.MergeUtils;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Transform a Node Graph to Event stream and allow provided {@link Emitable} to present the
@@ -55,6 +60,10 @@ public class Serializer {
   private final Emitable emitable;
   private final Set<Node> serializedNodes;
   private final Map<Node, Anchor> anchors;
+  private final boolean dereferenceAliases;
+  private final Set<Node> recursive;
+  private final MergeUtils mergeUtils;
+
 
   /**
    * Create Serializer
@@ -67,6 +76,18 @@ public class Serializer {
     this.emitable = emitable;
     this.serializedNodes = new HashSet<>();
     this.anchors = new HashMap<>();
+    this.dereferenceAliases = settings.isDereferenceAliases();
+    this.recursive = Collections.newSetFromMap(new IdentityHashMap<Node, Boolean>());
+    this.mergeUtils = new MergeUtils() {
+      public MappingNode asMappingNode(Node node) {
+        if (node instanceof MappingNode) {
+          return (MappingNode) node;
+        }
+        // TODO: This need to be explored more to understand if only MappingNode possible.
+        // Or at least the error message needs to be improved.
+        throw new YamlEngineException("expecting MappingNode while processing merge.");
+      }
+    };
   }
 
   /**
@@ -83,6 +104,7 @@ public class Serializer {
     this.emitable.emit(new DocumentEndEvent(settings.isExplicitEnd()));
     this.serializedNodes.clear();
     this.anchors.clear();
+    this.recursive.clear();
   }
 
   /**
@@ -147,8 +169,17 @@ public class Serializer {
     if (node.getNodeType() == NodeType.ANCHOR) {
       node = ((AnchorNode) node).getRealNode();
     }
-    Optional<Anchor> tAlias = Optional.ofNullable(this.anchors.get(node));
-    if (this.serializedNodes.contains(node)) {
+    if (dereferenceAliases && recursive.contains(node)) {
+      throw new YamlEngineException("Cannot dereferenceAliases for recursive structures.");
+    }
+    recursive.add(node);
+    Optional<Anchor> tAlias;
+    if (!dereferenceAliases) {
+      tAlias = Optional.ofNullable(this.anchors.get(node));
+    } else {
+      tAlias = Optional.empty();
+    }
+    if (!dereferenceAliases && this.serializedNodes.contains(node)) {
       this.emitable.emit(new AliasEvent(tAlias));
     } else {
       this.serializedNodes.add(node);
@@ -184,10 +215,13 @@ public class Serializer {
           break;
         default:// instance of MappingNode
           serializeComments(node.getBlockComments());
-          boolean implicitM = node.getTag().equals(Tag.MAP);
-          MappingNode mappingNode = (MappingNode) node;
-          List<NodeTuple> map = mappingNode.getValue();
-          if (mappingNode.getTag() != Tag.COMMENT) {
+          if (node.getTag() != Tag.COMMENT) {
+            boolean implicitM = node.getTag().equals(Tag.MAP);
+            MappingNode mappingNode = (MappingNode) node;
+            List<NodeTuple> map = mappingNode.getValue();
+            if (this.dereferenceAliases && mappingNode.hasMergeTag()) {
+              map = mergeUtils.flatten(mappingNode);
+            }
             this.emitable
                 .emit(new MappingStartEvent(tAlias, Optional.of(mappingNode.getTag().getValue()),
                     implicitM, mappingNode.getFlowStyle(), Optional.empty(), Optional.empty()));
@@ -203,16 +237,16 @@ public class Serializer {
           }
       }
     }
+    recursive.remove(node);
   }
 
   private void serializeComments(List<CommentLine> comments) {
-    if (comments == null) {
-      return;
-    }
-    for (CommentLine line : comments) {
-      CommentEvent commentEvent = new CommentEvent(line.getCommentType(), line.getValue(),
-          line.getStartMark(), line.getEndMark());
-      this.emitable.emit(commentEvent);
+    if (settings.getDumpComments() && comments != null) {
+      for (CommentLine line : comments) {
+        CommentEvent commentEvent = new CommentEvent(line.getCommentType(), line.getValue(),
+            line.getStartMark(), line.getEndMark());
+        this.emitable.emit(commentEvent);
+      }
     }
   }
 }

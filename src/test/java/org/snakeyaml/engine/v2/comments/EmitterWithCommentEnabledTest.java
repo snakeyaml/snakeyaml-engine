@@ -167,6 +167,26 @@ public class EmitterWithCommentEnabledTest {
   }
 
   @Test
+  /*
+   * Issue 64
+   *
+   * @see <a href=
+   * "https://bitbucket.org/snakeyaml/snakeyaml-engine/issues/64/emitting-an-empty-string-as-a-list-element"
+   * >issue 64</a>
+   */
+  public void testSequenceEmptyString() throws Exception {
+    String data = "" + //
+        "# Comment\n" + //
+        "list: # InlineComment1\n" + //
+        "  - # Block Comment\n" + //
+        "    '' # InlineComment2\n" + //
+        "# Comment\n";
+
+    String result = runEmitterWithCommentsEnabled(data);
+    assertEquals(data, result);
+  }
+
+  @Test
   public void testAllComments1() throws Exception {
     String data = "" + //
         "# Block Comment1\n" + //
@@ -291,6 +311,17 @@ public class EmitterWithCommentEnabledTest {
   }
 
   @Test
+  public void testCommentsLineBlank() throws Exception {
+    String data =
+        "# Comment 1\n" + "key1:\n" + "  \n" + "  # Comment 2\n" + "\n" + "  # Comment 3\n" + "\n"
+            + "  key2: value1\n" + "# \"Fun\" options\n" + "key3:\n" + "  # Comment 4\n"
+            + "  # Comment 5\n" + "  key4: value2\n" + "key5:\n" + "  key6: value3\n";
+
+    String result = runEmitterWithCommentsEnabled(data);
+    assertEquals(data, result);
+  }
+
+  @Test
   public void testMultiLineString() throws Exception {
     String data = "# YAML load and save bug with keep block chomping indicator\n" + "example:\n"
         + "  description: |+\n" + "    These lines have a carrage return after them.\n"
@@ -319,7 +350,7 @@ public class EmitterWithCommentEnabledTest {
         + "  *a #comment not ok here\n";
     String expected = "dummy: &a test\n" + "conf:\n" + "- *a\n";
     String result = runEmitterWithCommentsEnabled(data);
-    assertEquals(expected.replace("a", "id001"), result);
+    assertEquals(expected, result);
   }
 
   @Test

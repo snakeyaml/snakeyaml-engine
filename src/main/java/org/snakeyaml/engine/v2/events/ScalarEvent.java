@@ -27,8 +27,7 @@ import org.snakeyaml.engine.v2.exceptions.Mark;
 public final class ScalarEvent extends NodeEvent {
 
   private final Optional<String> tag;
-  // style flag of a scalar event indicates the style of the scalar. Possible
-  // values are None, '', '\'', '"', '|', '>'
+  // style flag of a scalar event indicates the style of the scalar.
   private final ScalarStyle style;
   private final String value;
   // The implicit flag of a scalar event is a pair of boolean values that
@@ -106,6 +105,26 @@ public final class ScalarEvent extends NodeEvent {
 
   public boolean isPlain() {
     return style == ScalarStyle.PLAIN;
+  }
+
+  public boolean isLiteral() {
+    return style == ScalarStyle.LITERAL;
+  }
+
+  public boolean isSQuoted() {
+    return style == ScalarStyle.SINGLE_QUOTED;
+  }
+
+  public boolean isDQuoted() {
+    return style == ScalarStyle.DOUBLE_QUOTED;
+  }
+
+  public boolean isFolded() {
+    return style == ScalarStyle.FOLDED;
+  }
+
+  public boolean isJson() {
+    return style == ScalarStyle.JSON_SCALAR_STYLE;
   }
 
   @Override

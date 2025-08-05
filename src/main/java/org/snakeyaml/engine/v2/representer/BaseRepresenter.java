@@ -131,12 +131,12 @@ public abstract class BaseRepresenter {
   }
 
   /**
-   * Create Scalar Node from string
+   * Create scalar node for the provided string object.
    *
-   * @param tag - the tag in Node
-   * @param value - the source
-   * @param style - the style
-   * @return Node for string
+   * @param tag - the tag to emit
+   * @param value - the value to emit
+   * @param style - scalar style when preferred
+   * @return Node to emit
    */
   protected Node representScalar(Tag tag, String value, ScalarStyle style) {
     if (style == ScalarStyle.PLAIN) {

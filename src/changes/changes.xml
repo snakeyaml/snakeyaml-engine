@@ -2,14 +2,93 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/changes/1.0.0 http://maven.apache.org/plugins/maven-changes-plugin/xsd/changes-1.0.0.xsd">
     <properties>
-        <title>YAML 1.2 parser and emitter for Java 8+</title>
+        <title>YAML 1.2 parser and emitter for Java 11+</title>
     </properties>
     <body>
-        <release version="2.7" date="in GIT" description="Maintenance">
+        <release version="2.11" date="in GIT" description="Maintenance">
             <action dev="asomov" type="fix" issue="47">
                 Strings with spaces are incorrectly divided into more lines
                 (thanks to Piotr Krzemiński)
             </action>
+            <action dev="asomov" type="update">
+                Properly fix S98Z test case (thanks to Joseph Benken)
+            </action>
+            <action dev="asomov" type="fix" issue="67">
+                Fix parsing a block scalar with LF, reverting S98Z test case (thanks to Joseph Benken)
+            </action>
+            <action dev="asomov" type="fix" issue="66">
+                Upgrade to Java 11
+            </action>
+        </release>
+        <release version="2.10" date="2025-07-12" description="Merge is back">
+            <action dev="asomov" type="fix" issue="64">
+                Emitting an empty string, as a list element, with block comment, creates invalid YAML (thanks to Anand Beh)
+            </action>
+            <action dev="asomov" type="fix" issue="63">
+                Add examples for custom ScalarResolver (thanks to fernbread)
+            </action>
+            <action dev="asomov" type="fix">
+                Fix Inline comments in flow mapping context (thanks to Vladimir Maslov)
+            </action>
+            <action dev="asomov" type="update">
+                Maven Central account migration (thanks to Alexander Maslov)
+            </action>
+            <action dev="asomov" type="fix" issue="58">
+                Provide default impl for YamlOutputStreamWriter.processIOException which wraps
+                the IOException in UncheckedIOException (thanks to Konrad Windszus)
+            </action>
+            <action dev="asomov" type="fix" issue="57">
+                Improve Javadoc of Parser (thanks to Konrad Windszus)
+            </action>
+            <action dev="asomov" type="fix" issue="55">
+                Improve handling of TAB in JSON (thanks to Rob Elliot)
+            </action>
+            <action dev="maslovalex" type="update" issue="56">
+                Implement the merge tag in the Node graph for the Core Schema
+            </action>
+        </release>
+        <release version="2.9" date="2025-01-15" description="Fix for JRuby">
+            <action dev="asomov" type="add">
+                Add Java Microbenchmark Harness (JMH)
+            </action>
+            <action dev="asomov" type="fix" issue="54">
+                Do allow colon to be a part of an anchor but insert a space when
+                it is a simple key (thanks to Charles Oliver Nutter).
+            </action>
+        </release>
+        <release version="2.8" date="2024-09-17" description="Maintenance">
+            <action dev="asomov" type="fix">
+                Fix issue with a big YAML with emoji (thanks to Madalin Ilie).
+                Allow HighSurrogate to be the last char in the data window
+            </action>
+            <action dev="asomov" type="add">
+                Refactor Scanner to improve performance (thanks to David Schlosnagle)
+            </action>
+            <action dev="maslovalex" type="add">
+                Add possibility to create JMH benchmark (thanks to David Schlosnagle)
+            </action>
+            <action dev="asomov" type="fix" issue="53">
+                YAML fails to serialize if it was composed to a Node graph
+                and serialization is configured to not dump comments (thanks to StudioCode)
+            </action>
+            <action dev="asomov" type="update">
+                Try to keep the anchor name when available (thanks to Gergely Czuczy)
+            </action>
+            <action dev="asomov" type="update">
+                Improve indentation for comments after a blank line comment (thanks to David Kepic)
+            </action>
+            <action dev="asomov" type="update" issue="1084">
+                Dump as JSON (Mikael Ståldal)
+            </action>
+            <action dev="maslovalex" type="update">
+                Allow to avoid dumping anchors (thanks to Mikael Ståldal)
+            </action>
+            <action dev="asomov" type="fix" issue="51">
+                LoadSettings.setBufferSize truncates error messages
+                (thanks to Róbert Papp (TWiStErRob))
+            </action>
+        </release>
+        <release version="2.7" date="2023-08-26" description="Maintenance">
             <action dev="asomov" type="update">
                 Use identity in toString() for sequences to avoid OutOfMemoryError
                 (thanks to 郭逸帆)
@@ -26,6 +105,9 @@
             </action>
             <action dev="asomov" type="fix" issue="576">
                 Detect invalid Unicode code point
+            </action>
+            <action dev="asomov" type="fix" issue="46">
+                Treat \u2028 and \u2029 as normal chars (not as separators)
             </action>
             <action dev="asomov" type="fix" issue="46">
                 Add test for failure in JRuby

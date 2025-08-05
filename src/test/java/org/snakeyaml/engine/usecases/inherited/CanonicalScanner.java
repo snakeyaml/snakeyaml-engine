@@ -76,10 +76,6 @@ public class CanonicalScanner implements Scanner {
     ESCAPE_REPLACEMENTS.put(Character.valueOf('N'), "\u0085");
     // Unicode non-breaking-space
     ESCAPE_REPLACEMENTS.put(Character.valueOf('_'), "\u00A0");
-    // Unicode line-separator
-    ESCAPE_REPLACEMENTS.put(Character.valueOf('L'), "\u2028");
-    // Unicode paragraph separator
-    ESCAPE_REPLACEMENTS.put(Character.valueOf('P'), "\u2029");
 
     // 8-bit Unicode
     ESCAPE_CODES.put(Character.valueOf('x'), 2);
@@ -288,7 +284,7 @@ public class CanonicalScanner implements Scanner {
       index++;
     }
     String value = data.substring(start, index);
-    if (value.length() == 0) {
+    if (value.isEmpty()) {
       value = "!";
     } else if (value.charAt(0) == '!') {
       value = Tag.PREFIX + value.substring(1);

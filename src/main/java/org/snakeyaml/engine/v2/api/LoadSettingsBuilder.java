@@ -154,10 +154,10 @@ public final class LoadSettingsBuilder {
 
   /**
    * YAML 1.2 does require unique keys. To support the backwards compatibility it is possible to
-   * select what should happend when non-unique keys are detected.
+   * select what should happen when non-unique keys are detected.
    *
-   * @param allowDuplicateKeys - if true than the non-unique keys in a mapping are allowed (last key
-   *        wins). False by default.
+   * @param allowDuplicateKeys - if true, then the non-unique keys in a mapping are allowed (last
+   *        key wins). False by default.
    * @return the builder with the provided value
    */
   public LoadSettingsBuilder setAllowDuplicateKeys(boolean allowDuplicateKeys) {
@@ -166,8 +166,8 @@ public final class LoadSettingsBuilder {
   }
 
   /**
-   * Allow only non-recursive keys for maps and sets. By default is it not allowed. Even though YAML
-   * allows to use anything as a key, it may cause unexpected issues when loading recursive
+   * Allow only non-recursive keys for maps and sets. By default, is it not allowed. Even though
+   * YAML allows to use anything as a key, it may cause unexpected issues when loading recursive
    * structures.
    *
    * @param allowRecursiveKeys - true to allow recursive structures as keys
@@ -179,12 +179,12 @@ public final class LoadSettingsBuilder {
   }
 
   /**
-   * Restrict the number of aliases for collection nodes to prevent Billion laughs attack. The
+   * Restrict the number of aliases for collection nodes to prevent a Billion laughs attack. The
    * purpose of this setting is to force SnakeYAML to fail before a lot of CPU and memory resources
    * are allocated for the parser. Aliases for scalar nodes do not count because they do not grow
    * exponentially.
    *
-   * @param maxAliasesForCollections - max number of aliases. More then 50 might be very dangerous.
+   * @param maxAliasesForCollections - max number of aliases. More than 50 might be very dangerous.
    *        Default is 50
    * @return the builder with the provided value
    */
@@ -194,7 +194,7 @@ public final class LoadSettingsBuilder {
   }
 
   /**
-   * Marks are only used for error messages. But they requires a lot of memory. True by default.
+   * Marks are only used for error messages. But they require a lot of memory. True by default.
    *
    * @param useMarks - use false to save resources but use less informative error messages (no line
    *        and context)
@@ -225,13 +225,13 @@ public final class LoadSettingsBuilder {
   }
 
   /**
-   * Define EnvConfig to parse EVN format. If not set explicitly the variable substitution is not
-   * applied
+   * Define EnvConfig to parse ENV format. If not set explicitly the variable substitution is not
+   * applied.
    *
    * @param envConfig - non-empty configuration to substitute variables
    * @return the builder with the provided value
    * @see <a href=
-   *      "https://bitbucket.org/snakeyaml/snakeyaml-engine/wiki/Documentation#markdown-header-variable-substitution">Variable
+   *      "https://bitbucket.org/snakeyaml/snakeyaml-engine/wiki/Documentation#markdown-header-env-variable-substitution">Variable
    *      substitution</a>
    */
   public LoadSettingsBuilder setEnvConfig(Optional<EnvConfig> envConfig) {
