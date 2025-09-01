@@ -26,6 +26,13 @@ You can use the [online playground](https://play.yaml.io/main/parser?input=LSAiX
 It shows how all the parsers treat the input. (You may need to start Local Docker Sandbox Server)
 The input is encoded in Base64 and provided as a query parameter.
 
+
+### Other parsers
+
+[YAML Test Matrix](https://matrix.yaml.info/) may be consulted if required.
+
+[Test results](https://matrix.yaml.info/valid.html)
+
 ### Test locally
 
     ./mvnw clean verify
