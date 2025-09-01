@@ -32,12 +32,52 @@ public class SuiteUtils {
 
   public static final List<String> deviationsWithSuccess =
       Lists.newArrayList("9JBA", "CVW2", "9C9N", "SU5Z", "QB6E", "Y79Y-003");
-  public static final List<String> deviationsWithError =
-      Lists.newArrayList("HWV9", "NB6Z", "VJP3-01", "5MUD", "9SA2", "QT73", "4MUZ", "CFD4", "NJ66",
-          "NKF9", "K3WX", "5T43", "SM9W-01", "4MUZ-00", "4MUZ-02", "4MUZ-01", "UKK6-00", "K54U",
-          "Y79Y-010", "KZN9", "2JQS", "6M2F", "S3PD", "FRK4", "NHX8", "M2N8-00", "MUS6-03", "6BCT",
-          "Q5MG", "DBG4", "M7A3", "DK3J", "W5VH", "58MP", "UV7Q", "HM87-00", "DC7X", "A2M4", "J3BT",
-          "HS5T", "UT92", "W4TN", "FP8R", "WZ62", "7Z25");
+  public static final List<String> deviationsWithError = Lists.newArrayList( // just keep it
+      "HWV9", // Document-end marker (Go, libyaml, PyYAML, Ruamel)
+      "NB6Z", // TODO Multiline plain value with tabs on empty lines
+      "VJP3-01", // Flow collections over many lines (Go, libyaml, PyYAML, Ruamel)
+      "5MUD", // Colon and adjacent value on next line (Go, libyaml, PyYAML, Ruamel)
+      "9SA2", // Multiline double quoted flow mapping key (Go, libyaml, PyYAML, Ruamel)
+      "QT73", // Comment and document-end marker (Go, libyaml, PyYAML, Ruamel)
+      "CFD4", // Empty implicit key in single pair flow sequences (Go, libyaml, PyYAML, Ruamel)
+      "NJ66", // Multiline plain flow mapping key (Go, libyaml, PyYAML, Ruamel)
+      "NKF9", // Empty keys in block and flow mapping (Go, libyaml, PyYAML, Ruamel)
+      "K3WX", // Colon and adjacent value after comment on next line (Go, libyaml, PyYAML, Ruamel)
+      "5T43", // Colon at the beginning of adjacent flow scalar (Go, libyaml, PyYAML, Ruamel)
+      "SM9W-01", // Single character streams (Go, libyaml, PyYAML, Ruamel)
+      "4MUZ-00", // Flow mapping colon on line after key (Go, libyaml, PyYAML, Ruamel)
+      "4MUZ-01", // Flow mapping colon on line after key (Go, libyaml, PyYAML, Ruamel)
+      "4MUZ-02", // Flow mapping colon on line after key (Go, libyaml, PyYAML, Ruamel)
+      "UKK6-00", // Syntax character edge cases (Go, libyaml, PyYAML)
+      "K54U", // TODO Tab after document header
+      "Y79Y-010", // Tabs in various contexts (Go, libyaml, PyYAML, Ruamel)
+      "2JQS", // Block Mapping with Missing Keys (Go, libyaml, PyYAML)
+      "6M2F", // Aliases in Explicit Block Mapping (Go, libyaml, PyYAML)
+      "S3PD", // Spec Example 8.18. Implicit Block Mapping Entries (Go, libyaml, PyYAML)
+      "FRK4", // Spec Example 7.3. Completely Empty Flow Nodes (Go, libyaml, PyYAML)
+      "NHX8", // Empty Lines at End of Document (Go, libyaml, PyYAML)
+      "M2N8-00", // Question mark edge cases (Go, libyaml, PyYAML)
+      "MUS6-03", // TODO Directive variants
+      "6BCT", // Spec Example 6.3. Separation Spaces (Go, libyaml, PyYAML, Ruamel)
+      "Q5MG", // Tab at beginning of line followed by a flow mapping (Go, libyaml, PyYAML, Ruamel)
+      "DBG4", // Spec Example 7.10. Plain Characters (Go, libyaml, PyYAML)
+      "M7A3", // Spec Example 9.3. Bare Documents (Go, libyaml, PyYAML, Ruamel)
+      "DK3J", // Zero indented block scalar with line that looks like a comment (Go, libyaml,
+              // PyYAML)
+      "W5VH", // Allowed characters in alias (Go, libyaml, PyYAML)
+      "58MP", // Flow mapping edge cases (Go, libyaml, PyYAML)
+      "UV7Q", // TODO Legal tab after indentation (PyYAML, Ruamel)
+      "HM87-00", // Scalars in flow start with syntax char (Go, libyaml, PyYAML)
+      "DC7X", // Various trailing tabs (PyYAML, Ruamel)
+      "A2M4", // Spec Example 6.2. Indentation Indicators (Go, libyaml, PyYAML, Ruamel)
+      "J3BT", // Spec Example 5.12. Tabs and Spaces (PyYAML, Ruamel)
+      "HS5T", // Spec Example 7.12. Plain Lines >> leading TAB (PyYAML, Ruamel)
+      "UT92", // Spec Example 9.4. Explicit Documents (Go, libyaml, PyYAML, Ruamel)
+      "W4TN", // Spec Example 9.5. Directives Documents (Go, libyaml, PyYAML)
+      "FP8R", // TODO Zero indented block scalar (Go, libyaml, PyYAML)
+      "WZ62", // TODO Spec Example 7.2. Empty Content (Go, PyYAML, Ruamel)
+      "7Z25" // TODO Bare document after document end marker (Go, libyaml, PyYAML)
+  );
 
 
   public static final String FOLDER_NAME = "src/test/resources/comprehensive-test-suite-data";
