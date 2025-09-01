@@ -1,10 +1,6 @@
+TODO (without any priority)
 
-https://play.yaml.io/main/parser?input=LSAiXAkiCg==
-https://yaml.org/spec/1.2.2/#rule-ns-esc-non-breaking-space
-
-
-## TODO (without priority) ##
-* Documentation
+``* Documentation
 * findbugs, pmd, sonarqube
 * coverage
 * parse Optional (non scalar)

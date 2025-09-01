@@ -20,6 +20,12 @@ stream, but for simplification the diagram mentions only one Node graph)
 Engine uses [Comprehensive Test Suite for YAML](TestSuiteForYAML.md)
 for the tests.
 
+### Parser playground
+
+You can use the [online playground](https://play.yaml.io/main/parser?input=LSAiXAkiCg==) to test the parser.
+It shows how all the parsers treat the input. (You may need to start Local Docker Sandbox Server)
+The input is encoded in Base64 and provided as a query parameter.
+
 ### Test locally
 
     ./mvnw clean verify

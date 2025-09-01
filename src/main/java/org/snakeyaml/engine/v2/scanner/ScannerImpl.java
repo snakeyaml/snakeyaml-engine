@@ -1850,6 +1850,13 @@ public final class ScannerImpl implements Scanner {
             throw new ScannerException("while scanning a double-quoted scalar", startMark,
                 "found unknown escape character " + hex, reader.getMark());
           }
+        } else if ('\t' == c) {
+          // https://yaml.org/spec/1.2.2/#57-escaped-characters
+          // This is useful at the start or the end of a line to force a leading or trailing tab to
+          // become part of the content.
+          // (this is confusing, because \t is more readable than \TAB)
+          chunks.append('\t');
+          reader.forward();
         } else if (scanLineBreak().isPresent()) {
           chunks.append(scanFlowScalarBreaks(startMark));
         } else {

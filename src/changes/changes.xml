@@ -6,6 +6,10 @@
     </properties>
     <body>
         <release version="2.11" date="in GIT" description="Maintenance">
+            <action dev="asomov" type="fix" issue="69">
+                Parse escaped TAB in double-quoted scalar
+                (and fix KH5V-01, 3RLN-01, 3RLN-04, DE56-02, DE56-03 test cases in the test suite)
+            </action>
             <action dev="asomov" type="fix" issue="47">
                 Strings with spaces are incorrectly divided into more lines
                 (thanks to Piotr Krzemiński)
