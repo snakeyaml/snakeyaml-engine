@@ -30,8 +30,14 @@ import org.snakeyaml.engine.v2.exceptions.YamlEngineException;
 
 public class SuiteUtils {
 
-  public static final List<String> deviationsWithSuccess =
-      Lists.newArrayList("9JBA", "CVW2", "9C9N", "SU5Z", "QB6E", "Y79Y-003");
+  public static final List<String> deviationsWithSuccess = Lists.newArrayList( // should have failed
+      "9JBA", // Comment must be separated from other tokens by white space characters
+      "CVW2", // Comments must be separated from other tokens by white space characters
+      "9C9N", // Wrong indented flow sequence
+      "SU5Z", // Comment without whitespace after double-quoted scalar
+      "QB6E", // Wrong indented multiline quoted scalar
+      "Y79Y-003" // Tabs in various contexts
+  );
   public static final List<String> deviationsWithError =
       Lists.newArrayList("HWV9", "NB6Z", "VJP3-01", "5MUD", "9SA2", "QT73", "4MUZ", "CFD4", "NJ66",
           "NKF9", "K3WX", "5T43", "SM9W-01", "4MUZ-00", "4MUZ-02", "4MUZ-01", "UKK6-00", "K54U",
