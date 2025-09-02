@@ -30,33 +30,35 @@ import org.snakeyaml.engine.v2.exceptions.YamlEngineException;
 
 public class SuiteUtils {
 
+  // all 4 similar parsers fail (go-yaml/yaml, libyaml, PyYAML, Ruamel) if not specified
+
   public static final List<String> deviationsWithSuccess = Lists.newArrayList( // should have failed
       "9JBA", // Comment must be separated from other tokens by white space characters
       "CVW2", // Comments must be separated from other tokens by white space characters
       "9C9N", // Wrong indented flow sequence
       "SU5Z", // Comment without whitespace after double-quoted scalar
       "QB6E", // Wrong indented multiline quoted scalar
-      "Y79Y-003" // Tabs in various contexts
+      "Y79Y-003" // TODO Tabs in various contexts (go-yaml/yaml, libyaml)
   );
   public static final List<String> deviationsWithError = Lists.newArrayList( // just keep it
-      "HWV9", // Document-end marker (Go, libyaml, PyYAML, Ruamel)
+      "HWV9", // Document-end marker
       "NB6Z", // TODO Multiline plain value with tabs on empty lines
-      "VJP3-01", // Flow collections over many lines (Go, libyaml, PyYAML, Ruamel)
-      "5MUD", // Colon and adjacent value on next line (Go, libyaml, PyYAML, Ruamel)
-      "9SA2", // Multiline double quoted flow mapping key (Go, libyaml, PyYAML, Ruamel)
-      "QT73", // Comment and document-end marker (Go, libyaml, PyYAML, Ruamel)
-      "CFD4", // Empty implicit key in single pair flow sequences (Go, libyaml, PyYAML, Ruamel)
-      "NJ66", // Multiline plain flow mapping key (Go, libyaml, PyYAML, Ruamel)
-      "NKF9", // Empty keys in block and flow mapping (Go, libyaml, PyYAML, Ruamel)
-      "K3WX", // Colon and adjacent value after comment on next line (Go, libyaml, PyYAML, Ruamel)
-      "5T43", // Colon at the beginning of adjacent flow scalar (Go, libyaml, PyYAML, Ruamel)
-      "SM9W-01", // Single character streams (Go, libyaml, PyYAML, Ruamel)
-      "4MUZ-00", // Flow mapping colon on line after key (Go, libyaml, PyYAML, Ruamel)
-      "4MUZ-01", // Flow mapping colon on line after key (Go, libyaml, PyYAML, Ruamel)
-      "4MUZ-02", // Flow mapping colon on line after key (Go, libyaml, PyYAML, Ruamel)
+      "VJP3-01", // Flow collections over many lines
+      "5MUD", // Colon and adjacent value on next line
+      "9SA2", // Multiline double quoted flow mapping key
+      "QT73", // Comment and document-end marker
+      "CFD4", // Empty implicit key in single pair flow sequences
+      "NJ66", // Multiline plain flow mapping key
+      "NKF9", // Empty keys in block and flow mapping
+      "K3WX", // Colon and adjacent value after comment on next line
+      "5T43", // Colon at the beginning of adjacent flow scalar
+      "SM9W-01", // Single character streams
+      "4MUZ-00", // Flow mapping colon on line after key
+      "4MUZ-01", // Flow mapping colon on line after key
+      "4MUZ-02", // Flow mapping colon on line after key
       "UKK6-00", // Syntax character edge cases (Go, libyaml, PyYAML)
       "K54U", // TODO Tab after document header
-      "Y79Y-010", // Tabs in various contexts (Go, libyaml, PyYAML, Ruamel)
+      "Y79Y-010", // Tabs in various contexts
       "2JQS", // Block Mapping with Missing Keys (Go, libyaml, PyYAML)
       "6M2F", // Aliases in Explicit Block Mapping (Go, libyaml, PyYAML)
       "S3PD", // Spec Example 8.18. Implicit Block Mapping Entries (Go, libyaml, PyYAML)
@@ -64,21 +66,21 @@ public class SuiteUtils {
       "NHX8", // Empty Lines at End of Document (Go, libyaml, PyYAML)
       "M2N8-00", // Question mark edge cases (Go, libyaml, PyYAML)
       "MUS6-03", // TODO Directive variants
-      "6BCT", // Spec Example 6.3. Separation Spaces (Go, libyaml, PyYAML, Ruamel)
-      "Q5MG", // Tab at beginning of line followed by a flow mapping (Go, libyaml, PyYAML, Ruamel)
+      "6BCT", // Spec Example 6.3. Separation Spaces
+      "Q5MG", // Tab at beginning of line followed by a flow mapping
       "DBG4", // Spec Example 7.10. Plain Characters (Go, libyaml, PyYAML)
-      "M7A3", // Spec Example 9.3. Bare Documents (Go, libyaml, PyYAML, Ruamel)
+      "M7A3", // Spec Example 9.3. Bare Documents
       "DK3J", // Zero indented block scalar with line that looks like a comment (Go, libyaml,
-      // PyYAML)
+              // PyYAML)
       "W5VH", // Allowed characters in alias (Go, libyaml, PyYAML)
       "58MP", // Flow mapping edge cases (Go, libyaml, PyYAML)
       "UV7Q", // TODO Legal tab after indentation (PyYAML, Ruamel)
       "HM87-00", // Scalars in flow start with syntax char (Go, libyaml, PyYAML)
       "DC7X", // Various trailing tabs (PyYAML, Ruamel)
-      "A2M4", // Spec Example 6.2. Indentation Indicators (Go, libyaml, PyYAML, Ruamel)
+      "A2M4", // Spec Example 6.2. Indentation Indicators
       "J3BT", // Spec Example 5.12. Tabs and Spaces (PyYAML, Ruamel)
       "HS5T", // Spec Example 7.12. Plain Lines >> leading TAB (PyYAML, Ruamel)
-      "UT92", // Spec Example 9.4. Explicit Documents (Go, libyaml, PyYAML, Ruamel)
+      "UT92", // Spec Example 9.4. Explicit Documents
       "W4TN", // Spec Example 9.5. Directives Documents (Go, libyaml, PyYAML)
       "FP8R", // TODO Zero indented block scalar (Go, libyaml, PyYAML)
       "WZ62", // TODO Spec Example 7.2. Empty Content (Go, PyYAML, Ruamel)
