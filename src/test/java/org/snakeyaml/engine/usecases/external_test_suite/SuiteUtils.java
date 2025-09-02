@@ -38,7 +38,7 @@ public class SuiteUtils {
       "9C9N", // Wrong indented flow sequence
       "SU5Z", // Comment without whitespace after double-quoted scalar
       "QB6E", // Wrong indented multiline quoted scalar
-      "Y79Y-003" // TODO Tabs in various contexts (go-yaml/yaml, libyaml)
+      "Y79Y-003" // TODO Tabs in various contexts (go-yaml/yaml, libyaml), see issue 55
   );
   public static final List<String> deviationsWithError = Lists.newArrayList( // just keep it
       "HWV9", // Document-end marker

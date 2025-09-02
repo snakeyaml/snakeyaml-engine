@@ -311,12 +311,12 @@ public final class ScannerImpl implements Scanner {
     // Compare the current indentation and column. It may add some tokens
     // and decrease the current indentation level.
     unwindIndent(reader.getColumn());
-    // Peek the next code point, to decide what the next group of tokens
+    // Peek the next code point to decide what the next group of tokens
     // will look like.
     int c = reader.peek();
     switch (c) {
       case 0:
-        // Is it the end of stream?
+        // Is it the end of the stream?
         fetchStreamEnd();
         return;
       case '%':
@@ -1144,6 +1144,7 @@ public final class ScannerImpl implements Scanner {
       }
       // unfortunately, this check is too simple, but it helps to ignore TABs in JSON
       // which is always flow context (see issue 55 and tests)
+      // (this causes Y79Y-003 to fail)
       if (reader.peek(ff) == '\t' && isFlowContext()) {
         ff++;
       }
