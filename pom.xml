@@ -518,7 +518,7 @@
         <maven-site-plugin.version>3.8.2</maven-site-plugin.version>
         <maven-surefire-plugin.version>3.0.0-M3</maven-surefire-plugin.version>
         <maven-javadoc-plugin.version>3.2.0</maven-javadoc-plugin.version>
-        <guava.version>26.0-jre</guava.version>
+        <guava.version>32.0.1-jre</guava.version>
         <required.maven.version>3.5.0</required.maven.version>
         <jmh.version>1.36</jmh.version>
 
