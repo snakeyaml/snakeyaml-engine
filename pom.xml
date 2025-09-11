@@ -261,26 +261,20 @@
                 <artifactId>license-maven-plugin</artifactId>
                 <version>5.0.0</version>
                 <configuration>
-                    <header>src/etc/header.txt</header>
                     <quiet>false</quiet>
                     <failIfMissing>true</failIfMissing>
                     <aggregate>false</aggregate>
-                    <includes>
-                        <include>src/**/*.java</include>
-                    </includes>
-                    <excludes>
-                        <exclude>src/main/java/org/snakeyaml/engine/external/**</exclude>
-                    </excludes>
-                    <useDefaultExcludes>true</useDefaultExcludes>
-                    <useDefaultMapping>true</useDefaultMapping>
-                    <strictCheck>true</strictCheck>
-                    <encoding>UTF-8</encoding>
-                    <!-- To use no Javadoc but a normal comment -->
-                    <headerDefinitions>
-                        <definition>
-                            src/etc/header-def.xml
-                        </definition>
-                    </headerDefinitions>
+                    <licenseSets>
+                        <licenseSet>
+                            <header>src/etc/header.txt</header>
+                            <includes>
+                                <include>src/**/*.java</include>
+                            </includes>
+                            <excludes>
+                                <exclude>src/main/java/org/snakeyaml/engine/external/**</exclude>
+                            </excludes>
+                        </licenseSet>
+                    </licenseSets>
                 </configuration>
                 <executions>
                     <execution>
