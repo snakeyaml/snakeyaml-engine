@@ -96,7 +96,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.1.2</version>
+                    <version>3.4.2</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -112,7 +112,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.10.1</version>
+                    <version>3.14.0</version>
                     <configuration>
                         <source>${maven.compiler.source}</source>
                         <target>${maven.compiler.target}</target>
@@ -123,7 +123,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>build-helper-maven-plugin</artifactId>
-                    <version>3.0.0</version>
+                    <version>3.6.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -136,7 +136,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>3.0.0-M2</version>
+                <version>3.6.1</version>
                 <executions>
                     <execution>
                         <id>enforce-maven</id>
@@ -223,10 +223,14 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${maven-javadoc-plugin.version}</version>
                 <configuration>
-                    <links>
-                        <link>https://docs.oracle.com/javase/8/docs/api/</link>
-                    </links>
+                    <javaApiLinks>
+                        <property>
+                            <name>api_11</name>
+                            <value>https://docs.oracle.com/en/java/javase/11/docs/api/</value>
+                        </property>
+                    </javaApiLinks>
                     <excludePackageNames>
                         org.snakeyaml.engine.external.com.google.gdata.util.common.base,
                         org.snakeyaml.engine.v2.tokens,
@@ -255,7 +259,7 @@
             <plugin>
                 <groupId>com.mycila</groupId>
                 <artifactId>license-maven-plugin</artifactId>
-                <version>3.0</version>
+                <version>5.0.0</version>
                 <configuration>
                     <header>src/etc/header.txt</header>
                     <quiet>false</quiet>
@@ -271,7 +275,7 @@
                     <useDefaultMapping>true</useDefaultMapping>
                     <strictCheck>true</strictCheck>
                     <encoding>UTF-8</encoding>
-                    <!-- To use no JavaDoc but a normal comment -->
+                    <!-- To use no Javadoc but a normal comment -->
                     <headerDefinitions>
                         <definition>
                             src/etc/header-def.xml
@@ -338,7 +342,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>versions-maven-plugin</artifactId>
-                <version>2.7</version>
+                <version>2.19.0</version>
             </plugin>
             <plugin>
                 <groupId>net.revelc.code.formatter</groupId>
@@ -363,7 +367,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-changes-plugin</artifactId>
-                <version>2.11</version>
+                <version>3.0.0-M3</version>
                 <configuration>
                     <issueLinkTemplate>https://bitbucket.org/snakeyaml/snakeyaml-engine/issues/%ISSUE%</issueLinkTemplate>
                 </configuration>
@@ -503,9 +507,9 @@
         <cobertura-maven-plugin.version>2.7</cobertura-maven-plugin.version>
         <maven-site-plugin.version>3.8.2</maven-site-plugin.version>
         <maven-surefire-plugin.version>3.0.0-M3</maven-surefire-plugin.version>
-        <maven-javadoc-plugin.version>3.2.0</maven-javadoc-plugin.version>
+        <maven-javadoc-plugin.version>3.11.3</maven-javadoc-plugin.version>
         <guava.version>32.0.1-jre</guava.version>
-        <required.maven.version>3.5.0</required.maven.version>
+        <required.maven.version>3.6.3</required.maven.version>
         <jmh.version>1.36</jmh.version>
 
         <sonar.exclusions>**/*google*/**.java</sonar.exclusions>
