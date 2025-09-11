@@ -86,6 +86,11 @@
                     <configuration>
                         <excludePackageNames>org.snakeyaml.engine.external.*</excludePackageNames>
                         <source>11</source>
+                        <additionalOptions>
+                            <!-- comment out to improve Javadoc -->
+                          <additionalOption>-Xdoclint:none</additionalOption>
+                          <additionalOption>-quiet</additionalOption>
+                        </additionalOptions>
                     </configuration>
                 </plugin>
                 <plugin>
