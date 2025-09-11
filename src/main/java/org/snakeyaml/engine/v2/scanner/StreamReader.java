@@ -37,21 +37,23 @@ public final class StreamReader {
   private final char[] buffer;
   private final boolean useMarks;
   /**
-   * Read data (as a moving window for input stream)
+   * Read data (as a moving window for the input stream)
    */
   private int[] codePointsWindow;
   /**
-   * Real length of the data in dataWindow
+   * Real length of the data in the codePointsWindow
    */
   private int dataLength;
   /**
-   * The variable points to the current position in the data array
+   * The variable points to the current position in the codePointsWindow
    */
   private int pointer = 0;
+  /**
+   * True if the end of the stream has been reached.
+   */
   private boolean eof;
   /**
-   * index is only required to implement 1024 key length restriction and the total length
-   * restriction
+   * index is only required to implement 1024 key length restriction
    */
   private int index = 0; // in code points
   private int documentIndex = 0; // current document index in code points (only for limiting)
@@ -60,17 +62,7 @@ public final class StreamReader {
   private int column = 0; // in code points
 
   /**
-   * @param loadSettings - configuration options
-   * @param reader - the input
-   * @deprecated use the other constructor with LoadSettings first
-   */
-  @Deprecated
-  public StreamReader(Reader reader, LoadSettings loadSettings) {
-    this(loadSettings, reader);
-  }
-
-  /**
-   * Create
+   * Create an instance
    *
    * @param loadSettings - configuration options
    * @param reader - the input
@@ -88,17 +80,7 @@ public final class StreamReader {
   }
 
   /**
-   * @param stream - the input
-   * @param loadSettings - configuration options
-   * @deprecated use the other constructor with LoadSettings first
-   */
-  @Deprecated
-  public StreamReader(String stream, LoadSettings loadSettings) {
-    this(loadSettings, new StringReader(stream));
-  }
-
-  /**
-   * Create
+   * Create an instance
    *
    * @param loadSettings - configuration options
    * @param stream - the input
@@ -108,7 +90,7 @@ public final class StreamReader {
   }
 
   /**
-   * Check if the all the data is human-readable (used in Representer)
+   * Check if all the data is human-readable (used in Representer)
    *
    * @param data - content to be checked for human-readability
    * @return true only when everything is human-readable
@@ -153,7 +135,7 @@ public final class StreamReader {
   }
 
   /**
-   * read the next character and move the pointer. if the last character is high surrogate one more
+   * Read the next character and move the pointer. If the last character is high surrogate, one more
    * character will be read
    */
   public void forward() {
@@ -161,10 +143,10 @@ public final class StreamReader {
   }
 
   /**
-   * read the next length characters and move the pointer. if the last character is high surrogate
+   * Read the next length characters and move the pointer. If the last character is high surrogate,
    * one more character will be read
    *
-   * @param length amount of characters to move forward
+   * @param length number of characters to move forward
    */
   public void forward(int length) {
     for (int i = 0; i < length && ensureEnoughData(); i++) {
@@ -203,8 +185,8 @@ public final class StreamReader {
   /**
    * Create String from code points
    *
-   * @param length amount of the characters to convert
-   * @return the String representation
+   * @param length - number of the characters to convert
+   * @return string representation
    */
   public String prefix(int length) {
     if (length == 0) {
@@ -219,7 +201,7 @@ public final class StreamReader {
   /**
    * prefix(length) immediately followed by forward(length)
    *
-   * @param length amount of characters to get
+   * @param length number of characters to get
    * @return the next length code points
    */
   public String prefixForward(int length) {
@@ -235,6 +217,14 @@ public final class StreamReader {
     return ensureEnoughData(0);
   }
 
+  /**
+   * Ensures that there is enough data available in the buffer for the specified size. If the
+   * current buffer does not contain enough data and the end of the stream has not been reached, an
+   * update is triggered to read more data into the buffer.
+   *
+   * @param size the required amount of data to check for in the buffer
+   * @return true if there is enough data available in the buffer, false otherwise
+   */
   private boolean ensureEnoughData(int size) {
     if (!eof && pointer + size >= dataLength) {
       update();
@@ -242,6 +232,12 @@ public final class StreamReader {
     return (this.pointer + size) < dataLength;
   }
 
+  /**
+   * Updates the buffer by reading new data from the input stream and processes it into a validated
+   * and transcodable code points window.
+   *
+   * @throws YamlEngineException if an {@code IOException} occurs during the stream read operation.
+   */
   private void update() {
     try {
       int read = stream.read(buffer);
@@ -262,7 +258,7 @@ public final class StreamReader {
    * Prepare the code points window for appending new code points by compacting the already consumed
    * part and ensuring space for the newly read chars.
    *
-   * @return the index in codePointsWindow where new code points should start to be written
+   * @return the index in the codePointsWindow where new code points should start to be written
    */
   private int prepareWindowFor(int read) {
     int cpIndex = (dataLength - pointer);
@@ -299,13 +295,11 @@ public final class StreamReader {
     while (i < read) {
       int codePoint = Character.codePointAt(buffer, i);
       codePointsWindow[cpIndex] = codePoint;
-
       if (!isPrintable(codePoint)) {
         // index + cpIndex is the absolute position of this code point
         throw new ReaderException(name, index + cpIndex, codePoint,
             "special characters are not allowed");
       }
-
       i += Character.charCount(codePoint);
       cpIndex++;
     }
@@ -341,7 +335,7 @@ public final class StreamReader {
   }
 
   /**
-   * @return current position as number (in characters) from the beginning of the stream
+   * @return current position as a number (in code points) from the beginning of the stream
    */
   public int getIndex() {
     return index;
