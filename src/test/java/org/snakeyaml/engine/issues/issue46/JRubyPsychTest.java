@@ -34,6 +34,10 @@ class JRubyPsychTest {
     parse("\u2028", "\n \u2028");
     parse("\u2028", "\n\u2028");
     parse("\u2029 1", "\n\u2029 1");
+
+    parse("\u2029*", "\n\u2029* "); // empty alias
+    parse("\u2029*", "\n\u2029*"); // empty alias
+    parse("\u2029* 1", "\n\u2029* 1");
   }
 
   @Test
