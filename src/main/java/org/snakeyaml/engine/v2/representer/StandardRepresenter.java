@@ -45,11 +45,11 @@ public class StandardRepresenter extends BaseRepresenter {
   /**
    * all chars that represent a new line
    */
-  public static final Pattern MULTILINE_PATTERN = Pattern.compile("\n|\u0085");
+  public static final Pattern MULTILINE_PATTERN = Pattern.compile("[\n\u0085]");
   /**
    * Connect classes to their tags
    */
-  protected Map<Class<? extends Object>, Tag> classTags;
+  protected Map<Class<?>, Tag> classTags;
   /**
    * keep the options
    */
@@ -86,7 +86,7 @@ public class StandardRepresenter extends BaseRepresenter {
     this.parentClassRepresenters.put(Map.class, new RepresentMap());
     this.parentClassRepresenters.put(Set.class, new RepresentSet());
     this.parentClassRepresenters.put(Iterator.class, new RepresentIterator());
-    this.parentClassRepresenters.put(new Object[0].getClass(), new RepresentArray());
+    this.parentClassRepresenters.put(Object[].class, new RepresentArray());
     this.parentClassRepresenters.put(Enum.class, new RepresentEnum());
     classTags = new HashMap<>();
     this.settings = settings;
@@ -95,7 +95,7 @@ public class StandardRepresenter extends BaseRepresenter {
   /**
    * Define the way to get the Tag for any class
    *
-   * @param clazz - the class to serialise
+   * @param clazz - the class to serialize
    * @param defaultTag - the tag to use if there is no explicit configuration
    * @return the Tag for output
    */
@@ -112,8 +112,8 @@ public class StandardRepresenter extends BaseRepresenter {
    * @return the previous tag associated with the <code>Class</code>
    * @deprecated should be replaced with the Beans project
    */
-  @Deprecated
-  public Tag addClassTag(Class<? extends Object> clazz, Tag tag) {
+  @Deprecated(forRemoval = true, since = "2.0")
+  public Tag addClassTag(Class<?> clazz, Tag tag) {
     if (tag == null) {
       throw new NullPointerException("Tag must be provided.");
     }
@@ -156,9 +156,9 @@ public class StandardRepresenter extends BaseRepresenter {
           && !StreamReader.isPrintable(value)) {
         tag = Tag.BINARY;
         final byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
-        // sometimes above will just silently fail - it will return incomplete data
+        // sometimes the above will just silently fail - it will return incomplete data
         // it happens when String has invalid code points
-        // (for example half surrogate character without other half)
+        // (for example, half-surrogate character without the other half)
         final String checkValue = new String(bytes, StandardCharsets.UTF_8);
         if (!checkValue.equals(value)) {
           throw new YamlEngineException("invalid string value has occurred");
@@ -293,8 +293,8 @@ public class StandardRepresenter extends BaseRepresenter {
     private List<Byte> asByteList(Object in) {
       byte[] array = (byte[]) in;
       List<Byte> list = new ArrayList<>(array.length);
-      for (int i = 0; i < array.length; ++i) {
-        list.add(array[i]);
+      for (byte b : array) {
+        list.add(b);
       }
       return list;
     }
@@ -302,8 +302,8 @@ public class StandardRepresenter extends BaseRepresenter {
     private List<Short> asShortList(Object in) {
       short[] array = (short[]) in;
       List<Short> list = new ArrayList<>(array.length);
-      for (int i = 0; i < array.length; ++i) {
-        list.add(array[i]);
+      for (short value : array) {
+        list.add(value);
       }
       return list;
     }
@@ -311,8 +311,8 @@ public class StandardRepresenter extends BaseRepresenter {
     private List<Integer> asIntList(Object in) {
       int[] array = (int[]) in;
       List<Integer> list = new ArrayList<>(array.length);
-      for (int i = 0; i < array.length; ++i) {
-        list.add(array[i]);
+      for (int j : array) {
+        list.add(j);
       }
       return list;
     }
@@ -320,8 +320,8 @@ public class StandardRepresenter extends BaseRepresenter {
     private List<Long> asLongList(Object in) {
       long[] array = (long[]) in;
       List<Long> list = new ArrayList<>(array.length);
-      for (int i = 0; i < array.length; ++i) {
-        list.add(array[i]);
+      for (long l : array) {
+        list.add(l);
       }
       return list;
     }
@@ -329,8 +329,8 @@ public class StandardRepresenter extends BaseRepresenter {
     private List<Float> asFloatList(Object in) {
       float[] array = (float[]) in;
       List<Float> list = new ArrayList<>(array.length);
-      for (int i = 0; i < array.length; ++i) {
-        list.add(array[i]);
+      for (float v : array) {
+        list.add(v);
       }
       return list;
     }
@@ -338,8 +338,8 @@ public class StandardRepresenter extends BaseRepresenter {
     private List<Double> asDoubleList(Object in) {
       double[] array = (double[]) in;
       List<Double> list = new ArrayList<>(array.length);
-      for (int i = 0; i < array.length; ++i) {
-        list.add(array[i]);
+      for (double v : array) {
+        list.add(v);
       }
       return list;
     }
@@ -347,8 +347,8 @@ public class StandardRepresenter extends BaseRepresenter {
     private List<Character> asCharList(Object in) {
       char[] array = (char[]) in;
       List<Character> list = new ArrayList<>(array.length);
-      for (int i = 0; i < array.length; ++i) {
-        list.add(array[i]);
+      for (char c : array) {
+        list.add(c);
       }
       return list;
     }
@@ -356,8 +356,8 @@ public class StandardRepresenter extends BaseRepresenter {
     private List<Boolean> asBooleanList(Object in) {
       boolean[] array = (boolean[]) in;
       List<Boolean> list = new ArrayList<>(array.length);
-      for (int i = 0; i < array.length; ++i) {
-        list.add(array[i]);
+      for (boolean b : array) {
+        list.add(b);
       }
       return list;
     }
@@ -391,7 +391,6 @@ public class StandardRepresenter extends BaseRepresenter {
           settings.getDefaultFlowStyle());
     }
   }
-
 
   /**
    * Create eNode for Enums
