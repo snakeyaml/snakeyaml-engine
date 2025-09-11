@@ -13,72 +13,77 @@
  */
 package org.snakeyaml.engine.usecases.untrusted;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import java.util.Iterator;
 import org.junit.jupiter.api.Test;
 import org.snakeyaml.engine.v2.api.Load;
 import org.snakeyaml.engine.v2.api.LoadSettings;
 import org.snakeyaml.engine.v2.exceptions.YamlEngineException;
 
-import java.util.Iterator;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 /**
  * https://bitbucket.org/snakeyaml/snakeyaml/issues/1065
  */
-public class DocumentSizeLimitTest {
+class DocumentSizeLimitTest {
 
   /**
    * The document start '---\n' is added to the first document
    */
   @Test
-  public void testFirstLoadManyDocuments() {
+  void testFirstLoadManyDocuments() {
+    // within the limit = 8
     LoadSettings settings1 = LoadSettings.builder().setCodePointLimit(8).build();
     Load load1 = new Load(settings1);
-    String doc = "---\nfoo\n---\nbar\n";
+    String doc = "---\nfoo\n---\nbarbar\n";
     Iterator<Object> iter1 = load1.loadAllFromString(doc).iterator();
     assertEquals("foo", iter1.next());
-    assertEquals("bar", iter1.next());
+    assertEquals("barbar", iter1.next());
     assertFalse(iter1.hasNext());
-    // exceed the limit
+    // exceed the limit by 1
     LoadSettings settings2 = LoadSettings.builder().setCodePointLimit(8 - 1).build();
     Load load2 = new Load(settings2);
     Iterator<Object> iter2 = load2.loadAllFromString(doc).iterator();
-    assertEquals("foo", iter2.next());
+    assertEquals("foo", iter2.next()); // the first document is loaded
     try {
       iter2.next();
+      fail("The second document should fail because of the limit");
     } catch (YamlEngineException e) {
-      assertEquals("The incoming YAML document exceeds the limit: 4 code points.", e.getMessage());
+      assertEquals("The incoming YAML document exceeds the limit: 7 code points.", e.getMessage());
     }
   }
 
   /**
-   * The document start '---\n' is added to the non-first documents.
+   * The document start '---\n' is added to the non-first documents. Document indicators affect the
+   * limit ('---' and '...')
    */
   @Test
   public void testLastLoadManyDocuments() {
-    String secondDocument = "---\nbar\n";
-    int limit = secondDocument.length();
-    LoadSettings settings1 = LoadSettings.builder().setCodePointLimit(limit).build();
+    LoadSettings settings1 = LoadSettings.builder().setCodePointLimit(7).build();
     Load load1 = new Load(settings1);
-    String complete = "foo\n" + secondDocument;
+    String complete = "foo\n...\n---\nbar\n";
     Iterator<Object> iter1 = load1.loadAllFromString(complete).iterator();
     assertEquals("foo", iter1.next());
     assertEquals("bar", iter1.next());
     assertFalse(iter1.hasNext());
     // exceed the limit
-    LoadSettings settings2 = LoadSettings.builder().setCodePointLimit(limit - 1).build();
+    LoadSettings settings2 = LoadSettings.builder().setCodePointLimit(6).build();
     Load load2 = new Load(settings2);
     Iterator<Object> iter2 = load2.loadAllFromString(complete).iterator();
     assertEquals("foo", iter2.next());
     try {
       iter2.next();
+      fail("Second doc should fail because of doc limit");
     } catch (YamlEngineException e) {
-      assertEquals("The incoming YAML document exceeds the limit: 4 code points.", e.getMessage());
+      assertEquals("The incoming YAML document exceeds the limit: 6 code points.", e.getMessage());
     }
   }
 
   @Test
-  public void testLoadDocuments() {
+  void testLoadDocuments() {
     String doc1 = "document: this is document one\n";
     String doc2 = "---\ndocument: this is document 2\n";
     String docLongest = "---\ndocument: this is document three\n";
@@ -101,9 +106,8 @@ public class DocumentSizeLimitTest {
     for (int ndx = 1; ndx <= 3; ndx++) {
       try {
         Object doc = docs.next();
-        // System.out.println("doc " + ndx + " loaded: " + doc);
+        assertNotNull(doc);
       } catch (Exception e) {
-        // System.out.println("doc " + ndx + " failed: " + e.getMessage());
         return false;
       }
     }

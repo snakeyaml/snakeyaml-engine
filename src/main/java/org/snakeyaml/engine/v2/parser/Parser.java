@@ -31,7 +31,7 @@ import org.snakeyaml.engine.v2.exceptions.ParserException;
 public interface Parser extends Iterator<Event> {
 
   /**
-   * Check if the next event is one of the given type.
+   * Check if the next event is of the given type.
    *
    * @param choice Event ID to match
    * @return <code>true</code> if the next event has the given ID, <code>false</code> otherwise.
