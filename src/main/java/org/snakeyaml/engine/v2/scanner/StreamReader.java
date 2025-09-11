@@ -245,47 +245,75 @@ public final class StreamReader {
   private void update() {
     try {
       int read = stream.read(buffer);
-      if (read > 0) {
-        int cpIndex = (dataLength - pointer);
-        codePointsWindow = Arrays.copyOfRange(codePointsWindow, pointer, dataLength + read);
-        if (Character.isHighSurrogate(buffer[read - 1])) {
-          if (stream.read(buffer, read, 1) == -1) {
-            throw new ReaderException(name, index + read, buffer[read - 1],
-                "The last char is HighSurrogate (no LowSurrogate detected).");
-          } else {
-            read++;
-          }
-        }
-
-        Optional<Integer> nonPrintable = Optional.empty();
-        int i = 0;
-        while (i < read) {
-          int codePoint = Character.codePointAt(buffer, i);
-          codePointsWindow[cpIndex] = codePoint;
-          if (isPrintable(codePoint)) {
-            i += Character.charCount(codePoint);
-          } else {
-            nonPrintable = Optional.of(codePoint);
-            i = read;
-          }
-          cpIndex++;
-        }
-        dataLength = cpIndex;
-        pointer = 0;
-        if (nonPrintable.isPresent()) {
-          throw new ReaderException(name, index + cpIndex - 1, nonPrintable.get(),
-              "special characters are not allowed");
-        }
-      } else {
+      if (read <= 0) {
         eof = true;
+        return;
       }
+      int cpIndex = prepareWindowFor(read);
+      read = extendIfTrailingHighSurrogate(read);
+      dataLength = transcodeAndValidateToWindow(read, cpIndex);
+      pointer = 0;
     } catch (IOException ioe) {
       throw new YamlEngineException(ioe);
     }
   }
 
   /**
-   * @return current position as number (in characters) from the beginning of the current line
+   * Prepare the code points window for appending new code points by compacting the already consumed
+   * part and ensuring space for the newly read chars.
+   *
+   * @return the index in codePointsWindow where new code points should start to be written
+   */
+  private int prepareWindowFor(int read) {
+    int cpIndex = (dataLength - pointer);
+    codePointsWindow = Arrays.copyOfRange(codePointsWindow, pointer, dataLength + read);
+    return cpIndex;
+  }
+
+  /**
+   * If the last char in the buffer is a high surrogate, attempt to read one more char to complete
+   * the surrogate pair. Throws ReaderException if low surrogate is missing.
+   *
+   * @return the new number of chars available in the buffer
+   */
+  private int extendIfTrailingHighSurrogate(int read) throws IOException {
+    if (Character.isHighSurrogate(buffer[read - 1])) {
+      if (stream.read(buffer, read, 1) == -1) {
+        throw new ReaderException(name, index + read, buffer[read - 1],
+            "The last char is HighSurrogate (no LowSurrogate detected).");
+      }
+      read++;
+    }
+    return read;
+  }
+
+  /**
+   * Convert chars in the buffer into code points, validate printability, and place them into the
+   * codePointsWindow starting at cpIndexStart.
+   *
+   * @return the new cpIndex (i.e., dataLength) after filling
+   */
+  private int transcodeAndValidateToWindow(int read, int cpIndexStart) {
+    int cpIndex = cpIndexStart;
+    int i = 0;
+    while (i < read) {
+      int codePoint = Character.codePointAt(buffer, i);
+      codePointsWindow[cpIndex] = codePoint;
+
+      if (!isPrintable(codePoint)) {
+        // index + cpIndex is the absolute position of this code point
+        throw new ReaderException(name, index + cpIndex, codePoint,
+            "special characters are not allowed");
+      }
+
+      i += Character.charCount(codePoint);
+      cpIndex++;
+    }
+    return cpIndex;
+  }
+
+  /**
+   * @return current position as a number (in characters) from the beginning of the current line
    */
   public int getColumn() {
     return column;
