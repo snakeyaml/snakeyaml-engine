@@ -368,13 +368,10 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-changes-plugin</artifactId>
                 <version>3.0.0-M3</version>
-                <configuration>
-                    <issueLinkTemplate>https://bitbucket.org/snakeyaml/snakeyaml-engine/issues/%ISSUE%</issueLinkTemplate>
-                </configuration>
                 <reportSets>
                     <reportSet>
                         <reports>
-                            <report>changes-report</report>
+                            <report>changes</report>
                         </reports>
                     </reportSet>
                 </reportSets>
