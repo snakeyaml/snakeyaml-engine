@@ -5,7 +5,7 @@
 [YAML](http://yaml.org) is a data serialization format designed for human readability and
 interaction with scripting languages.
 
-SnakeYAML Engine is a YAML 1.2 processor for the Java Virtual Machine version 8 and higher.
+SnakeYAML Engine is a YAML 1.2 processor for Java Virtual Machine version 11 and higher.
 
 [Latest release](https://central.sonatype.com/artifact/org.snakeyaml/snakeyaml-engine)
 
@@ -29,7 +29,7 @@ SnakeYAML Engine is a YAML 1.2 processor for the Java Virtual Machine version 8 
   (A
   good [introduction to schemas](http://blogs.perl.org/users/tinita/2018/01/introduction-to-yaml-schemas-and-tags.html))
 * Relatively sensible error messages (can be switched off to improve performance).
-* When you plan to feed the parser with untrusted data please study the settings which allow to restrict incoming data.
+* When you plan to feed the parser with untrusted data, please study the settings which allow restricting incoming data.
 
 ## Info ##
 
@@ -40,7 +40,7 @@ SnakeYAML Engine is a YAML 1.2 processor for the Java Virtual Machine version 8 
 ## Contribute ##
 
 * GIT is used to dance with the [source code](https://bitbucket.org/snakeyaml/snakeyaml-engine/src).
-* If you find a bug
+* If you find a bug, 
   please [file a bug report](https://bitbucket.org/snakeyaml/snakeyaml-engine/issues?status=new&status=open).
 * You may discuss SnakeYAML Engine
   at [the mailing list](http://groups.google.com/group/snakeyaml-core).
