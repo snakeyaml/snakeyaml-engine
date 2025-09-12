@@ -14,7 +14,6 @@
 package org.snakeyaml.engine.usecases.external_test_suite;
 
 import com.google.common.base.Splitter;
-import java.util.List;
 import org.snakeyaml.engine.v2.common.FlowStyle;
 import org.snakeyaml.engine.v2.events.AliasEvent;
 import org.snakeyaml.engine.v2.events.CollectionStartEvent;
@@ -25,6 +24,8 @@ import org.snakeyaml.engine.v2.events.NodeEvent;
 import org.snakeyaml.engine.v2.events.ScalarEvent;
 import org.snakeyaml.engine.v2.events.SequenceStartEvent;
 import org.snakeyaml.engine.v2.nodes.Tag;
+
+import java.util.List;
 
 /**
  * Event representation for the external test suite
@@ -42,8 +43,8 @@ public class EventRepresentation {
   }
 
 
-  public boolean isSameAs(String data) {
-    List<String> split = Splitter.on(' ').splitToList(data);
+  public boolean isSameAs(String eventData) {
+    List<String> split = Splitter.on(' ').splitToList(eventData);
     if (!event.toString().startsWith(split.get(0))) {
       return false;
     }
@@ -102,13 +103,13 @@ public class EventRepresentation {
         String tag = e.getTag().get();
         ImplicitTuple implicit = e.getImplicit();
         if (implicit.bothFalse()) {
-          if (!data.contains("<" + e.getTag().get() + ">")) {
+          if (!eventData.contains("<" + e.getTag().get() + ">")) {
             return false;
           }
         }
       }
       String end = e.getScalarStyle() + e.escapedValue();
-      return data.endsWith(end);
+      return eventData.endsWith(end);
     }
     return true;
   }

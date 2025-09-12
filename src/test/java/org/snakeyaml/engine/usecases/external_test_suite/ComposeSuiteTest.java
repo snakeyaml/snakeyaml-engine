@@ -13,15 +13,7 @@
  */
 package org.snakeyaml.engine.usecases.external_test_suite;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import com.google.common.collect.Lists;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.snakeyaml.engine.v2.api.DumpSettings;
@@ -32,9 +24,21 @@ import org.snakeyaml.engine.v2.events.Event;
 import org.snakeyaml.engine.v2.exceptions.YamlEngineException;
 import org.snakeyaml.engine.v2.nodes.Node;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 @org.junit.jupiter.api.Tag("fast")
 class ComposeSuiteTest {
 
+  /**
+   * Use cases which result in an empty Node
+   */
   public static final List<String> emptyNodes = Lists.newArrayList("AVM7", "8G76", "98YD");
 
   private final List<SuiteData> allValid =
@@ -52,14 +56,14 @@ class ComposeSuiteTest {
 
 
   public static ComposeResult composeData(SuiteData data) {
-    Optional<Exception> error = Optional.empty();
-    List<Node> list = new ArrayList();
+    Exception error = null;
+    List<Node> list = new ArrayList<>();
     try {
       LoadSettings settings = LoadSettings.builder().setLabel(data.getLabel()).build();
       Iterable<Node> iterable = new Compose(settings).composeAllFromString(data.getInput());
       iterable.forEach(event -> list.add(event));
     } catch (YamlEngineException e) {
-      error = Optional.of(e);
+      error = e;
     }
     return new ComposeResult(list, error);
   }
@@ -78,27 +82,6 @@ class ComposeSuiteTest {
   @DisplayName("Compose: Run comprehensive test suite for non empty Nodes")
   void runAllNonEmpty() {
     for (SuiteData data : allValidAndNonEmpty) {
-      if ("4MUZ-01".equals(data.getName())) {
-        continue; // TODO FIXME fix test
-      }
-      if ("UV7Q".equals(data.getName())) {
-        continue; // TODO FIXME fix test
-      }
-      if ("HM87-00".equals(data.getName())) {
-        continue; // TODO FIXME fix test
-      }
-      if ("M2N8-00".equals(data.getName())) {
-        continue; // TODO FIXME fix test
-      }
-      if ("UKK6-00".equals(data.getName())) {
-        continue; // TODO FIXME fix test
-      }
-      if ("MUS6-03".equals(data.getName())) {
-        continue; // TODO FIXME fix test
-      }
-      if ("4Q9F".equals(data.getName())) {
-        continue; // TODO FIXME fix test
-      }
       ComposeResult result = composeData(data);
       List<Node> nodes = result.getNode();
       assertFalse(nodes.isEmpty(),
@@ -136,9 +119,9 @@ class ComposeSuiteTest {
 class ComposeResult {
 
   private final List<Node> node;
-  private final Optional<Exception> error;
+  private final Exception error;
 
-  public ComposeResult(List<Node> node, Optional<Exception> error) {
+  public ComposeResult(List<Node> node, Exception error) {
     this.node = node;
     this.error = error;
   }
@@ -147,7 +130,7 @@ class ComposeResult {
     return node;
   }
 
-  public Optional<Exception> getError() {
+  public Exception getError() {
     return error;
   }
 }

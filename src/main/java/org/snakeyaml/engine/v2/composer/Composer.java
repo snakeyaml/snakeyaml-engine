@@ -72,16 +72,6 @@ public class Composer implements Iterator<Node> {
   private final MergeUtils mergeUtils;
 
   /**
-   * @param parser - the input
-   * @param settings - configuration options
-   * @deprecated use the other constructor with LoadSettings first
-   */
-  @Deprecated
-  public Composer(Parser parser, LoadSettings settings) {
-    this(settings, parser);
-  }
-
-  /**
    * Create
    *
    * @param settings - configuration options
@@ -120,7 +110,7 @@ public class Composer implements Iterator<Node> {
   /**
    * Reads a document from a source that contains only one document.
    * <p>
-   * If the stream contains more than one document an exception is thrown.
+   * If the stream contains more than one document, an exception is thrown.
    * </p>
    *
    * @return The root node of the document or <code>Optional.empty()</code> if no document is
@@ -188,7 +178,7 @@ public class Composer implements Iterator<Node> {
 
   private Node composeNode(Optional<Node> parent) {
     blockCommentsCollector.collectEvents();
-    parent.ifPresent(recursiveNodes::add);// TODO add unit test for this line
+    parent.ifPresent(recursiveNodes::add);
     final Node node;
     if (parser.checkEvent(Event.ID.Alias)) {
       AliasEvent event = (AliasEvent) parser.next();
@@ -208,7 +198,7 @@ public class Composer implements Iterator<Node> {
       if (recursiveNodes.remove(node)) {
         node.setRecursive(true);
       }
-      // drop comments, they can not be supported here
+      // drop comments, they cannot be supported here
       blockCommentsCollector.consume();
       inlineCommentsCollector.collectEvents().consume();
     } else {
@@ -223,7 +213,7 @@ public class Composer implements Iterator<Node> {
         node = composeMappingNode(anchor);
       }
     }
-    parent.ifPresent(recursiveNodes::remove);// TODO add unit test for this line
+    parent.ifPresent(recursiveNodes::remove);
     return node;
   }
 
@@ -244,7 +234,7 @@ public class Composer implements Iterator<Node> {
     Optional<String> tag = ev.getTag();
     boolean resolved = false;
     Tag nodeTag;
-    if (!tag.isPresent() || tag.get().equals("!")) {
+    if (tag.isEmpty() || tag.get().equals("!")) {
       nodeTag = scalarResolver.resolve(ev.getValue(), ev.getImplicit().canOmitTagInPlainScalar());
       resolved = true;
     } else {
@@ -269,7 +259,7 @@ public class Composer implements Iterator<Node> {
     Optional<String> tag = startEvent.getTag();
     Tag nodeTag;
     boolean resolved = false;
-    if (!tag.isPresent() || tag.get().equals("!")) {
+    if (tag.isEmpty() || tag.get().equals("!")) {
       nodeTag = Tag.SEQ;
       resolved = true;
     } else {
@@ -312,7 +302,7 @@ public class Composer implements Iterator<Node> {
     Optional<String> tag = startEvent.getTag();
     Tag nodeTag;
     boolean resolved = false;
-    if (!tag.isPresent() || tag.get().equals("!")) {
+    if (tag.isEmpty() || tag.get().equals("!")) {
       nodeTag = Tag.MAP;
       resolved = true;
     } else {
@@ -369,9 +359,12 @@ public class Composer implements Iterator<Node> {
     if (node instanceof MappingNode) {
       return (MappingNode) node;
     } else {
-      Node ref = anchors.get(node.getAnchor());
-      if (ref instanceof MappingNode) {
-        return (MappingNode) ref;
+      Optional<Anchor> anchorOption = node.getAnchor();
+      if (anchorOption.isPresent()) {
+        Node ref = anchors.get(anchorOption.get());
+        if (ref instanceof MappingNode) {
+          return (MappingNode) ref;
+        }
       }
     }
     Event ev = parser.peekEvent();

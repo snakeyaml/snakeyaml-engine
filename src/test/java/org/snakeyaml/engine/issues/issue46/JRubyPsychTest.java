@@ -15,18 +15,16 @@ package org.snakeyaml.engine.issues.issue46;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.snakeyaml.engine.v2.api.Load;
 import org.snakeyaml.engine.v2.api.LoadSettings;
-import org.snakeyaml.engine.v2.exceptions.ScannerException;
 
 /**
  * https://github.com/jruby/jruby/issues/7698
  */
-public class JRubyPsychTest {
+class JRubyPsychTest {
 
   @Test
   @DisplayName("Issue 46: parse different values")
@@ -37,9 +35,9 @@ public class JRubyPsychTest {
     parse("\u2028", "\n\u2028");
     parse("\u2029 1", "\n\u2029 1");
 
-    crash("while scanning an alias", "\n\u2029* "); // empty alias is not accepted
-    crash("while scanning an alias", "\n\u2029*"); // empty alias is not accepted
-    crash("while scanning an alias", "\n\u2029* 1"); // empty alias is not accepted
+    parse("\u2029*", "\n\u2029* "); // empty alias
+    parse("\u2029*", "\n\u2029*"); // empty alias
+    parse("\u2029* 1", "\n\u2029* 1");
   }
 
   @Test
@@ -47,15 +45,11 @@ public class JRubyPsychTest {
   void parseValid() {
     LoadSettings loadSettings = LoadSettings.builder().build();
     Load load = new Load(loadSettings);
-    Object obj = load.loadAllFromString("--- |2-\n\n\u2028  * C\n");
-    assertNotNull(obj);
-    Iterable iter = (Iterable) obj;
-    try {
-      iter.iterator().next();
-    } catch (ScannerException e) {
-      assertTrue(e.getMessage().contains(
-          " the leading empty lines contain more spaces (2) than the first non-empty line."));
-    }
+    Object docs = load.loadAllFromString("--- |2-\n\n\u2028  * C\n");
+    assertNotNull(docs);
+    Iterable iter = (Iterable) docs;
+    Object doc = iter.iterator().next();
+    assertNotNull(doc);
   }
 
   @Test
@@ -76,16 +70,6 @@ public class JRubyPsychTest {
     Load load = new Load(loadSettings);
     Object obj = load.loadFromString(data);
     assertEquals(expected, obj);
-  }
-
-  private void crash(String expectedError, String data) {
-    LoadSettings loadSettings = LoadSettings.builder().build();
-    Load load = new Load(loadSettings);
-    try {
-      load.loadFromString(data);
-    } catch (Exception e) {
-      assertTrue(e.getMessage().contains(expectedError), e.getMessage());
-    }
   }
 
   @Test

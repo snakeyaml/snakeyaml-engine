@@ -20,11 +20,16 @@ import org.snakeyaml.engine.v2.api.DumpSettings;
 import org.snakeyaml.engine.v2.api.Load;
 import org.snakeyaml.engine.v2.api.LoadSettings;
 import org.snakeyaml.engine.v2.common.ScalarStyle;
+import org.snakeyaml.engine.v2.exceptions.ScannerException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
- * Issue 67: ScannerException on block scalar "\n"
+ * Issue 67: ScannerException on block scalar "\n" See
+ * <a href="https://www.baeldung.com/yaml-multi-line#1-keep">Keep in Literal scalar</a>
  */
 @org.junit.jupiter.api.Tag("fast")
 public class DumpLineBreakTest {
@@ -92,5 +97,49 @@ public class DumpLineBreakTest {
     String dumpString = dump.dumpToString(yaml);
     assertEquals(expected, dumpString);
     assertEquals(yaml, load.loadFromString(dumpString));
+  }
+
+  @Test
+  @DisplayName("Use Keep in Literal scalar")
+  void parseLiteral() {
+    String input = "---\n" + "top:\n" + "  foo:\n" + "  - problem: |2+\n" + "\n" + "  bar: baz\n";
+    // System.out.println(input);
+    Object obj = load.loadFromString(input);
+    assertNotNull(obj);
+  }
+
+  @Test
+  @DisplayName("Use Keep in Literal scalar: S98Z")
+  /**
+   * <a href="https://matrix.yaml.info/details/S98Z.html">YAML Test Matrix</a>
+   * <a href="https://github.com/yaml/yaml-test-suite/issues/37">S98Z under YAML 1.2</a>
+   * <a href="https://github.com/yaml/yaml-test-suite/blob/main/src/S98Z.yaml">yaml-test-suite</a>
+   */
+  void parseLiteralS98Z() {
+    String input = "empty block scalar: >\n" + " \n" + "  \n" + "   \n" + " # comment";
+    // System.out.println(input);
+    try {
+      load.loadFromString(input);
+      fail("S98Z");
+    } catch (ScannerException e) {
+      assertTrue(
+          e.getMessage().contains(
+              "the leading empty lines contain more spaces (3) than the first non-empty line (1)."),
+          e.getMessage());
+    }
+  }
+
+  @Test
+  @DisplayName("Use Keep in Literal scalar: T26H")
+  /**
+   * <a href="https://matrix.yaml.info/details/T26H.html">YAML Test Matrix</a>
+   * <a href="https://github.com/yaml/yaml-test-suite/blob/main/src/T26H.yaml">yaml-test-suite</a>
+   */
+  void parseLiteralT26H() {
+    String input = "--- |\n" + " \n" + "  \n" + "  literal\n" + "   \n" + "  \n" + "  text\n" + "\n"
+        + " # Comment\n";
+    // System.out.println(input);
+    Object obj = load.loadFromString(input);
+    assertEquals("\n" + "\n" + "literal\n" + " \n" + "\n" + "text\n", obj);
   }
 }

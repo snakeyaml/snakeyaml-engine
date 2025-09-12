@@ -121,8 +121,7 @@ import org.snakeyaml.engine.v2.tokens.Token;
  * flow_mapping_entry: { ALIAS ANCHOR TAG SCALAR FLOW-SEQUENCE-START FLOW-MAPPING-START KEY }
  * </pre>
  * <p>
- * Since writing a recursive-descendant parser is a straightforward task, we do not give many
- * comments here.
+ * Since writing a recursive-descendant parser is a straightforward task, we give few comments here.
  */
 public class ParserImpl implements Parser {
 
@@ -145,17 +144,6 @@ public class ParserImpl implements Parser {
   private Map<String, String> directiveTags;
 
   /**
-   * @param reader - the input
-   * @param settings - the configuration options
-   * @deprecated use the other constructor with LoadSettings first
-   */
-  @Deprecated
-  public ParserImpl(StreamReader reader, LoadSettings settings) {
-    this(settings, reader);
-  }
-
-
-  /**
    * Create
    *
    * @param settings - configuration options
@@ -163,16 +151,6 @@ public class ParserImpl implements Parser {
    */
   public ParserImpl(LoadSettings settings, StreamReader reader) {
     this(settings, new ScannerImpl(settings, reader));
-  }
-
-  /**
-   * @param scanner - input
-   * @param settings - configuration options
-   * @deprecated use the other constructor with LoadSettings first
-   */
-  @Deprecated
-  public ParserImpl(Scanner scanner, LoadSettings settings) {
-    this(settings, scanner);
   }
 
   /**
@@ -228,7 +206,7 @@ public class ParserImpl implements Parser {
   }
 
   private void produce() {
-    if (!currentEvent.isPresent()) {
+    if (currentEvent.isEmpty()) {
       state.ifPresent(production -> currentEvent = Optional.of(production.produce()));
     }
   }
@@ -238,7 +216,6 @@ public class ParserImpl implements Parser {
     CommentType type = token.getCommentType();
 
     // state = state, that no change in state
-
     return new CommentEvent(type, value, token.getStartMark(), token.getEndMark());
   }
 
@@ -348,11 +325,11 @@ public class ParserImpl implements Parser {
           tag = Optional.of(suffix);
         }
       }
-      if (!startMark.isPresent()) {
+      if (startMark.isEmpty()) {
         startMark = scanner.peekToken().getStartMark();
         endMark = startMark;
       }
-      boolean implicit = (!tag.isPresent());
+      boolean implicit = (tag.isEmpty());
       if (indentlessSequence && scanner.checkToken(Token.ID.BlockEntry)) {
         endMark = scanner.peekToken().getEndMark();
         event = new SequenceStartEvent(anchor, tag, implicit, FlowStyle.BLOCK, startMark, endMark);
@@ -362,9 +339,9 @@ public class ParserImpl implements Parser {
           ScalarToken token = (ScalarToken) scanner.next();
           endMark = token.getEndMark();
           ImplicitTuple implicitValues;
-          if ((token.isPlain() && !tag.isPresent())) {
+          if ((token.isPlain() && tag.isEmpty())) {
             implicitValues = new ImplicitTuple(true, false);
-          } else if (!tag.isPresent()) {
+          } else if (tag.isEmpty()) {
             implicitValues = new ImplicitTuple(false, true);
           } else {
             implicitValues = new ImplicitTuple(false, false);

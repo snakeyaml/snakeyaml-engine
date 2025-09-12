@@ -2,12 +2,26 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/changes/1.0.0 http://maven.apache.org/plugins/maven-changes-plugin/xsd/changes-1.0.0.xsd">
     <properties>
-        <title>YAML 1.2 parser and emitter for Java 8+</title>
+        <title>YAML 1.2 parser and emitter for Java 11+</title>
     </properties>
     <body>
         <release version="2.11" date="in GIT" description="Maintenance">
+            <action dev="asomov" type="fix" issue="70">
+                Improved tests (thanks to Piotr Krzemiński)
+            </action>
+            <action dev="asomov" type="fix" issue="69">
+                Parse escaped TAB in double-quoted scalar
+                (and fix KH5V-01, 3RLN-01, 3RLN-04, DE56-02, DE56-03 test cases in the test suite)
+            </action>
+            <action dev="asomov" type="fix" issue="47">
+                Strings with spaces are incorrectly divided into more lines
+                (thanks to Piotr Krzemiński)
+            </action>
+            <action dev="asomov" type="update">
+                Properly fix S98Z test case (thanks to Joseph Benken)
+            </action>
             <action dev="asomov" type="fix" issue="67">
-                Fix parsing a block scalar with LF (thanks to Joseph Benken)
+                Fix parsing a block scalar with LF, reverting S98Z test case (thanks to Joseph Benken)
             </action>
             <action dev="asomov" type="fix" issue="66">
                 Upgrade to Java 11

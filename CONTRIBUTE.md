@@ -4,7 +4,7 @@
 
 Tons of useful information can be found on [the official site](https://yaml.org/spec/1.2.2/).
 
-General step are defined [in the spec](https://yaml.org/spec/1.2.2/#31-processes):
+General steps are defined [in the spec](https://yaml.org/spec/1.2.2/#31-processes):
 
 ![](https://yaml.org/spec/1.2.2/img/overview2.svg)
 
@@ -17,30 +17,21 @@ stream, but for simplification the diagram mentions only one Node graph)
 
 ## Testing
 
-### Build the test data
+Engine uses [Comprehensive Test Suite for YAML](TestSuiteForYAML.md)
+for the tests.
 
-Engine uses [Comprehensive Test Suite for YAML](https://github.com/yaml/yaml-test-suite) for the
-tests.
+### Parser playground
 
-When your contribution implements new topic from the spec or changes the core features, it should be checked with
-the latest spec tests.
+You can use the [online playground](https://play.yaml.io/main/parser?input=LSAiXAkiCg==) to test the parser.
+It shows how all the parsers treat the input. (You may need to start Local Docker Sandbox Server)
+The input is encoded in Base64 and provided as a query parameter.
 
 
-- clone [YAML Test Suite](https://github.com/yaml/yaml-test-suite)
-- take tag (the trunk is work in progress)
+### Other parsers
 
-```
-    git tag | grep data
-    git checkout <LATEST TAG>
-```
+[YAML Test Matrix](https://matrix.yaml.info/) may be consulted if required.
 
-- build with flat data (remove sub-folders)
-
-```shell
-make clean data && make data-update && mv data orig && mkdir data; find orig -name === | sed 's/===//; s/orig\///' | while read d; do (set -x; cp -r orig/$d data/${d/\/0/-0}); done; rm -fr orig
-```
-
-- copy *data* folder to `src/test/resources/comprehensive-test-suite-data`
+[Test results](https://matrix.yaml.info/valid.html)
 
 ### Test locally
 
