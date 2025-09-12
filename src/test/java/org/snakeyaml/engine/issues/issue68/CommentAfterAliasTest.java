@@ -27,8 +27,8 @@ import org.snakeyaml.engine.v2.nodes.Node;
  * Issue 68: Comments are not parsed correctly when they follow an alias
  */
 @org.junit.jupiter.api.Tag("fast")
-public class CommentAfterAliasTest {
-  // TODO parse comments
+class CommentAfterAliasTest {
+  // TODO Issue 68: parse comments with setParseComments(true)
   private final LoadSettings loadSettings = LoadSettings.builder().setParseComments(false).build();
 
   @Test
