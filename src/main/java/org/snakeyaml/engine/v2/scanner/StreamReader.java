@@ -32,7 +32,6 @@ public final class StreamReader {
 
   private final String name;
   private final Reader stream;
-  private final int bufferSize;
   // temp buffer for one read operation (to avoid creating the array in stack)
   private final char[] buffer;
   private final boolean useMarks;
@@ -73,9 +72,8 @@ public final class StreamReader {
     this.dataLength = 0;
     this.stream = reader;
     this.eof = false;
-    this.bufferSize = loadSettings.getBufferSize();
     // read one less because the last char may be HighSurrogate
-    this.buffer = new char[bufferSize + 1];
+    this.buffer = new char[loadSettings.getBufferSize() + 1];
     this.useMarks = loadSettings.getUseMarks();
   }
 
