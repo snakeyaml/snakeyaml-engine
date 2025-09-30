@@ -7,6 +7,9 @@
     </properties>
     <body>
         <release version="2.11" date="in GIT" description="Maintenance">
+            <action dev="asomov" type="add">
+                Add build with JDK 25
+            </action>
             <action dev="asomov" type="fix" issue="70">
                 Improved tests (thanks to Piotr Krzemiński)
             </action>
