@@ -6,7 +6,7 @@
         <author email="public.somov@gmail.com">Andrey Somov</author>
     </properties>
     <body>
-        <release version="2.11" date="in GIT" description="Maintenance">
+        <release version="3.0" date="in GIT" description="Maintenance">
             <action dev="asomov" type="update" issue="72">
                 Enforce mapping keys to be scalars
             </action>
