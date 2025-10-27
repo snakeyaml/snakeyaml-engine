@@ -45,6 +45,7 @@ public final class LoadSettings {
   private final Optional<EnvConfig> envConfig;
   private final int codePointLimit;
   private final Schema schema;
+  private final boolean allowNonScalarKeys;
 
   // general
   private final Map<SettingKey, Object> customProperties;
@@ -54,7 +55,8 @@ public final class LoadSettings {
       IntFunction<Map<Object, Object>> defaultMap, UnaryOperator<SpecVersion> versionFunction,
       Integer bufferSize, boolean allowDuplicateKeys, boolean allowRecursiveKeys,
       int maxAliasesForCollections, boolean useMarks, Map<SettingKey, Object> customProperties,
-      Optional<EnvConfig> envConfig, boolean parseComments, int codePointLimit, Schema schema) {
+      Optional<EnvConfig> envConfig, boolean parseComments, int codePointLimit, Schema schema,
+      boolean allowNonScalarKeys) {
     this.label = label;
     this.tagConstructors = tagConstructors;
     this.defaultList = defaultList;
@@ -71,6 +73,7 @@ public final class LoadSettings {
     this.envConfig = envConfig;
     this.codePointLimit = codePointLimit;
     this.schema = schema;
+    this.allowNonScalarKeys = allowNonScalarKeys;
   }
 
   /**
@@ -144,6 +147,10 @@ public final class LoadSettings {
 
   public Schema getSchema() {
     return schema;
+  }
+
+  public boolean getAllowNonScalarKeys() {
+    return allowNonScalarKeys;
   }
 }
 

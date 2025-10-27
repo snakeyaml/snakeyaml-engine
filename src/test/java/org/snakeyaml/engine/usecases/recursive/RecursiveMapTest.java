@@ -70,7 +70,7 @@ class RecursiveMapTest {
   @Test
   @DisplayName("Fail to load map with recursive keys")
   void failToLoadRecursiveMapByDefault() {
-    LoadSettings settings = LoadSettings.builder().build();
+    LoadSettings settings = LoadSettings.builder().setAllowNonScalarKeys(true).build();
     Load load = new Load(settings);
     // fail to load map which has only one key - reference to itself
     YamlEngineException exception = assertThrows(YamlEngineException.class,
@@ -82,7 +82,8 @@ class RecursiveMapTest {
   @Test
   @DisplayName("Load map with recursive keys if it is explicitly allowed")
   void loadRecursiveMapIfAllowed() {
-    LoadSettings settings = LoadSettings.builder().setAllowRecursiveKeys(true).build();
+    LoadSettings settings =
+        LoadSettings.builder().setAllowRecursiveKeys(true).setAllowNonScalarKeys(true).build();
     Load load = new Load(settings);
     // load map which has only one key - reference to itself
     Map<Object, Object> recursive =

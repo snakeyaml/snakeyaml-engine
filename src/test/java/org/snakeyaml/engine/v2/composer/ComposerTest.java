@@ -24,34 +24,45 @@ import org.junit.jupiter.api.Test;
 import org.snakeyaml.engine.v2.api.LoadSettings;
 import org.snakeyaml.engine.v2.api.lowlevel.Compose;
 import org.snakeyaml.engine.v2.exceptions.ComposerException;
+import org.snakeyaml.engine.v2.exceptions.YamlEngineException;
 import org.snakeyaml.engine.v2.nodes.Node;
 
 @Tag("fast")
 class ComposerTest {
 
-  @Test
-  @DisplayName("Fail to Compose one document when more documents are provided.")
-  void composeOne() {
-    ComposerException exception = assertThrows(ComposerException.class,
-        () -> new Compose(LoadSettings.builder().build()).composeString("a\n---\nb\n"));
-    assertTrue(exception.getMessage().contains("expected a single document in the stream"));
-    assertTrue(exception.getMessage().contains("but found another document"));
-  }
+    @Test
+    @DisplayName("Fail to Compose one document when more documents are provided.")
+    void composeOne() {
+        Compose c = new Compose(LoadSettings.builder().build());
+        ComposerException exception =
+                assertThrows(ComposerException.class, () -> c.composeString("a\n---\nb\n"));
+        assertTrue(exception.getMessage().contains("expected a single document in the stream"));
+        assertTrue(exception.getMessage().contains("but found another document"));
+    }
 
-  @Test
-  void failToComposeUnknownAlias() {
-    ComposerException exception = assertThrows(ComposerException.class,
-        () -> new Compose(LoadSettings.builder().build()).composeString("[a, *id b]"));
-    assertTrue(exception.getMessage().contains("found undefined alias id"), exception.getMessage());
-  }
+    @Test
+    void failToComposeUnknownAlias() {
+        Compose c = new Compose(LoadSettings.builder().build());
+        ComposerException exception =
+                assertThrows(ComposerException.class, () -> c.composeString("[a, *id b]"));
+        assertTrue(exception.getMessage().contains("found undefined alias id"), exception.getMessage());
+    }
 
-  @Test
-  void composeAnchor() {
-    String data = "--- &113\n{name: Bill, age: 18}";
-    Compose compose = new Compose(LoadSettings.builder().build());
-    Optional<Node> optionalNode = compose.composeString(data);
-    assertTrue(optionalNode.isPresent());
-    Node node = optionalNode.get();
-    assertEquals("113", node.getAnchor().get().getValue());
-  }
+    @Test
+    void failToComposeNonScalarKey() {
+        Compose c = new Compose(LoadSettings.builder().build());
+        YamlEngineException exception =
+                assertThrows(YamlEngineException.class, () -> c.composeString("{ [1,2]: value}"));
+        assertEquals("Non scalar key is detected but it is not configured to be allowed.", exception.getMessage());
+    }
+
+    @Test
+    void composeAnchor() {
+        String data = "--- &113\n{name: Bill, age: 18}";
+        Compose compose = new Compose(LoadSettings.builder().build());
+        Optional<Node> optionalNode = compose.composeString(data);
+        assertTrue(optionalNode.isPresent());
+        Node node = optionalNode.get();
+        assertEquals("113", node.getAnchor().get().getValue());
+    }
 }

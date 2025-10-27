@@ -278,7 +278,8 @@ public class EmitterTest {
 
     String output = dump(builder.build(), f);
     assertEquals("&id001 {*id001 : a}\n", output);
-    Load load = new Load(LoadSettings.builder().setAllowRecursiveKeys(true).build());
+    Load load = new Load(
+        LoadSettings.builder().setAllowRecursiveKeys(true).setAllowNonScalarKeys(true).build());
     Object obj = load.loadFromString(output);
     assertNotNull(obj);
   }

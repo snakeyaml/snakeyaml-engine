@@ -36,8 +36,9 @@ public class FuzzyCollectionTest {
     InputStream datastream = new ByteArrayInputStream(datastring.getBytes());
     InputStreamReader reader = new InputStreamReader(datastream, StandardCharsets.UTF_8);
 
-    LoadSettings settings = LoadSettings.builder().setAllowRecursiveKeys(true)
-        .setMaxAliasesForCollections(1000).setAllowDuplicateKeys(true).build();
+    LoadSettings settings =
+        LoadSettings.builder().setAllowRecursiveKeys(true).setMaxAliasesForCollections(1000)
+            .setAllowDuplicateKeys(true).setAllowNonScalarKeys(true).build();
     Load yamlProcessor = new Load(settings);
     Object fuzzy = yamlProcessor.loadFromReader(reader);
     assertTrue(fuzzy.toString().startsWith("{[[{[[{{[[{{{[[{{[[{{{[[{{[{{[[{[[{{{[[{{[{-?"));

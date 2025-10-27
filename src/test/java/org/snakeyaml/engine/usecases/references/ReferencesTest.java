@@ -78,7 +78,8 @@ public class ReferencesTest {
     // System.out.println(output);
     long time1 = System.currentTimeMillis();
     // Load
-    LoadSettings settings = LoadSettings.builder().setMaxAliasesForCollections(150).build();
+    LoadSettings settings =
+        LoadSettings.builder().setMaxAliasesForCollections(150).setAllowNonScalarKeys(true).build();
     Load load = new Load(settings);
     try {
       load.loadFromString(output);
@@ -98,8 +99,8 @@ public class ReferencesTest {
     String output = createDump(25);
     // Load
     long time1 = System.currentTimeMillis();
-    LoadSettings settings =
-        LoadSettings.builder().setAllowRecursiveKeys(true).setMaxAliasesForCollections(50).build();
+    LoadSettings settings = LoadSettings.builder().setAllowRecursiveKeys(true)
+        .setMaxAliasesForCollections(50).setAllowNonScalarKeys(true).build();
     Load load = new Load(settings);
     load.loadFromString(output);
     long time2 = System.currentTimeMillis();
@@ -120,8 +121,8 @@ public class ReferencesTest {
     String bigYAML = createDump(35);
     // Load
     long time1 = System.currentTimeMillis();
-    LoadSettings settings =
-        LoadSettings.builder().setAllowRecursiveKeys(true).setMaxAliasesForCollections(40).build();
+    LoadSettings settings = LoadSettings.builder().setAllowRecursiveKeys(true)
+        .setMaxAliasesForCollections(40).setAllowNonScalarKeys(true).build();
     Load load = new Load(settings);
     try {
       load.loadFromString(bigYAML);

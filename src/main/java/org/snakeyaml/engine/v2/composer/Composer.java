@@ -348,6 +348,10 @@ public class Composer implements Iterator<Node> {
    */
   protected void composeMappingChildren(List<NodeTuple> children, MappingNode node) {
     Node itemKey = composeKeyNode(node);
+    if (itemKey.getNodeType() != NodeType.SCALAR && !settings.getAllowNonScalarKeys()) {
+      throw new YamlEngineException(
+          "Non scalar key is detected but it is not configured to be allowed.");
+    }
     if (itemKey.getTag().equals(Tag.MERGE)) {
       node.setHasMergeTag(true);
     }

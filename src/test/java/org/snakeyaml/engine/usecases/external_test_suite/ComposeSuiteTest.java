@@ -59,7 +59,8 @@ class ComposeSuiteTest {
     Exception error = null;
     List<Node> list = new ArrayList<>();
     try {
-      LoadSettings settings = LoadSettings.builder().setLabel(data.getLabel()).build();
+      LoadSettings settings =
+          LoadSettings.builder().setLabel(data.getLabel()).setAllowNonScalarKeys(true).build();
       Iterable<Node> iterable = new Compose(settings).composeAllFromString(data.getInput());
       iterable.forEach(event -> list.add(event));
     } catch (YamlEngineException e) {

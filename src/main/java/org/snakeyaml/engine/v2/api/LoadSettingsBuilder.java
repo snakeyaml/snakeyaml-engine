@@ -52,6 +52,7 @@ public final class LoadSettingsBuilder {
   private Optional<EnvConfig> envConfig;
   private int codePointLimit;
   private Schema schema;
+  private boolean allowNonScalarKeys;
 
   /**
    * Create builder
@@ -79,6 +80,7 @@ public final class LoadSettingsBuilder {
     this.envConfig = Optional.empty(); // no ENV substitution by default
     this.codePointLimit = 3 * 1024 * 1024; // 3 MB
     this.schema = new JsonSchema();
+    this.allowNonScalarKeys = false;
   }
 
   /**
@@ -292,6 +294,19 @@ public final class LoadSettingsBuilder {
   }
 
   /**
+   * Non-scalar keys in a mapping may cause issues when used with an untrusted source. Since using a
+   * collection as a key in mapping is a relatively rare use case (and it is not supported in JSON),
+   * this possibility is switched off by default (even though it is a standard feature of YAML)
+   *
+   * @param allowNonScalarKeys - true when any collection may be a key in a mapping
+   * @return the builder with the provided value
+   */
+  public LoadSettingsBuilder setAllowNonScalarKeys(boolean allowNonScalarKeys) {
+    this.allowNonScalarKeys = allowNonScalarKeys;
+    return this;
+  }
+
+  /**
    * Build immutable LoadSettings
    *
    * @return immutable LoadSettings
@@ -300,7 +315,7 @@ public final class LoadSettingsBuilder {
     return new LoadSettings(label, tagConstructors, defaultList, defaultSet, defaultMap,
         versionFunction, bufferSize, allowDuplicateKeys, allowRecursiveKeys,
         maxAliasesForCollections, useMarks, customProperties, envConfig, parseComments,
-        codePointLimit, schema);
+        codePointLimit, schema, allowNonScalarKeys);
   }
 }
 

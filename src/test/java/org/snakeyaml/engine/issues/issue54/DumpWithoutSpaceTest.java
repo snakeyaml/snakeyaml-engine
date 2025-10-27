@@ -51,7 +51,8 @@ public class DumpWithoutSpaceTest {
   }
 
   private Object parse(String data) {
-    LoadSettings loadSettings = LoadSettings.builder().setAllowRecursiveKeys(true).build();
+    LoadSettings loadSettings =
+        LoadSettings.builder().setAllowRecursiveKeys(true).setAllowNonScalarKeys(true).build();
     Load load = new Load(loadSettings);
     return load.loadFromString(data);
   }
