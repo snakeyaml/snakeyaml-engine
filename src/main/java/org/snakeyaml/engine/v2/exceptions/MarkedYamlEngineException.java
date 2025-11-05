@@ -81,7 +81,7 @@ public class MarkedYamlEngineException extends YamlEngineException {
       lines.append(context);
       lines.append("\n");
     }
-    if (contextMark.isPresent() && (problem == null || !problemMark.isPresent()
+    if (contextMark.isPresent() && (problem == null || problemMark.isEmpty()
         || contextMark.get().getName().equals(problemMark.get().getName())
         || (contextMark.get().getLine() != problemMark.get().getLine())
         || (contextMark.get().getColumn() != problemMark.get().getColumn()))) {
