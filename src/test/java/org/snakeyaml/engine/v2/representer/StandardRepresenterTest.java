@@ -19,12 +19,15 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.google.common.collect.TreeRangeSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.snakeyaml.engine.v2.api.Dump;
 import org.snakeyaml.engine.v2.api.DumpSettings;
 import org.snakeyaml.engine.v2.exceptions.YamlEngineException;
+import org.snakeyaml.engine.v2.nodes.MappingNode;
 import org.snakeyaml.engine.v2.nodes.Node;
 import org.snakeyaml.engine.v2.nodes.SequenceNode;
 
@@ -64,5 +67,18 @@ class StandardRepresenterTest {
     // dump
     Dump dumper = new Dump(DumpSettings.builder().build());
     assertEquals("[hello, world]\n", dumper.dumpToString(listOfStrings.iterator()));
+  }
+
+  @Test
+  @DisplayName("Represent Set as node")
+  void representSet() {
+    Set<String> setOfStrings = new TreeSet(Set.of("bbb", "aaa"));
+    Node node = standardRepresenter.represent(setOfStrings);
+    assertEquals("tag:yaml.org,2002:set", node.getTag().getValue());
+    MappingNode seq = (MappingNode) node;
+    assertEquals(2, seq.getValue().size());
+    // dump
+    Dump dumper = new Dump(DumpSettings.builder().build());
+    assertEquals("[aaa, bbb]\n", dumper.dumpToString(setOfStrings.iterator()));
   }
 }
