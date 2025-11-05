@@ -269,9 +269,7 @@ public class StandardRepresenter extends BaseRepresenter {
       Class<?> type = data.getClass().getComponentType();
 
       FlowStyle style = settings.getDefaultFlowStyle();
-      if (byte.class == type) {
-        return representSequence(Tag.SEQ, asByteList(data), style);
-      } else if (short.class == type) {
+      if (short.class == type) {
         return representSequence(Tag.SEQ, asShortList(data), style);
       } else if (int.class == type) {
         return representSequence(Tag.SEQ, asIntList(data), style);
@@ -288,15 +286,6 @@ public class StandardRepresenter extends BaseRepresenter {
       }
 
       throw new YamlEngineException("Unexpected primitive '" + type.getCanonicalName() + "'");
-    }
-
-    private List<Byte> asByteList(Object in) {
-      byte[] array = (byte[]) in;
-      List<Byte> list = new ArrayList<>(array.length);
-      for (byte b : array) {
-        list.add(b);
-      }
-      return list;
     }
 
     private List<Short> asShortList(Object in) {

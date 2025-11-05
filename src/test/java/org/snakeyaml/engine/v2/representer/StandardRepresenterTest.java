@@ -17,12 +17,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.google.common.collect.TreeRangeSet;
+import java.util.Iterator;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.snakeyaml.engine.v2.api.Dump;
 import org.snakeyaml.engine.v2.api.DumpSettings;
 import org.snakeyaml.engine.v2.exceptions.YamlEngineException;
 import org.snakeyaml.engine.v2.nodes.Node;
+import org.snakeyaml.engine.v2.nodes.SequenceNode;
 
 @Tag("fast")
 class StandardRepresenterTest {
@@ -45,5 +49,20 @@ class StandardRepresenterTest {
     Node node = standardRepresenter.represent(FormatEnum.JSON);
     assertEquals("tag:yaml.org,2002:org.snakeyaml.engine.v2.representer.FormatEnum",
         node.getTag().getValue());
+  }
+
+  @Test
+  @DisplayName("Represent Iterator as node with global tag")
+  void representIterator() {
+    List<String> listOfStrings = List.of("hello", "world");
+    Iterator<String> iterator = listOfStrings.iterator();
+    Node node = standardRepresenter.represent(iterator);
+    assertEquals("tag:yaml.org,2002:seq", node.getTag().getValue());
+    SequenceNode seq = (SequenceNode) node;
+    assertEquals(2, seq.getValue().size());
+    seq.getValue().forEach(n -> assertEquals("tag:yaml.org,2002:str", n.getTag().getValue()));
+    // dump
+    Dump dumper = new Dump(DumpSettings.builder().build());
+    assertEquals("[hello, world]\n", dumper.dumpToString(listOfStrings.iterator()));
   }
 }
