@@ -6,6 +6,11 @@
         <author email="public.somov@gmail.com">Andrey Somov</author>
     </properties>
     <body>
+        <release version="3.0.1" date="in GIT" description="Add module-info.java">
+            <action dev="asomov" type="fix" issue="74">
+                Add module-info.java (thanks to Michael Edgar)
+            </action>
+        </release>
         <release version="3.0" date="2025-11-12" description="Migrate to Java 11">
             <action dev="asomov" type="update" issue="72">
                 Enforce mapping keys to be scalars
