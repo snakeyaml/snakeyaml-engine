@@ -23,7 +23,7 @@ import org.snakeyaml.engine.v2.api.lowlevel.Serialize;
 import org.snakeyaml.engine.v2.events.Event;
 import org.snakeyaml.engine.v2.nodes.Node;
 import org.snakeyaml.engine.v2.schema.CoreSchema;
-import org.snakeyaml.engine.v2.utils.TestUtils;
+import org.snakeyaml.engine.v2.util.TestUtils;
 
 import java.io.StringReader;
 import java.util.List;

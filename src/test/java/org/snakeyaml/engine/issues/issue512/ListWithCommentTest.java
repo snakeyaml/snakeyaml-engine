@@ -21,7 +21,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.snakeyaml.engine.v2.api.Load;
 import org.snakeyaml.engine.v2.api.LoadSettings;
-import org.snakeyaml.engine.v2.utils.TestUtils;
+import org.snakeyaml.engine.v2.util.TestUtils;
 
 @org.junit.jupiter.api.Tag("fast")
 public class ListWithCommentTest {

@@ -30,7 +30,7 @@ import org.snakeyaml.engine.v2.events.ScalarEvent;
 import org.snakeyaml.engine.v2.parser.Parser;
 import org.snakeyaml.engine.v2.parser.ParserImpl;
 import org.snakeyaml.engine.v2.scanner.StreamReader;
-import org.snakeyaml.engine.v2.utils.TestUtils;
+import org.snakeyaml.engine.v2.util.TestUtils;
 
 @org.junit.jupiter.api.Tag("fast")
 public class EmitCommentAndSpacesTest {

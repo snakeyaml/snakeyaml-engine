@@ -25,7 +25,7 @@ import org.snakeyaml.engine.v2.api.Load;
 import org.snakeyaml.engine.v2.api.LoadSettings;
 import org.snakeyaml.engine.v2.env.EnvConfig;
 import org.snakeyaml.engine.v2.exceptions.MissingEnvironmentVariableException;
-import org.snakeyaml.engine.v2.utils.TestUtils;
+import org.snakeyaml.engine.v2.util.TestUtils;
 
 @org.junit.jupiter.api.Tag("fast")
 class EnvVariableTest {

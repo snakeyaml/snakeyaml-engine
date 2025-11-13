@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.snakeyaml.engine.v2.api.LoadSettings;
 import org.snakeyaml.engine.v2.api.lowlevel.Compose;
 import org.snakeyaml.engine.v2.nodes.Node;
-import org.snakeyaml.engine.v2.utils.TestUtils;
+import org.snakeyaml.engine.v2.util.TestUtils;
 
 @Tag("fast")
 class StandardConstructorTest {

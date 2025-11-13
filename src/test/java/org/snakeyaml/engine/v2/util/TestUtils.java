@@ -11,7 +11,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.snakeyaml.engine.v2.utils;
+package org.snakeyaml.engine.v2.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

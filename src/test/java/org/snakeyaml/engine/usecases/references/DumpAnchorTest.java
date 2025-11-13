@@ -28,7 +28,7 @@ import org.snakeyaml.engine.v2.common.Anchor;
 import org.snakeyaml.engine.v2.common.FlowStyle;
 import org.snakeyaml.engine.v2.nodes.Node;
 import org.snakeyaml.engine.v2.serializer.AnchorGenerator;
-import org.snakeyaml.engine.v2.utils.TestUtils;
+import org.snakeyaml.engine.v2.util.TestUtils;
 
 @org.junit.jupiter.api.Tag("fast")
 public class DumpAnchorTest {

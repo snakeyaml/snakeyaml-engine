@@ -26,7 +26,7 @@ import org.snakeyaml.engine.v2.api.LoadSettings;
 import org.snakeyaml.engine.v2.events.Event;
 import org.snakeyaml.engine.v2.events.StreamEndEvent;
 import org.snakeyaml.engine.v2.events.StreamStartEvent;
-import org.snakeyaml.engine.v2.utils.TestUtils;
+import org.snakeyaml.engine.v2.util.TestUtils;
 
 @Tag("fast")
 class ParseTest {

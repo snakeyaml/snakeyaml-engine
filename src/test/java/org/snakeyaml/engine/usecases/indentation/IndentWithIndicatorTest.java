@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.snakeyaml.engine.v2.api.Dump;
 import org.snakeyaml.engine.v2.api.DumpSettings;
 import org.snakeyaml.engine.v2.common.FlowStyle;
-import org.snakeyaml.engine.v2.utils.TestUtils;
+import org.snakeyaml.engine.v2.util.TestUtils;
 
 @org.junit.jupiter.api.Tag("fast")
 public class IndentWithIndicatorTest {

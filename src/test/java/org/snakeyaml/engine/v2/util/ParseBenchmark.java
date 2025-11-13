@@ -12,7 +12,7 @@
  * the License.
  */
 
-package org.snakeyaml.engine.utils;
+package org.snakeyaml.engine.v2.util;
 
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
