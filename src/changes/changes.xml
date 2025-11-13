@@ -6,7 +6,7 @@
         <author email="public.somov@gmail.com">Andrey Somov</author>
     </properties>
     <body>
-        <release version="3.0.1" date="in GIT" description="Add module-info.java">
+        <release version="3.0.1" date="2025-11-14" description="Add module-info.java">
             <action dev="asomov" type="fix" issue="74">
                 Add module-info.java (thanks to Michael Edgar)
             </action>
