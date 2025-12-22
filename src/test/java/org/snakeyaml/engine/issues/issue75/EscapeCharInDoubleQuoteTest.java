@@ -18,7 +18,6 @@ import org.snakeyaml.engine.v2.api.Load;
 import org.snakeyaml.engine.v2.api.LoadSettings;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Test for <a href=
@@ -30,12 +29,7 @@ public class EscapeCharInDoubleQuoteTest {
     LoadSettings options = LoadSettings.builder().build();
     Load load = new Load(options);
     String str = "\"\u007F\""; // "\DEL"
-    try {
-      String parsed = (String) load.loadFromString(str);
-      fail();
-      assertEquals("", parsed);
-    } catch (Exception e) {
-      assertEquals("special characters are not allowed", e.getMessage());
-    }
+    String parsed = (String) load.loadFromString(str);
+    assertEquals("\u007F", parsed);
   }
 }
