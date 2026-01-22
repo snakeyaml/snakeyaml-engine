@@ -79,3 +79,8 @@ nb-configuration.xml
 
 # docker build folder
 ?/
+
+##############################
+## Claude Code
+##############################
+CLAUDE.md
