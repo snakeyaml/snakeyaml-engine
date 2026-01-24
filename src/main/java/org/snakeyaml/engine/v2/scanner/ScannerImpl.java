@@ -1126,7 +1126,7 @@ public final class ScannerImpl implements Scanner {
       // unfortunately, this check is too simple, but it helps to ignore TABs in JSON
       // which is always flow context (see issue 55 and tests)
       // (this causes Y79Y-003 to fail)
-      if (reader.peek(ff) == '\t' && isFlowContext()) {
+      while (reader.peek(ff) == '\t' && isFlowContext()) {
         ff++;
       }
       if (ff > 0) {
