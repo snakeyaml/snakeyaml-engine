@@ -1180,6 +1180,12 @@ public final class ScannerImpl implements Scanner {
     reader.forward();
     int length = 0;
     while (CharConstants.NULL_OR_LINEBR.hasNo(reader.peek(length))) {
+      int c = reader.peek(length);
+      if (c == 0x7F) {
+        // DEL character is not allowed in comments per YAML 1.2 c-printable
+        throw new ScannerException("while scanning a comment", startMark,
+            "DEL character (0x7F) is not allowed in comments", reader.getMark());
+      }
       length++;
     }
     String value = reader.prefixForward(length);
@@ -1556,6 +1562,12 @@ public final class ScannerImpl implements Scanner {
       boolean leadingNonSpace = " \t".indexOf(reader.peek()) == -1;
       int length = 0;
       while (CharConstants.NULL_OR_LINEBR.hasNo(reader.peek(length))) {
+        int c = reader.peek(length);
+        if (c == 0x7F) {
+          // DEL character is not allowed in block scalars per YAML 1.2 c-printable
+          throw new ScannerException(SCANNING_SCALAR, startMark,
+              "DEL character (0x7F) is not allowed in block scalars", reader.getMark());
+        }
         length++;
       }
       stringBuilder.append(reader.prefixForward(length));
@@ -1930,6 +1942,11 @@ public final class ScannerImpl implements Scanner {
       }
       while (true) {
         c = reader.peek(length);
+        if (c == 0x7F) {
+          // DEL character is not allowed in plain scalars per YAML 1.2 c-printable
+          throw new ScannerException("while scanning a plain scalar", startMark,
+              "DEL character (0x7F) is not allowed in plain scalars", reader.getMark());
+        }
         if (CharConstants.NULL_BL_T_LINEBR.has(c) || (c == ':' && CharConstants.NULL_BL_T_LINEBR
             .has(reader.peek(length + 1), isFlowContext() ? ",[]{}" : ""))
             || (isFlowContext() && ",[]{}".indexOf(c) != -1)) {

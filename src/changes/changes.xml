@@ -7,6 +7,9 @@
     </properties>
     <body>
         <release version="3.1-SNAPSHOT" date="in GIT" description="Maintenance">
+            <action dev="asomov" type="fix" issue="75">
+                Allow 0x7F in quoted scalar (thanks to Rob Elliot)
+            </action>
             <action dev="asomov" type="fix" issue="76">
                 Parse JSON with any leading TABs (thanks to Kristian Atanasov)
             </action>
