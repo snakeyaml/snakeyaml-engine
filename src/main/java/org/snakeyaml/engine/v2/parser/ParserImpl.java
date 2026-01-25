@@ -13,6 +13,7 @@
  */
 package org.snakeyaml.engine.v2.parser;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -274,6 +275,25 @@ public class ParserImpl implements Parser {
     return parseNode(true, true);
   }
 
+  /**
+   * Check if the next token is a content token that would start a node. Used to determine if
+   * comments after anchor/tag should be emitted separately (content follows) or are inline comments
+   * (no content follows, empty scalar).
+   */
+  private boolean hasNodeContent(boolean block, boolean indentlessSequence) {
+    if (indentlessSequence && scanner.checkToken(Token.ID.BlockEntry)) {
+      return true;
+    }
+    if (scanner.checkToken(Token.ID.Scalar, Token.ID.FlowSequenceStart,
+        Token.ID.FlowMappingStart)) {
+      return true;
+    }
+    if (block && scanner.checkToken(Token.ID.BlockSequenceStart, Token.ID.BlockMappingStart)) {
+      return true;
+    }
+    return false;
+  }
+
   private Event parseNode(boolean block, boolean indentlessSequence) {
     Event event;
     Optional<Mark> startMark = Optional.empty();
@@ -328,6 +348,34 @@ public class ParserImpl implements Parser {
       if (startMark.isEmpty()) {
         startMark = scanner.peekToken().getStartMark();
         endMark = startMark;
+      }
+      // Handle comments that appear after properties (anchor/tag) but before node content.
+      // Only consume and emit comments if actual content follows them; otherwise, they are
+      // inline comments that should be handled by the existing flow.
+      if ((anchor.isPresent() || tag.isPresent()) && scanner.checkToken(Token.ID.Comment)) {
+        // Peek ahead to see if there's content after any comments
+        List<CommentToken> commentTokensAfterProperties = new ArrayList<>();
+        while (scanner.checkToken(Token.ID.Comment)) {
+          commentTokensAfterProperties.add((CommentToken) scanner.next());
+        }
+        // Check if there's actual content after the comments
+        if (hasNodeContent(block, indentlessSequence)) {
+          // Content follows - emit comments first, then parse content
+          state = Optional.of(new ParseNodeWithPendingComments(block, indentlessSequence, anchor,
+              tag, startMark, endMark, tagMark, commentTokensAfterProperties, states.pop()));
+          return produceCommentEvent(commentTokensAfterProperties.remove(0));
+        } else {
+          // No content follows - this is an empty scalar case.
+          // Create the scalar event and set up state to emit DocumentEnd, then the comments.
+          boolean implicit = tag.isEmpty();
+          Event scalarEvent = new ScalarEvent(anchor, tag, new ImplicitTuple(implicit, false), "",
+              ScalarStyle.PLAIN, startMark, endMark);
+          // Pop states to maintain stack consistency (normally ParseDocumentEnd would be popped)
+          states.pop();
+          // The next state should emit DocumentEnd, then the collected comments, then continue
+          state = Optional.of(new ParseDocumentEndThenComments(commentTokensAfterProperties));
+          return scalarEvent;
+        }
       }
       boolean implicit = (tag.isEmpty());
       if (indentlessSequence && scanner.checkToken(Token.ID.BlockEntry)) {
@@ -998,6 +1046,179 @@ public class ParserImpl implements Parser {
     public Event produce() {
       state = Optional.of(new ParseFlowMappingKey(false));
       return processEmptyScalar(scanner.peekToken().getStartMark());
+    }
+  }
+
+  /**
+   * Production that emits pending comment events collected after anchor/tag, then parses node
+   * content.
+   */
+  private class ParseNodeWithPendingComments implements Production {
+
+    private final boolean block;
+    private final boolean indentlessSequence;
+    private final Optional<Anchor> anchor;
+    private final Optional<String> tag;
+    private final Optional<Mark> startMark;
+    private final Optional<Mark> endMark;
+    private final Optional<Mark> tagMark;
+    private final List<CommentToken> pendingComments;
+    private final Production nextState;
+
+    public ParseNodeWithPendingComments(boolean block, boolean indentlessSequence,
+        Optional<Anchor> anchor, Optional<String> tag, Optional<Mark> startMark,
+        Optional<Mark> endMark, Optional<Mark> tagMark, List<CommentToken> pendingComments,
+        Production nextState) {
+      this.block = block;
+      this.indentlessSequence = indentlessSequence;
+      this.anchor = anchor;
+      this.tag = tag;
+      this.startMark = startMark;
+      this.endMark = endMark;
+      this.tagMark = tagMark;
+      this.pendingComments = pendingComments;
+      this.nextState = nextState;
+    }
+
+    public Event produce() {
+      if (!pendingComments.isEmpty()) {
+        state = Optional.of(this);
+        return produceCommentEvent(pendingComments.remove(0));
+      }
+      // All comments emitted, now parse the actual node content
+      state = Optional.of(new ParseNodeContent(block, indentlessSequence, anchor, tag, startMark,
+          endMark, tagMark, nextState));
+      return state.get().produce();
+    }
+  }
+
+  /**
+   * Production that parses node content after anchor/tag and any comments have been processed.
+   */
+  private class ParseNodeContent implements Production {
+
+    private final boolean block;
+    private final boolean indentlessSequence;
+    private final Optional<Anchor> anchor;
+    private final Optional<String> tag;
+    private Optional<Mark> startMark;
+    private Optional<Mark> endMark;
+    private final Optional<Mark> tagMark;
+    private final Production nextState;
+
+    public ParseNodeContent(boolean block, boolean indentlessSequence, Optional<Anchor> anchor,
+        Optional<String> tag, Optional<Mark> startMark, Optional<Mark> endMark,
+        Optional<Mark> tagMark, Production nextState) {
+      this.block = block;
+      this.indentlessSequence = indentlessSequence;
+      this.anchor = anchor;
+      this.tag = tag;
+      this.startMark = startMark;
+      this.endMark = endMark;
+      this.tagMark = tagMark;
+      this.nextState = nextState;
+    }
+
+    public Event produce() {
+      Event event;
+      // Update marks if they weren't set (no anchor/tag was present)
+      if (startMark.isEmpty()) {
+        startMark = scanner.peekToken().getStartMark();
+        endMark = startMark;
+      }
+      boolean implicit = tag.isEmpty();
+      if (indentlessSequence && scanner.checkToken(Token.ID.BlockEntry)) {
+        endMark = scanner.peekToken().getEndMark();
+        event = new SequenceStartEvent(anchor, tag, implicit, FlowStyle.BLOCK, startMark, endMark);
+        states.push(nextState);
+        state = Optional.of(new ParseIndentlessSequenceEntryKey());
+      } else if (scanner.checkToken(Token.ID.Scalar)) {
+        ScalarToken token = (ScalarToken) scanner.next();
+        endMark = token.getEndMark();
+        ImplicitTuple implicitValues;
+        if ((token.isPlain() && tag.isEmpty())) {
+          implicitValues = new ImplicitTuple(true, false);
+        } else if (tag.isEmpty()) {
+          implicitValues = new ImplicitTuple(false, true);
+        } else {
+          implicitValues = new ImplicitTuple(false, false);
+        }
+        event = new ScalarEvent(anchor, tag, implicitValues, token.getValue(), token.getStyle(),
+            startMark, endMark);
+        state = Optional.of(nextState);
+      } else if (scanner.checkToken(Token.ID.FlowSequenceStart)) {
+        endMark = scanner.peekToken().getEndMark();
+        event = new SequenceStartEvent(anchor, tag, implicit, FlowStyle.FLOW, startMark, endMark);
+        states.push(nextState);
+        state = Optional.of(new ParseFlowSequenceFirstEntry());
+      } else if (scanner.checkToken(Token.ID.FlowMappingStart)) {
+        endMark = scanner.peekToken().getEndMark();
+        event = new MappingStartEvent(anchor, tag, implicit, FlowStyle.FLOW, startMark, endMark);
+        states.push(nextState);
+        state = Optional.of(new ParseFlowMappingFirstKey());
+      } else if (block && scanner.checkToken(Token.ID.BlockSequenceStart)) {
+        endMark = scanner.peekToken().getStartMark();
+        event = new SequenceStartEvent(anchor, tag, implicit, FlowStyle.BLOCK, startMark, endMark);
+        states.push(nextState);
+        state = Optional.of(new ParseBlockSequenceFirstEntry());
+      } else if (block && scanner.checkToken(Token.ID.BlockMappingStart)) {
+        endMark = scanner.peekToken().getStartMark();
+        event = new MappingStartEvent(anchor, tag, implicit, FlowStyle.BLOCK, startMark, endMark);
+        states.push(nextState);
+        state = Optional.of(new ParseBlockMappingFirstKey());
+      } else if (anchor.isPresent() || tag.isPresent()) {
+        // Empty scalars are allowed even if a tag or an anchor is specified.
+        event = new ScalarEvent(anchor, tag, new ImplicitTuple(implicit, false), "",
+            ScalarStyle.PLAIN, startMark, endMark);
+        state = Optional.of(nextState);
+      } else {
+        Token token = scanner.peekToken();
+        throw new ParserException("while parsing a " + (block ? "block" : "flow") + " node",
+            startMark, "expected the node content, but found '" + token.getTokenId() + "'",
+            token.getStartMark());
+      }
+      return event;
+    }
+  }
+
+  /**
+   * Production that emits DocumentEnd event, then emits any pending comments that were collected
+   * after an empty scalar. This ensures comments appear after DocumentEnd in the event stream,
+   * which is where the Composer expects to find inline comments for the root document node.
+   */
+  private class ParseDocumentEndThenComments implements Production {
+
+    private final List<CommentToken> pendingComments;
+    private boolean documentEndEmitted = false;
+
+    public ParseDocumentEndThenComments(List<CommentToken> pendingComments) {
+      this.pendingComments = pendingComments;
+    }
+
+    public Event produce() {
+      if (!documentEndEmitted) {
+        // First, emit the DocumentEnd event (similar to ParseDocumentEnd.produce())
+        documentEndEmitted = true;
+        Token token = scanner.peekToken();
+        Optional<Mark> startMark = token.getStartMark();
+        Optional<Mark> endMark = startMark;
+        boolean explicit = false;
+        if (scanner.checkToken(Token.ID.DocumentEnd)) {
+          token = scanner.next();
+          endMark = token.getEndMark();
+          explicit = true;
+        }
+        directiveTags.clear();
+        state = Optional.of(this);
+        return new DocumentEndEvent(explicit, startMark, endMark);
+      }
+      // Then emit any pending comments
+      if (!pendingComments.isEmpty()) {
+        state = Optional.of(this);
+        return produceCommentEvent(pendingComments.remove(0));
+      }
+      // Finally, continue with ParseDocumentStart
+      return new ParseDocumentStart().produce();
     }
   }
 }

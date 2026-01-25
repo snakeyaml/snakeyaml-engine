@@ -28,8 +28,7 @@ import org.snakeyaml.engine.v2.nodes.Node;
  */
 @org.junit.jupiter.api.Tag("fast")
 class CommentAfterAliasTest {
-  // TODO Issue 68: parse comments with setParseComments(true)
-  private final LoadSettings loadSettings = LoadSettings.builder().setParseComments(false).build();
+  private final LoadSettings loadSettings = LoadSettings.builder().setParseComments(true).build();
 
   @Test
   @DisplayName("Issue 68: inline")
@@ -58,6 +57,26 @@ class CommentAfterAliasTest {
     Compose compose = new Compose(loadSettings);
     String input = "field_with_alias: &alias_name\n"
         + "# separate line comment following the alias\n" + "    nested_field: nested_value";
+    Optional<Node> node = compose.composeString(input);
+    assertNotNull(node);
+    assertTrue(node.isPresent());
+  }
+
+  @Test
+  @DisplayName("Issue 68: tag with inline comment")
+  void testCommentAfterTag() {
+    Compose compose = new Compose(loadSettings);
+    String input = "key: !!str # comment\n  value";
+    Optional<Node> node = compose.composeString(input);
+    assertNotNull(node);
+    assertTrue(node.isPresent());
+  }
+
+  @Test
+  @DisplayName("Issue 68: anchor and tag with comment")
+  void testCommentAfterAnchorAndTag() {
+    Compose compose = new Compose(loadSettings);
+    String input = "key: &anchor !!str # comment\n  value";
     Optional<Node> node = compose.composeString(input);
     assertNotNull(node);
     assertTrue(node.isPresent());
