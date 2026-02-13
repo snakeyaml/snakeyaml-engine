@@ -238,7 +238,8 @@ public final class StreamReader {
    */
   private void update() {
     try {
-      int read = stream.read(buffer);
+      // Read one less to ensure space for a potential high surrogate extension
+      int read = stream.read(buffer, 0, buffer.length - 1);
       if (read <= 0) {
         eof = true;
         return;
