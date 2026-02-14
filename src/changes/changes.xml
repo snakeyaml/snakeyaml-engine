@@ -7,6 +7,10 @@
     </properties>
     <body>
         <release version="3.1-SNAPSHOT" date="in GIT" description="Maintenance">
+            <action dev="asomov" type="fix" issue="77">
+                Fix surrogate char issue when it happens to be the last
+                in the data window (thanks to pjfanning)
+            </action>
             <action dev="asomov" type="fix" issue="76">
                 Parse JSON with any leading TABs (thanks to Kristian Atanasov)
             </action>
