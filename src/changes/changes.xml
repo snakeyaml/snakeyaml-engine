@@ -7,6 +7,9 @@
     </properties>
     <body>
         <release version="3.1-SNAPSHOT" date="in GIT" description="Maintenance">
+            <action dev="asomov" type="fix" issue="68">
+                Comments are not parsed correctly when they follow an alias (thanks to Pavel K)
+            </action>
             <action dev="asomov" type="fix" issue="75">
                 Allow 0x7F in quoted scalar (thanks to Rob Elliot)
             </action>
