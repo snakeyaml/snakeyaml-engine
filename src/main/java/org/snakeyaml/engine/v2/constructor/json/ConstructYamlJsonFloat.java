@@ -36,7 +36,7 @@ public class ConstructYamlJsonFloat extends ConstructScalar {
   }
 
   protected Object constructFromString(String value) {
-    int sign = +1;
+    int sign = 1;
     char first = value.charAt(0);
     if (first == '-') {
       sign = -1;
@@ -44,7 +44,7 @@ public class ConstructYamlJsonFloat extends ConstructScalar {
     } else if (first == '+') {
       value = value.substring(1);
     }
-    double d = Double.valueOf(value);
-    return Double.valueOf(d * sign);
+    double d = Double.parseDouble(value);
+    return d * sign;
   }
 }

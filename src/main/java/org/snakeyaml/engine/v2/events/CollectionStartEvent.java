@@ -74,10 +74,10 @@ public abstract class CollectionStartEvent extends NodeEvent {
 
   @Override
   public String toString() {
-    StringBuilder builder = new StringBuilder();
-    getAnchor().ifPresent(a -> builder.append(" &" + a));
+    var builder = new StringBuilder();
+    getAnchor().ifPresent(a -> builder.append(" &").append(a));
     if (!implicit) {
-      getTag().ifPresent(theTag -> builder.append(" <" + theTag + ">"));
+      getTag().ifPresent(theTag -> builder.append(" <").append(theTag).append('>'));
     }
     return builder.toString();
   }

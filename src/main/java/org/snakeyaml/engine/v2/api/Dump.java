@@ -68,8 +68,7 @@ public class Dump {
    * @param instancesIterator - instances to serialize
    * @param streamDataWriter - destination I/O writer
    */
-  public void dumpAll(Iterator<? extends Object> instancesIterator,
-      StreamDataWriter streamDataWriter) {
+  public void dumpAll(Iterator<?> instancesIterator, StreamDataWriter streamDataWriter) {
     Objects.requireNonNull(instancesIterator, "Iterator cannot be null");
     Objects.requireNonNull(streamDataWriter, "StreamDataWriter cannot be null");
     Serializer serializer = new Serializer(settings, new Emitter(settings, streamDataWriter));
@@ -89,7 +88,7 @@ public class Dump {
    * @param streamDataWriter - destination I/O writer
    */
   public void dump(Object yaml, StreamDataWriter streamDataWriter) {
-    Iterator<? extends Object> iter = Collections.singleton(yaml).iterator();
+    Iterator<?> iter = Collections.singleton(yaml).iterator();
     dumpAll(iter, streamDataWriter);
   }
 
@@ -100,7 +99,7 @@ public class Dump {
    * @param instancesIterator - instances to serialize
    * @return String representation of the YAML stream
    */
-  public String dumpAllToString(Iterator<? extends Object> instancesIterator) {
+  public String dumpAllToString(Iterator<?> instancesIterator) {
     StreamToStringWriter writer = new StreamToStringWriter();
     dumpAll(instancesIterator, writer);
     return writer.toString();

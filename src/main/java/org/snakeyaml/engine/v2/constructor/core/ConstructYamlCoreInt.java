@@ -60,7 +60,7 @@ public class ConstructYamlCoreInt extends ConstructScalar {
   }
 
   public Object createIntNumber(String value) {
-    int sign = +1;
+    int sign = 1;
     char first = value.charAt(0);
     if (first == '-') {
       sign = -1;
@@ -70,7 +70,7 @@ public class ConstructYamlCoreInt extends ConstructScalar {
     }
     int base;
     if ("0".equals(value)) {
-      return Integer.valueOf(0);
+      return 0;
     } else if (value.startsWith("0x")) {
       value = value.substring(2);
       base = 16;

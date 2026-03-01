@@ -52,7 +52,7 @@ public final class Tag {
    *
    * @param clazz - the class to use the name
    */
-  public Tag(Class<? extends Object> clazz) {
+  public Tag(Class<?> clazz) {
     Objects.requireNonNull(clazz, "Class for tag must be provided.");
     this.value = Tag.PREFIX + UriEncoder.encode(clazz.getName());
   }

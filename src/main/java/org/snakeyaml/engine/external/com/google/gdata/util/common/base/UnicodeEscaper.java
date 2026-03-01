@@ -56,12 +56,7 @@ public abstract class UnicodeEscaper implements Escaper {
    * 1024 characters. If we grow past this we don't put it back in the threadlocal, we just keep
    * going and grow as needed.
    */
-  private static final ThreadLocal<char[]> DEST_TL = new ThreadLocal<char[]>() {
-    @Override
-    protected char[] initialValue() {
-      return new char[1024];
-    }
-  };
+  private static final ThreadLocal<char[]> DEST_TL = ThreadLocal.withInitial(() -> new char[1024]);
 
   /**
    * Returns the Unicode code point of the character at the given index.
@@ -95,7 +90,7 @@ public abstract class UnicodeEscaper implements Escaper {
    * @return the Unicode code point for the given index or the negated value of the trailing high
    *         surrogate character at the end of the sequence
    */
-  protected static final int codePointAt(CharSequence seq, int index, int end) {
+  protected static int codePointAt(CharSequence seq, int index, int end) {
     if (index < end) {
       char c1 = seq.charAt(index++);
       if (c1 < Character.MIN_HIGH_SURROGATE || c1 > Character.MAX_LOW_SURROGATE) {
@@ -126,7 +121,7 @@ public abstract class UnicodeEscaper implements Escaper {
    * Helper method to grow the character buffer as needed, this only happens once in a while so it's
    * ok if it's in a method call. If the index passed in is 0 then no copying will be done.
    */
-  private static final char[] growBuffer(char[] dest, int index, int size) {
+  private static char[] growBuffer(char[] dest, int index, int size) {
     char[] copy = new char[size];
     if (index > 0) {
       System.arraycopy(dest, 0, copy, 0, index);

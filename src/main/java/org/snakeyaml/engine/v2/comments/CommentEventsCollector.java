@@ -40,7 +40,7 @@ public class CommentEventsCollector {
    *        collected.
    */
   public CommentEventsCollector(final Parser parser, CommentType... expectedCommentTypes) {
-    this.eventSource = new AbstractQueue<Event>() {
+    this.eventSource = new AbstractQueue<>() {
 
       @Override
       public boolean offer(Event e) {

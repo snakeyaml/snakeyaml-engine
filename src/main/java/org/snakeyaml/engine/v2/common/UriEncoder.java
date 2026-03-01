@@ -13,7 +13,6 @@
  */
 package org.snakeyaml.engine.v2.common;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -23,7 +22,6 @@ import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import org.snakeyaml.engine.external.com.google.gdata.util.common.base.Escaper;
 import org.snakeyaml.engine.external.com.google.gdata.util.common.base.PercentEscaper;
-import org.snakeyaml.engine.v2.exceptions.YamlEngineException;
 
 /**
  * To be decided
@@ -68,10 +66,6 @@ public abstract class UriEncoder {
    * @return decoded with UTF-8
    */
   public static String decode(String buff) {
-    try {
-      return URLDecoder.decode(buff, "UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      throw new YamlEngineException(e);
-    }
+    return URLDecoder.decode(buff, StandardCharsets.UTF_8);
   }
 }

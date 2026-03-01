@@ -77,7 +77,7 @@ public class Serializer {
     this.serializedNodes = new HashSet<>();
     this.anchors = new HashMap<>();
     this.dereferenceAliases = settings.isDereferenceAliases();
-    this.recursive = Collections.newSetFromMap(new IdentityHashMap<Node, Boolean>());
+    this.recursive = Collections.newSetFromMap(new IdentityHashMap<>());
     this.mergeUtils = new MergeUtils() {
       public MappingNode asMappingNode(Node node) {
         if (node instanceof MappingNode) {

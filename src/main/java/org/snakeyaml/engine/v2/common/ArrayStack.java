@@ -30,7 +30,7 @@ public class ArrayStack<T> {
    * @param initSize - the initial size of the stack
    */
   public ArrayStack(int initSize) {
-    stack = new ArrayList<T>(initSize);
+    stack = new ArrayList<>(initSize);
   }
 
   /**

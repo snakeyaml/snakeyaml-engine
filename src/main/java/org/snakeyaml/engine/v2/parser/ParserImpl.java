@@ -288,10 +288,7 @@ public class ParserImpl implements Parser {
         Token.ID.FlowMappingStart)) {
       return true;
     }
-    if (block && scanner.checkToken(Token.ID.BlockSequenceStart, Token.ID.BlockMappingStart)) {
-      return true;
-    }
-    return false;
+    return block && scanner.checkToken(Token.ID.BlockSequenceStart, Token.ID.BlockMappingStart);
   }
 
   private Event parseNode(boolean block, boolean indentlessSequence) {

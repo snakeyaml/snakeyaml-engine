@@ -63,7 +63,6 @@ public final class CommentEvent extends Event {
 
   @Override
   public String toString() {
-    String builder = "=COM " + type + " " + value;
-    return builder;
+    return "=COM " + type + " " + value;
   }
 }

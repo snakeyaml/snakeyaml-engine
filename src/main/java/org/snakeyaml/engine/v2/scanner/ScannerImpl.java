@@ -1680,7 +1680,7 @@ public final class ScannerImpl implements Scanner {
     // If the next character is not a null or line break, an error has
     // occurred.
     int c = reader.peek();
-    if (!scanLineBreak().isPresent() && c != 0) {
+    if (scanLineBreak().isEmpty() && c != 0) {
       final String s = String.valueOf(Character.toChars(c));
       throw new ScannerException(SCANNING_SCALAR, startMark,
           "expected a comment or a line break, but found " + s + "(" + c + ")", reader.getMark());
@@ -2239,15 +2239,15 @@ public final class ScannerImpl implements Scanner {
    * @return tokens to be used
    */
   private List<Token> makeTokenList(Token... tokens) {
-    List<Token> tokenList = new ArrayList<>();
-    for (int ix = 0; ix < tokens.length; ix++) {
-      if (tokens[ix] == null) {
+    var tokenList = new ArrayList<Token>();
+    for (Token token : tokens) {
+      if (token == null) {
         continue;
       }
-      if (!settings.getParseComments() && (tokens[ix] instanceof CommentToken)) {
+      if (!settings.getParseComments() && (token instanceof CommentToken)) {
         continue;
       }
-      tokenList.add(tokens[ix]);
+      tokenList.add(token);
     }
     return tokenList;
   }

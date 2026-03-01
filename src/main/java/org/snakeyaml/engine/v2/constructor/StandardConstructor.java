@@ -13,7 +13,6 @@
  */
 package org.snakeyaml.engine.v2.constructor;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;

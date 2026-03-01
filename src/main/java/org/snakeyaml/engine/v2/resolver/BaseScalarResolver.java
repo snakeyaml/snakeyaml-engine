@@ -65,17 +65,14 @@ public abstract class BaseScalarResolver implements ScalarResolver {
       curr.add(new ResolverTuple(tag, regexp));
     } else {
       char[] chrs = first.toCharArray();
-      for (int i = 0, j = chrs.length; i < j; i++) {
-        Character theC = Character.valueOf(chrs[i]);
+      for (int i = 0; i < chrs.length; i++) {
+        Character theC = chrs[i];
         if (theC == 0) {
           // special case: for null
           theC = null;
         }
-        List<ResolverTuple> curr = yamlImplicitResolvers.get(theC);
-        if (curr == null) {
-          curr = new ArrayList<>();
-          yamlImplicitResolvers.put(theC, curr);
-        }
+        List<ResolverTuple> curr =
+            yamlImplicitResolvers.computeIfAbsent(theC, k -> new ArrayList<>());
         curr.add(new ResolverTuple(tag, regexp));
       }
     }

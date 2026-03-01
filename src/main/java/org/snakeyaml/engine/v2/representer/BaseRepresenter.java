@@ -49,7 +49,7 @@ public abstract class BaseRepresenter {
    * Keep references of already represented instances. The order is important (map can be also a
    * sequence of key-values)
    */
-  protected final Map<Object, Node> representedObjects = new IdentityHashMap<Object, Node>() {
+  protected final Map<Object, Node> representedObjects = new IdentityHashMap<>() {
     @Override
     public Node put(Object key, Node value) {
       return super.put(key, new AnchorNode(value));

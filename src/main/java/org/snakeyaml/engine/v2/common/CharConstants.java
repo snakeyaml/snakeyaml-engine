@@ -14,9 +14,9 @@
 package org.snakeyaml.engine.v2.common;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
+
+import static java.util.Map.entry;
 
 public final class CharConstants {
 
@@ -97,30 +97,28 @@ public final class CharConstants {
   public static final Map<Character, Integer> ESCAPE_CODES;
 
   static {
-    Map<Character, String> escapes = new HashMap<>();
-    escapes.put(Character.valueOf('0'), "\0");// ASCII null
-    escapes.put(Character.valueOf('a'), "\u0007");// ASCII bell
-    escapes.put(Character.valueOf('b'), "\u0008"); // ASCII backspace
-    escapes.put(Character.valueOf('t'), "\u0009"); // ASCII horizontal tab
-    escapes.put(Character.valueOf('n'), "\n");// ASCII newline (line feed; &#92;n maps to 0x0A)
-    escapes.put(Character.valueOf('v'), "\u000B");// ASCII vertical tab
-    escapes.put(Character.valueOf('f'), "\u000C");// ASCII form-feed
-    escapes.put(Character.valueOf('r'), "\r");// carriage-return (&#92;r maps to 0x0D)
-    escapes.put(Character.valueOf('e'), "\u001B");// ASCII escape character (Esc)
-    escapes.put(Character.valueOf(' '), "\u0020");// ASCII space
-    escapes.put(Character.valueOf('"'), "\"");// ASCII double-quote
-    escapes.put(Character.valueOf('/'), "/");// ASCII slash, for JSON compatibility.
-    escapes.put(Character.valueOf('\\'), "\\");// ASCII backslash
-    escapes.put(Character.valueOf('N'), "\u0085");// Unicode next line
-    escapes.put(Character.valueOf('_'), "\u00A0");// Unicode non-breaking-space
-    ESCAPE_REPLACEMENTS = Collections.unmodifiableMap(escapes);
 
-    Map<Character, Integer> escapeCodes = new HashMap<>();
-    escapeCodes.put(Character.valueOf('x'), 2);// 8-bit Unicode
-    escapeCodes.put(Character.valueOf('u'), 4);// 16-bit Unicode
-    // 32-bit Unicode (Supplementary characters are supported)
-    escapeCodes.put(Character.valueOf('U'), 8);
-    ESCAPE_CODES = Collections.unmodifiableMap(escapeCodes);
+    ESCAPE_REPLACEMENTS = Map.ofEntries(entry('0', "\0"), // ASCII null
+        entry('a', "\u0007"), // ASCII bell
+        entry('b', "\u0008"), // ASCII backspace
+        entry('t', "\u0009"), // ASCII horizontal tab
+        entry('n', "\n"), // ASCII newline (line feed; &#92;n maps to 0x0A)
+        entry('v', "\u000B"), // ASCII vertical tab
+        entry('f', "\u000C"), // ASCII form-feed
+        entry('r', "\r"), // carriage-return (&#92;r maps to 0x0D)
+        entry('e', "\u001B"), // ASCII escape character (Esc)
+        entry(' ', "\u0020"), // ASCII space
+        entry('"', "\""), // ASCII double-quote
+        entry('/', "/"), // ASCII slash, for JSON compatibility.
+        entry('\\', "\\"), // ASCII backslash
+        entry('N', "\u0085"), // Unicode next line
+        entry('_', "\u00A0") // Unicode non-breaking-space
+    );
+
+    ESCAPE_CODES = Map.of('x', 2, // 8-bit Unicode
+        'u', 4, // 16-bit Unicode
+        'U', 8 // 32-bit Unicode (Supplementary characters are supported)
+    );
   }
 
   /**

@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
@@ -378,7 +379,7 @@ public final class Emitter implements Emitable {
       if (!ev.getTags().isEmpty()) {
         handleTagDirectives(ev.getTags());
       }
-      boolean implicit = first && !ev.isExplicit() && !canonical && !ev.getSpecVersion().isPresent()
+      boolean implicit = first && !ev.isExplicit() && !canonical && ev.getSpecVersion().isEmpty()
           && (ev.getTags().isEmpty()) && !checkEmptyDocument();
       if (!implicit) {
         writeIndent();
@@ -407,7 +408,7 @@ public final class Emitter implements Emitable {
       Event nextEvent = events.peek();
       if (nextEvent.getEventId() == Event.ID.Scalar) {
         ScalarEvent e = (ScalarEvent) nextEvent;
-        return !e.getAnchor().isPresent() && !e.getTag().isPresent() && e.getImplicit() != null
+        return e.getAnchor().isEmpty() && e.getTag().isEmpty() && e.getImplicit() != null
             && e.getValue().isEmpty();
       }
       return false;
@@ -863,7 +864,7 @@ public final class Emitter implements Emitable {
     if (event instanceof NodeEvent) {
       Optional<Anchor> anchorOpt = ((NodeEvent) event).getAnchor();
       if (anchorOpt.isPresent()) {
-        if (!preparedAnchor.isPresent()) {
+        if (preparedAnchor.isEmpty()) {
           preparedAnchor = anchorOpt;
         }
         length += anchorOpt.get().getValue().length();
@@ -899,7 +900,7 @@ public final class Emitter implements Emitable {
     Optional<Anchor> anchorOption = ev.getAnchor();
     if (anchorOption.isPresent()) {
       Anchor anchor = anchorOption.get();
-      if (!preparedAnchor.isPresent()) {
+      if (preparedAnchor.isEmpty()) {
         preparedAnchor = anchorOption;
       }
       writeIndicator(indicator + anchor, true, false, false);
@@ -932,25 +933,25 @@ public final class Emitter implements Emitable {
         scalarStyle = chooseScalarStyle(ev);
       }
       // check when no tag is required
-      if ((!canonical || !tag.isPresent()) && ((scalarStyle == ScalarStyle.PLAIN
+      if ((!canonical || tag.isEmpty()) && ((scalarStyle == ScalarStyle.PLAIN
           && ev.getImplicit().canOmitTagInPlainScalar())
           || (scalarStyle != ScalarStyle.PLAIN && ev.getImplicit().canOmitTagInNonPlainScalar()))) {
         preparedTag = null;
         return; // no tag required
       }
-      if (ev.getImplicit().canOmitTagInPlainScalar() && !tag.isPresent()) {
+      if (ev.getImplicit().canOmitTagInPlainScalar() && tag.isEmpty()) {
         tag = Optional.of("!");
         preparedTag = null;
       }
     } else {
       CollectionStartEvent ev = (CollectionStartEvent) event;
       tag = ev.getTag();
-      if ((!canonical || !tag.isPresent()) && ev.isImplicit()) {
+      if ((!canonical || tag.isEmpty()) && ev.isImplicit()) {
         preparedTag = null;
         return; // no tag required
       }
     }
-    if (!tag.isPresent()) {
+    if (tag.isEmpty()) {
       throw new EmitterException("tag is not specified");
     }
     if (preparedTag == null) {
@@ -1299,11 +1300,7 @@ public final class Emitter implements Emitable {
 
   int writeIndent() {
     final int indentToWrite;
-    if (this.indent != null) {
-      indentToWrite = this.indent;
-    } else {
-      indentToWrite = 0;
-    }
+    indentToWrite = Objects.requireNonNullElse(this.indent, 0);
     if (!this.indention || this.column > indentToWrite
         || (this.column == indentToWrite && !this.whitespace)) {
       writeLineBreak(null);
@@ -1559,7 +1556,7 @@ public final class Emitter implements Emitable {
   void writeFolded(String text, boolean split) {
     String hints = determineBlockHints(text);
     writeIndicator(">" + hints, true, false, false);
-    if (hints.length() > 0 && (hints.charAt(hints.length() - 1) == '+')) {
+    if (!hints.isEmpty() && (hints.charAt(hints.length() - 1) == '+')) {
       openEnded = true;
     }
     if (!writeInlineComments()) {
@@ -1627,7 +1624,7 @@ public final class Emitter implements Emitable {
   void writeLiteral(String text) {
     String hints = determineBlockHints(text);
     writeIndicator("|" + hints, true, false, false);
-    if (hints.length() > 0 && (hints.charAt(hints.length() - 1)) == '+') {
+    if (!hints.isEmpty() && (hints.charAt(hints.length() - 1)) == '+') {
       openEnded = true;
     }
     if (!writeInlineComments()) {

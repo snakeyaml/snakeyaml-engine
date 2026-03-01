@@ -72,7 +72,7 @@ public abstract class BaseConstructor {
    * @return constructed instance
    */
   public Object constructSingleDocument(Optional<Node> optionalNode) {
-    if (!optionalNode.isPresent() || Tag.NULL.equals(optionalNode.get().getTag())) {
+    if (optionalNode.isEmpty() || Tag.NULL.equals(optionalNode.get().getTag())) {
       ConstructNode construct = tagConstructors.get(Tag.NULL);
       return construct.construct(optionalNode.orElse(null));
     } else {
@@ -323,7 +323,7 @@ public abstract class BaseConstructor {
    * @param value - the value behind the key
    */
   protected void postponeMapFilling(Map<Object, Object> mapping, Object key, Object value) {
-    maps2fill.add(0, new RecursiveTuple(mapping, new RecursiveTuple(key, value)));
+    maps2fill.add(0, new RecursiveTuple<>(mapping, new RecursiveTuple<>(key, value)));
   }
 
   /**
