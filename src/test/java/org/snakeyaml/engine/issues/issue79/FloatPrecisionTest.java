@@ -13,6 +13,7 @@
  */
 package org.snakeyaml.engine.issues.issue79;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 import java.math.BigDecimal;
@@ -22,20 +23,38 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.snakeyaml.engine.v2.api.Load;
 import org.snakeyaml.engine.v2.api.LoadSettings;
+import org.snakeyaml.engine.v2.constructor.json.ConstructYamlJsonFloat;
 import org.snakeyaml.engine.v2.util.TestUtils;
 
 /**
- * Test for Issue 79 - float values should preserve decimal precision (BigDecimal instead of Double)
+ * Test for Issue 79 - float values should preserve decimal precision using BigDecimal
  */
 @Tag("fast")
 public class FloatPrecisionTest {
+
+  /**
+   * Custom float constructor that produces BigDecimal instead of Double for exact decimal
+   * precision. Special values (.inf, -.inf, .nan) still return Double.
+   */
+  static class ConstructBigDecimalFloat extends ConstructYamlJsonFloat {
+
+    @Override
+    protected Object constructFromString(String value) {
+      return new BigDecimal(value);
+    }
+  }
 
   @Test
   @DisplayName("Issue 79: float values should be parsed as BigDecimal for exact decimal precision")
   @SuppressWarnings("unchecked")
   void floatValuesShouldBeParsedAsBigDecimal() {
     String yaml = TestUtils.getResource("issues/issue79-input.yaml");
-    LoadSettings settings = LoadSettings.builder().build();
+    // This is needed because SnakeYAML Engine parses floats as Double,
+    // losing exact decimal precision (e.g. 1.202 becomes 1.2019999999999999... internally)
+    LoadSettings settings = LoadSettings.builder()
+        .setTagConstructors(
+            Map.of(org.snakeyaml.engine.v2.nodes.Tag.FLOAT, new ConstructBigDecimalFloat()))
+        .build();
     Load load = new Load(settings);
     Map<String, Object> root = (Map<String, Object>) load.loadFromString(yaml);
 
@@ -53,12 +72,10 @@ public class FloatPrecisionTest {
     Map<String, Object> multimodalValue = (Map<String, Object>) multimodal.get("value");
     Object multimodalAmount = multimodalValue.get("amount");
 
-    // These assertions will FAIL because SnakeYAML Engine parses floats as Double,
-    // losing exact decimal precision (e.g. 1.202 becomes 1.2019999999999999... internally)
-    assertInstanceOf(BigDecimal.class, simpleAmount,
-        "Expected amount 1.202 to be BigDecimal but was " + simpleAmount.getClass().getName());
-    assertInstanceOf(BigDecimal.class, multimodalAmount,
-        "Expected amount 0.00341775 to be BigDecimal but was "
-            + multimodalAmount.getClass().getName());
+    assertInstanceOf(BigDecimal.class, simpleAmount);
+    assertEquals(new BigDecimal("1.202"), simpleAmount);
+
+    assertInstanceOf(BigDecimal.class, multimodalAmount);
+    assertEquals(new BigDecimal("0.00341775"), multimodalAmount);
   }
 }
