@@ -7,6 +7,9 @@
     </properties>
     <body>
         <release version="3.1-SNAPSHOT" date="in GIT" description="Maintenance">
+            <action dev="asomov" type="update" issue="80">
+                Update Comprehensive Test Suite for YAML to latest tag data-2022-01-17
+            </action>
             <action dev="asomov" type="fix" issue="68">
                 Comments are not parsed correctly when they follow an alias (thanks to Pavel K)
             </action>

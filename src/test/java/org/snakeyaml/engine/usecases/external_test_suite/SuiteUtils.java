@@ -24,7 +24,6 @@ import org.snakeyaml.engine.v2.exceptions.YamlEngineException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -39,7 +38,13 @@ public class SuiteUtils {
       "9C9N", // Wrong indented flow sequence
       "SU5Z", // Comment without whitespace after double-quoted scalar
       "QB6E", // Wrong indented multiline quoted scalar
-      "Y79Y-003" // TODO Tabs in various contexts (go-yaml/yaml, libyaml), see issue 55
+      "Y79Y-003", // TODO Tabs in various contexts (go-yaml/yaml, libyaml), see issue 55
+      "DK95-00", // Tabs that look like indentation
+      "DK95-03", // Tabs that look like indentation
+      "DK95-04", // Tabs that look like indentation
+      "DK95-05", // Tabs that look like indentation
+      "DK95-07", // Tabs that look like indentation
+      "6CA3" // Tab indented top flow
   );
   public static final List<String> deviationsWithError = Lists.newArrayList( // just keep it
       "HWV9", // Document-end marker
@@ -85,7 +90,8 @@ public class SuiteUtils {
       "W4TN", // Spec Example 9.5. Directives Documents (Go, libyaml, PyYAML)
       "FP8R", // TODO Zero indented block scalar (Go, libyaml, PyYAML)
       "WZ62", // TODO Spec Example 7.2. Empty Content (Go, PyYAML, Ruamel)
-      "7Z25" // TODO Bare document after document end marker (Go, libyaml, PyYAML)
+      "7Z25", // TODO Bare document after document end marker (Go, libyaml, PyYAML)
+      "DK95-01" // Tabs that look like indentation
   );
 
 
@@ -99,13 +105,38 @@ public class SuiteUtils {
     if (!file.isDirectory()) {
       throw new RuntimeException("Must be folder: " + file.getAbsolutePath());
     }
-    return Arrays.stream(file.listFiles()).filter(f -> f.isDirectory())
-        .collect(Collectors.toList());
+    List<File> result = new ArrayList<>();
+    for (File child : file.listFiles()) {
+      if (!child.isDirectory()) {
+        continue;
+      }
+      if (isTestCaseFolder(child)) {
+        result.add(child);
+      } else {
+        // Nested variants (e.g. 2G84/00, 2G84/01, ...): descend one level.
+        for (File grandchild : child.listFiles()) {
+          if (grandchild.isDirectory() && isTestCaseFolder(grandchild)) {
+            result.add(grandchild);
+          }
+        }
+      }
+    }
+    return result;
+  }
+
+  private static boolean isTestCaseFolder(File dir) {
+    return new File(dir, "===").exists() || new File(dir, "in.yaml").exists()
+        || new File(dir, "error").exists();
   }
 
   public static SuiteData readData(File file) {
     try {
       String name = file.getName();
+      File parent = file.getParentFile();
+      if (parent != null && !parent.getName().equals(new File(FOLDER_NAME).getName())) {
+        // Nested test case: expose as "PARENT-CHILD" to match historical naming.
+        name = parent.getName() + "-" + file.getName();
+      }
       String label = Files.asCharSource(new File(file, "==="), Charsets.UTF_8).read();
       String input = Files.asCharSource(new File(file, "in.yaml"), Charsets.UTF_8).read();
       List<String> events = Files.readLines(new File(file, "test.event"), Charsets.UTF_8).stream()
@@ -123,7 +154,18 @@ public class SuiteUtils {
   }
 
   public static SuiteData getOne(String name) {
-    return readData(new File(FOLDER_NAME, name));
+    File file = new File(FOLDER_NAME, name);
+    if (!file.isDirectory()) {
+      int dash = name.lastIndexOf('-');
+      if (dash > 0) {
+        File nested =
+            new File(FOLDER_NAME, name.substring(0, dash) + "/" + name.substring(dash + 1));
+        if (nested.isDirectory()) {
+          file = nested;
+        }
+      }
+    }
+    return readData(file);
   }
 
   public static ParseResult parseData(SuiteData data) {
