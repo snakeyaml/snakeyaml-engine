@@ -259,6 +259,14 @@ public final class ScannerImpl implements Scanner {
     return !isBlockContext();
   }
 
+  private boolean lastTokenIsBlockScalar() {
+    if (!(lastToken instanceof ScalarToken)) {
+      return false;
+    }
+    ScalarStyle style = ((ScalarToken) lastToken).getStyle();
+    return style == ScalarStyle.LITERAL || style == ScalarStyle.FOLDED;
+  }
+
   /**
    * Returns true if more tokens should be scanned.
    */
@@ -1128,6 +1136,31 @@ public final class ScannerImpl implements Scanner {
       // (this causes Y79Y-003 to fail)
       while (reader.peek(ff) == '\t' && isFlowContext()) {
         ff++;
+      }
+      // In block context, tabs that are not acting as indentation should be
+      // treated as separator whitespace. This covers lines that contain only
+      // whitespace (a blank line) and lines whose leading spaces are followed
+      // by a tab that then separates indentation from content. Skip unless we
+      // just emitted a block scalar - in that case the tab is genuinely
+      // misplaced indentation and the caller should raise the usual
+      // "tab cannot start token" error.
+      if (isBlockContext() && reader.peek(ff) == '\t' && !lastTokenIsBlockScalar()) {
+        int lookAhead = ff;
+        while (reader.peek(lookAhead) == ' ' || reader.peek(lookAhead) == '\t') {
+          lookAhead++;
+        }
+        int next = reader.peek(lookAhead);
+        if (next == '\n' || next == '\r' || next == '\0' || next == '#') {
+          // Blank line: skip all trailing whitespace.
+          ff = lookAhead;
+        } else if (ff > 0 && reader.getColumn() == 0) {
+          // Leading space(s) followed by tab at the start of a line: the tab
+          // is a separator between indentation and content, not indentation
+          // itself.
+          while (reader.peek(ff) == '\t') {
+            ff++;
+          }
+        }
       }
       if (ff > 0) {
         reader.forward(ff);

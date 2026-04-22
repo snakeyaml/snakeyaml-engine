@@ -39,11 +39,6 @@ public class SuiteUtils {
       "SU5Z", // Comment without whitespace after double-quoted scalar
       "QB6E", // Wrong indented multiline quoted scalar
       "Y79Y-003", // TODO Tabs in various contexts (go-yaml/yaml, libyaml), see issue 55
-      "DK95-00", // Tabs that look like indentation
-      "DK95-03", // Tabs that look like indentation
-      "DK95-04", // Tabs that look like indentation
-      "DK95-05", // Tabs that look like indentation
-      "DK95-07", // Tabs that look like indentation
       "6CA3" // Tab indented top flow
   );
   public static final List<String> deviationsWithError = Lists.newArrayList( // just keep it
@@ -82,7 +77,6 @@ public class SuiteUtils {
       "58MP", // Flow mapping edge cases (Go, libyaml, PyYAML)
       "UV7Q", // TODO Legal tab after indentation (PyYAML, Ruamel)
       "HM87-00", // Scalars in flow start with syntax char (Go, libyaml, PyYAML)
-      "DC7X", // Various trailing tabs (PyYAML, Ruamel)
       "A2M4", // Spec Example 6.2. Indentation Indicators
       "J3BT", // Spec Example 5.12. Tabs and Spaces (PyYAML, Ruamel)
       "HS5T", // Spec Example 7.12. Plain Lines >> leading TAB (PyYAML, Ruamel)
