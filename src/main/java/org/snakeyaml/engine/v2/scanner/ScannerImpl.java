@@ -1605,6 +1605,10 @@ public final class ScannerImpl implements Scanner {
       }
       stringBuilder.append(reader.prefixForward(length));
       lineBreakOpt = scanLineBreak();
+      if (lineBreakOpt.isEmpty() && reader.peek() == 0) {
+        // Per the YAML spec, if the stream ends without a final line break, one is assumed.
+        lineBreakOpt = Optional.of("\n");
+      }
       BreakIntentHolder brme = scanBlockScalarBreaks(blockIndent);
       breaks = brme.breaks;
       endMark = brme.endMark;
