@@ -33,15 +33,14 @@ SnakeYAML Engine is a YAML 1.2 processor for Java Virtual Machine version 11 and
 
 ## Info ##
 
-* [Changes](https://bitbucket.org/snakeyaml/snakeyaml-engine/wiki/Changes)
-* [Documentation](https://bitbucket.org/snakeyaml/snakeyaml-engine/wiki/Documentation)
-* [CVE and untrusted sources](https://bitbucket.org/snakeyaml/snakeyaml/wiki/CVE%20&%20NIST.md)
+* [Changes](https://codeberg.org/snakeyaml/snakeyaml-engine/wiki/Changes)
+* [Documentation](https://codeberg.org/snakeyaml/snakeyaml-engine/wiki/Documentation)
 
 ## Contribute ##
 
-* GIT is used to dance with the [source code](https://bitbucket.org/snakeyaml/snakeyaml-engine/src).
+* GIT is used to dance with the [source code](https://codeberg.org/snakeyaml/snakeyaml-engine).
 * If you find a bug, 
-  please [file a bug report](https://bitbucket.org/snakeyaml/snakeyaml-engine/issues?status=new&status=open).
+  please [file a bug report](https://codeberg.org/snakeyaml/snakeyaml-engine/issues).
 * You may discuss SnakeYAML Engine
   at [the mailing list](http://groups.google.com/group/snakeyaml-core).
 

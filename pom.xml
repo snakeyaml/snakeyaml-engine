@@ -8,10 +8,10 @@
     <name>SnakeYAML Engine</name>
     <description>Core YAML 1.2 parser and emitter for Java</description>
     <inceptionYear>2018</inceptionYear>
-    <url>https://bitbucket.org/snakeyaml/snakeyaml-engine</url>
+    <url>https://codeberg.org/snakeyaml/snakeyaml-engine</url>
     <issueManagement>
-        <system>Bitbucket</system>
-        <url>https://bitbucket.org/snakeyaml/snakeyaml-engine/issues</url>
+        <system>codeberg</system>
+        <url>https://codeberg.org/snakeyaml/snakeyaml-engine/issues</url>
     </issueManagement>
     <mailingLists>
         <mailingList>
@@ -20,9 +20,9 @@
         </mailingList>
     </mailingLists>
     <scm>
-        <connection>scm:git:https://bitbucket.org/snakeyaml/snakeyaml-engine</connection>
-        <developerConnection>scm:git:ssh://git@bitbucket.org/snakeyaml/snakeyaml-engine</developerConnection>
-        <url>https://bitbucket.org/snakeyaml/snakeyaml-engine/src</url>
+        <connection>scm:git:https://codeberg.org/snakeyaml/snakeyaml-engine</connection>
+        <developerConnection>scm:git:ssh://git@codeberg.org/snakeyaml/snakeyaml-engine</developerConnection>
+        <url>https://codeberg.org/snakeyaml/snakeyaml-engine/src</url>
         <tag>HEAD</tag>
     </scm>
     <licenses>
@@ -424,7 +424,7 @@
     </profiles>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.scm.id>bitbucket</project.scm.id>
+        <project.scm.id>codeberg</project.scm.id>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <maven.javadoc.failOnError>false</maven.javadoc.failOnError>
