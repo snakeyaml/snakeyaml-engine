@@ -11,6 +11,9 @@
                 Fix ClassCastException when an in-line comment follows a document
                 separator ("---" or "...") (thanks to pigaut)
             </action>
+            <action dev="asomov" type="update">
+                Make junit-jupiter-api a test dependency (thanks to lefou)
+            </action>
         </release>
         <release version="3.1" date="2026-08-04" description="Maintenance">
             <action dev="asomov" type="update" issue="80">
