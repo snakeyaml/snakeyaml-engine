@@ -167,6 +167,52 @@ public class EmitterWithCommentEnabledTest {
   }
 
   @Test
+  public void testSequenceWithStandaloneCommentBetweenItems() throws Exception {
+    String data = "" + //
+        "- a\n" + //
+        "# standalone comment\n" + //
+        "- b\n";
+
+    String result = runEmitterWithCommentsEnabled(data);
+    assertEquals(data, result);
+  }
+
+  @Test
+  public void testIndentedSequenceWithStandaloneCommentBetweenItems() throws Exception {
+    String data = "" + //
+        "list: # InlineComment1\n" + //
+        "  - a\n" + //
+        "  # standalone comment\n" + //
+        "  - b\n";
+
+    String result = runEmitterWithCommentsEnabled(data);
+    assertEquals(data, result);
+  }
+
+  @Test
+  public void testSequenceWithMultipleStandaloneCommentLinesBetweenItems() throws Exception {
+    String data = "" + //
+        "- a\n" + //
+        "# comment 1\n" + //
+        "# comment 2\n" + //
+        "- b\n";
+
+    String result = runEmitterWithCommentsEnabled(data);
+    assertEquals(data, result);
+  }
+
+  @Test
+  public void testSequenceWithStandaloneCommentBeforeFirstItem() throws Exception {
+    String data = "" + //
+        "# standalone comment\n" + //
+        "- a\n" + //
+        "- b\n";
+
+    String result = runEmitterWithCommentsEnabled(data);
+    assertEquals(data, result);
+  }
+
+  @Test
   /*
    * Issue 64
    *

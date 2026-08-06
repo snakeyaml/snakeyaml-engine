@@ -718,7 +718,11 @@ public final class Emitter implements Emitable {
         indent = indents.pop();
         state = states.pop();
       } else if (event instanceof CommentEvent) {
+        boolean standalone = isStandaloneBlockSequenceComment((CommentEvent) event);
         blockCommentsCollector.collectEvents(event);
+        if (standalone) {
+          writeBlockComment();
+        }
       } else {
         writeIndent();
         if (!indentWithIndicator || this.first) {
@@ -752,6 +756,17 @@ public final class Emitter implements Emitable {
         writeInlineComments();
       }
     }
+  }
+
+  /**
+   * A comment before a block sequence item is standalone (on its own source line, at or before the
+   * column of the "-" indicator) rather than glued to the "-" of the previous line (as in
+   * <code>"- # comment\n  value"</code>). Standalone comments must be written before the "-" is
+   * written; glued comments are written after it, as part of the item's value.
+   */
+  private boolean isStandaloneBlockSequenceComment(CommentEvent commentEvent) {
+    return indent != null && commentEvent.getStartMark().isPresent()
+        && commentEvent.getStartMark().get().getColumn() <= indent;
   }
 
   // Block mapping handlers.
