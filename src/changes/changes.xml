@@ -6,7 +6,16 @@
         <author email="public.somov@gmail.com">Andrey Somov</author>
     </properties>
     <body>
-        <release version="3.1-SNAPSHOT" date="in GIT" description="Maintenance">
+        <release version="3.1.1" date="in GIT" description="Maintenance">
+            <action dev="asomov" type="fix" issue="84">
+                Fix ClassCastException when an in-line comment follows a document
+                separator ("---" or "...") (thanks to pigaut)
+            </action>
+            <action dev="asomov" type="update">
+                Make junit-jupiter-api a test dependency (thanks to lefou)
+            </action>
+        </release>
+        <release version="3.1" date="2026-08-04" description="Maintenance">
             <action dev="asomov" type="update" issue="80">
                 Update Comprehensive Test Suite for YAML to latest tag data-2022-01-17
             </action>

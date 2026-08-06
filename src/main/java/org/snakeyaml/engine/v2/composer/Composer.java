@@ -150,6 +150,9 @@ public class Composer implements Iterator<Node> {
   public Node next() {
     // Collect inter-document start comments
     blockCommentsCollector.collectEvents();
+    // An in-line comment on the same line as a document end marker (e.g. "... # comment")
+    // is emitted as a CommentEvent before the next DOCUMENT-START event; drop it here.
+    inlineCommentsCollector.collectEvents().consume();
     if (parser.checkEvent(Event.ID.StreamEnd)) {
       List<CommentLine> commentLines = blockCommentsCollector.consume();
       Optional<Mark> startMark = commentLines.get(0).getStartMark();
@@ -161,6 +164,10 @@ public class Composer implements Iterator<Node> {
     }
     // Drop the DOCUMENT-START event.
     parser.next();
+    // An in-line comment on the same line as the document start marker (e.g. "--- # comment")
+    // is emitted as a CommentEvent before the node event; drop it here so composeNode() sees
+    // the actual node event (comments cannot be supported here, same as for aliases).
+    inlineCommentsCollector.collectEvents().consume();
     // Compose the root node.
     Node node = composeNode(Optional.empty());
     // Drop the DOCUMENT-END event.
