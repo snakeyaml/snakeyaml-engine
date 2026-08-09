@@ -14,9 +14,12 @@
 package org.snakeyaml.engine.v2.nodes;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.snakeyaml.engine.v2.common.ScalarStyle;
 
@@ -43,5 +46,18 @@ class NodeTest {
     assertNull(node.getProperty("p"));
     assertNull(node.setProperty("p", "value"));
     assertEquals("value", node.getProperty("p"));
+  }
+
+  @Test
+  void resolvedByDefault() {
+    Node node = new ScalarNode(Tag.STR, "a", ScalarStyle.PLAIN);
+    assertTrue(node.isResolved());
+  }
+
+  @Test
+  void notResolvedWhenTheTagIsExplicit() {
+    Node node =
+        new ScalarNode(Tag.STR, false, "a", ScalarStyle.PLAIN, Optional.empty(), Optional.empty());
+    assertFalse(node.isResolved());
   }
 }

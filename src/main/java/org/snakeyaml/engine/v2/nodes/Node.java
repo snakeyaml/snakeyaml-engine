@@ -131,6 +131,28 @@ public abstract class Node {
     this.recursive = recursive;
   }
 
+  /**
+   * Indicates whether the tag of this node was assigned by the resolver instead of being specified
+   * in the source.
+   * <p>
+   * When it is <code>false</code>, {@link #getTag()} returns the tag as it was written in the
+   * document (with the tag handle expanded). The non-specific tag <code>!</code> counts as no tag:
+   * it is resolved as well.
+   * </p>
+   * <p>
+   * Set by {@link org.snakeyaml.engine.v2.composer.Composer}. Nodes which are not composed from a
+   * document are resolved by default.
+   * </p>
+   * <p>
+   * Only relevant during loading.
+   * </p>
+   *
+   * @return <code>true</code> if the tag is implicit, <code>false</code> if it is explicit
+   */
+  public boolean isResolved() {
+    return resolved;
+  }
+
   @Override
   public final int hashCode() {
     return super.hashCode();
