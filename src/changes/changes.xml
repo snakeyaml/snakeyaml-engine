@@ -6,6 +6,11 @@
         <author email="public.somov@gmail.com">Andrey Somov</author>
     </properties>
     <body>
+        <release version="3.1.2" date="2026-08-09" description="Maintenance">
+            <action dev="asomov" type="add" issue="88">
+                Add Node.isResolved() to tell an explicit tag from a resolved one (thanks to Eshu)
+            </action>
+        </release>
         <release version="3.1.1" date="2026-08-07" description="Maintenance">
             <action dev="asomov" type="fix">
                 Port form SnakeYAML: Comments located in list become list entries after serialize (thanks to yablonsky-anton)
