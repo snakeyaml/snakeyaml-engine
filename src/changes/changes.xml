@@ -6,7 +6,7 @@
         <author email="public.somov@gmail.com">Andrey Somov</author>
     </properties>
     <body>
-        <release version="3.1.2" date="2026-08-09" description="Maintenance">
+        <release version="3.2" date="in Git" description="Maintenance">
             <action dev="asomov" type="add" issue="88">
                 Add Node.isResolved() to tell an explicit tag from a resolved one (thanks to Eshu)
             </action>
