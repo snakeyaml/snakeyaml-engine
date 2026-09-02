@@ -7,6 +7,9 @@
     </properties>
     <body>
         <release version="3.2" date="in Git" description="Maintenance">
+            <action dev="asomov" type="add" issue="90">
+                Fail parsing !!null followed by empty line (thanks to Marcin Stachniuk)
+            </action>
             <action dev="asomov" type="add" issue="88">
                 Add Node.isResolved() to tell an explicit tag from a resolved one (thanks to Eshu)
             </action>

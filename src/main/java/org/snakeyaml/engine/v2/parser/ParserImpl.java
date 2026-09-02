@@ -366,14 +366,25 @@ public class ParserImpl implements Parser {
           return produceCommentEvent(commentTokensAfterProperties.remove(0));
         } else {
           // No content follows - this is an empty scalar case.
-          // Create the scalar event and set up state to emit DocumentEnd, then the comments.
           boolean implicit = tag.isEmpty();
           Event scalarEvent = new ScalarEvent(anchor, tag, new ImplicitTuple(implicit, false), "",
               ScalarStyle.PLAIN, startMark, endMark);
-          // Pop states to maintain stack consistency (normally ParseDocumentEnd would be popped)
-          states.pop();
-          // The next state should emit DocumentEnd, then the collected comments, then continue
-          state = Optional.of(new ParseDocumentEndThenComments(commentTokensAfterProperties));
+          // Resume whatever production the caller pushed before parsing this node, exactly
+          // like the non-comment empty scalar case below (`state = Optional.of(states.pop());`).
+          Production nextState = states.pop();
+          if (nextState instanceof ParseDocumentEnd) {
+            // This node is the document's root node: emit DocumentEnd immediately so that the
+            // pending comments end up attached to this node (see Composer#getSingleNode() and
+            // Composer#next()), matching how the non-comment empty root scalar is handled.
+            state = Optional.of(new ParseDocumentEndThenComments(commentTokensAfterProperties));
+          } else {
+            // This node is nested inside a mapping/sequence/etc: the comments belong to the
+            // enclosing structure, so emit them and then resume the production that was
+            // pending before this node - do NOT jump straight to DocumentEnd, or the enclosing
+            // structure (e.g. a block mapping) would be left unterminated.
+            state = Optional
+                .of(new ParsePendingCommentsThenResume(commentTokensAfterProperties, nextState));
+          }
           return scalarEvent;
         }
       }
@@ -1178,6 +1189,33 @@ public class ParserImpl implements Parser {
             token.getStartMark());
       }
       return event;
+    }
+  }
+
+  /**
+   * Production that emits comments collected after an anchor/tag whose node turned out to be an
+   * empty scalar (no content followed), then resumes the production that was pending before that
+   * node was parsed. Used for nested nodes (e.g. mapping/sequence values), as opposed to
+   * {@link ParseDocumentEndThenComments} which is only for the document's root node.
+   */
+  private class ParsePendingCommentsThenResume implements Production {
+
+    private final List<CommentToken> pendingComments;
+    private final Production nextState;
+
+    public ParsePendingCommentsThenResume(List<CommentToken> pendingComments,
+        Production nextState) {
+      this.pendingComments = pendingComments;
+      this.nextState = nextState;
+    }
+
+    public Event produce() {
+      if (!pendingComments.isEmpty()) {
+        state = Optional.of(this);
+        return produceCommentEvent(pendingComments.remove(0));
+      }
+      state = Optional.of(nextState);
+      return nextState.produce();
     }
   }
 
