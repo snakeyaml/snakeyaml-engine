@@ -1172,7 +1172,7 @@ public final class ScannerImpl implements Scanner {
       if (reader.peek() == '#') {
         commentSeen = true;
         CommentType type;
-        if (columnBeforeComment != 0
+        if (columnBeforeComment != 0 && !lastTokenIsBlockScalar()
             && !(lastToken != null && lastToken.getTokenId() == Token.ID.BlockEntry)) {
           type = CommentType.IN_LINE;
           inlineStartColumn = reader.getColumn();
