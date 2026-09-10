@@ -7,7 +7,7 @@
     </properties>
     <body>
         <release version="3.2" date="in Git" description="Maintenance">
-            <action dev="asomov" type="add" issue="90">
+            <action dev="asomov" type="fix" issue="90">
                 Fail parsing !!null followed by empty line (thanks to Marcin Stachniuk)
             </action>
             <action dev="asomov" type="add" issue="88">
