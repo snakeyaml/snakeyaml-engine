@@ -102,7 +102,32 @@ class BlockScalarFollowedByIndentedCommentsTest {
   void loadBlockScalarInSequenceFollowedByIndentedComments() {
     String yaml = "- foo: |\n    x\n  # comment 1\n\n  # comment 2\n  bar: 1\n";
     Object loaded = new Load(settings).loadFromString(yaml);
-    assertEquals(1, ((List<?>) loaded).size());
+    assertEquals(List.of(Map.of("foo", "x\n", "bar", 1)), loaded);
+  }
+
+  @Test
+  @DisplayName("Issue 92: '#' lines indented to the block scalar's own content level are literal "
+      + "content, not comments - only dedented lines are")
+  void loadBlockScalarFollowedByLinesIndentedAtContentLevel() {
+    String yaml = "cm:\n  foo: |\n    x\n    # comment 1\n\n    # comment 2\n  bar: 1\n";
+    Object loaded = new Load(settings).loadFromString(yaml);
+    assertEquals(Map.of("cm", Map.of("foo", "x\n# comment 1\n\n# comment 2\n", "bar", 1)), loaded);
+  }
+
+  @Test
+  @DisplayName("Issue 92: a single indented comment is a block comment on the next key, not an "
+      + "in-line comment on the block scalar")
+  void singleIndentedCommentIsABlockComment() {
+    String yaml = "cm:\n  foo: |\n    x\n  # comment\n  bar: 1\n";
+    Optional<Node> nodeOptional = new Compose(settings).composeString(yaml);
+    assertTrue(nodeOptional.isPresent());
+
+    MappingNode root = (MappingNode) nodeOptional.get();
+    MappingNode cm = (MappingNode) root.getValue().get(0).getValueNode();
+
+    assertEquals(List.of(), cm.getValue().get(0).getValueNode().getInLineComments());
+    assertEquals(" comment",
+        cm.getValue().get(1).getKeyNode().getBlockComments().get(0).getValue());
   }
 
   @Test

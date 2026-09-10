@@ -121,6 +121,14 @@ public final class ScannerImpl implements Scanner {
   // The last added token
   private Token lastToken;
 
+  /**
+   * True when a block scalar has just been scanned and scanBlockScalarBreaks() consumed the leading
+   * whitespace of the line that follows it. The reader then sits at a non-zero column even though
+   * only whitespace precedes it on that line, so reader.getColumn() must not be used to decide
+   * whether something appears at the start of a line. See issue 92.
+   */
+  private boolean lineStartConsumedByBlockScalar = false;
+
   // Variables related to simple keys treatment.
   // Number of tokens that were emitted through the 'getToken()' method.
   private int tokensTaken = 0;
@@ -1121,9 +1129,14 @@ public final class ScannerImpl implements Scanner {
     }
     boolean found = false;
     int inlineStartColumn = -1;
+    // Only the first iteration can be looking at the line a block scalar left us in the middle
+    // of; every later iteration starts at a line break it scanned itself.
+    boolean atLineStart = lineStartConsumedByBlockScalar;
+    lineStartConsumedByBlockScalar = false;
     while (!found) {
       Optional<Mark> startMark = reader.getMark();
-      int columnBeforeComment = reader.getColumn();
+      int columnBeforeComment = atLineStart ? 0 : reader.getColumn();
+      atLineStart = false;
       boolean commentSeen = false;
       int ff = 0;
       // Peek ahead until we find the first non-space character, then
@@ -1172,7 +1185,7 @@ public final class ScannerImpl implements Scanner {
       if (reader.peek() == '#') {
         commentSeen = true;
         CommentType type;
-        if (columnBeforeComment != 0 && !lastTokenIsBlockScalar()
+        if (columnBeforeComment != 0
             && !(lastToken != null && lastToken.getTokenId() == Token.ID.BlockEntry)) {
           type = CommentType.IN_LINE;
           inlineStartColumn = reader.getColumn();
@@ -1629,6 +1642,9 @@ public final class ScannerImpl implements Scanner {
         break;
       }
     }
+    // scanBlockScalarBreaks() above consumed the leading whitespace of the line that follows the
+    // scalar, so the reader is mid-line with nothing but whitespace behind it.
+    lineStartConsumedByBlockScalar = true;
     // Chomp the tail.
     if (chomping.value == Indicator.CLIP || chomping.value == Indicator.KEEP) {
       // add the final line break (if exists !) TODO find out if to add anyway
