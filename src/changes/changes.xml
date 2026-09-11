@@ -8,7 +8,10 @@
     <body>
         <release version="3.2" date="in Git" description="Maintenance">
             <action dev="asomov" type="fix" issue="92">
-                Fix ClassCastException when a block scalar is followed by indented comments (thanks to Marcin Stachniuk)
+                Fix ClassCastException when a block scalar is followed by comment lines indented less than
+                its content. Such comments were classified IN_LINE and are now classified BLOCK: a single
+                comment that previously appeared in getInLineComments() of the block scalar's value node now
+                appears in getBlockComments() of the following key (thanks to Marcin Stachniuk)
             </action>
             <action dev="asomov" type="fix" issue="90">
                 Fail parsing !!null followed by empty line (thanks to Marcin Stachniuk)
