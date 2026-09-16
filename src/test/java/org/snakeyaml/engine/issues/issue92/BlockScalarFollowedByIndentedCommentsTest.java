@@ -16,17 +16,25 @@ package org.snakeyaml.engine.issues.issue92;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.snakeyaml.engine.v2.api.DumpSettings;
 import org.snakeyaml.engine.v2.api.Load;
 import org.snakeyaml.engine.v2.api.LoadSettings;
 import org.snakeyaml.engine.v2.api.lowlevel.Compose;
+import org.snakeyaml.engine.v2.api.lowlevel.Parse;
+import org.snakeyaml.engine.v2.api.lowlevel.Present;
+import org.snakeyaml.engine.v2.api.lowlevel.Serialize;
 import org.snakeyaml.engine.v2.comments.CommentLine;
 import org.snakeyaml.engine.v2.comments.CommentType;
+import org.snakeyaml.engine.v2.events.CommentEvent;
+import org.snakeyaml.engine.v2.events.Event;
 import org.snakeyaml.engine.v2.nodes.MappingNode;
 import org.snakeyaml.engine.v2.nodes.Node;
 import org.snakeyaml.engine.v2.nodes.NodeTuple;
@@ -39,7 +47,7 @@ import org.snakeyaml.engine.v2.nodes.ScalarNode;
  * an unchecked ClassCastException (CommentEvent cannot be cast to NodeEvent) when comment parsing
  * was enabled.
  */
-@org.junit.jupiter.api.Tag("fast")
+@Tag("fast")
 class BlockScalarFollowedByIndentedCommentsTest {
 
   private final LoadSettings settings = LoadSettings.builder().setParseComments(true).build();
@@ -112,6 +120,7 @@ class BlockScalarFollowedByIndentedCommentsTest {
     String yaml = "cm:\n  foo: |\n    x\n    # comment 1\n\n    # comment 2\n  bar: 1\n";
     Object loaded = new Load(settings).loadFromString(yaml);
     assertEquals(Map.of("cm", Map.of("foo", "x\n# comment 1\n\n# comment 2\n", "bar", 1)), loaded);
+    assertEquals(List.of(), commentTypes(yaml));
   }
 
   @Test
@@ -128,6 +137,10 @@ class BlockScalarFollowedByIndentedCommentsTest {
     assertEquals(List.of(), cm.getValue().get(0).getValueNode().getInLineComments());
     assertEquals(" comment",
         cm.getValue().get(1).getKeyNode().getBlockComments().get(0).getValue());
+    List<CommentLine> comments = cm.getValue().get(1).getKeyNode().getBlockComments();
+    assertEquals(1, comments.size());
+    assertEquals(CommentType.BLOCK, comments.get(0).getCommentType());
+    assertEquals(" comment", comments.get(0).getValue());
   }
 
   @Test
@@ -136,5 +149,74 @@ class BlockScalarFollowedByIndentedCommentsTest {
     String yaml = "cm:\n  foo: |\n    x\n  # comment 1\n\n  # comment 2\n";
     Object loaded = new Load(settings).loadFromString(yaml);
     assertEquals("x\n", ((Map<?, ?>) ((Map<?, ?>) loaded).get("cm")).get("foo"));
+  }
+
+  @Test
+  @DisplayName("Issue 92: indented comments at the end of the stream variant")
+  void loadBlockScalarFollowedByNotComments() {
+    String yaml = "cm:\n  foo: |\n    x\n    # comment 1\n\n    # comment 2\n  bar: 1";
+    Object loaded = new Load(settings).loadFromString(yaml);
+    assertEquals("x\n# comment 1\n\n# comment 2\n",
+        ((Map<?, ?>) ((Map<?, ?>) loaded).get("cm")).get("foo"));
+  }
+
+  @Test
+  @DisplayName("Issue 92: CRLF line breaks - the classification hinges on the column the reader "
+      + "reports after a line break")
+  void loadBlockScalarFollowedByIndentedCommentsWithCrlf() {
+    String yaml = "cm:\r\n  foo: |\r\n    x\r\n  # comment 1\r\n\r\n  # comment 2\r\n  bar: 1\r\n";
+    Object loaded = new Load(settings).loadFromString(yaml);
+    assertEquals(Map.of("cm", Map.of("foo", "x\n", "bar", 1)), loaded);
+    assertEquals(List.of(CommentType.BLOCK, CommentType.BLANK_LINE, CommentType.BLOCK),
+        commentTypes(yaml));
+  }
+
+  @Test
+  @DisplayName("Issue 92: a genuine in-line comment on the block scalar header stays IN_LINE while "
+      + "the trailing indented comments become BLOCK")
+  void blockScalarHeaderInLineCommentIsNotSwallowed() {
+    String yaml = "cm:\n  foo: | # inline\n    x\n  # comment 1\n\n  # comment 2\n  bar: 1\n";
+    assertEquals(
+        List.of(CommentType.IN_LINE, CommentType.BLOCK, CommentType.BLANK_LINE, CommentType.BLOCK),
+        commentTypes(yaml));
+
+    Optional<Node> nodeOptional = new Compose(settings).composeString(yaml);
+    assertTrue(nodeOptional.isPresent());
+    MappingNode cm =
+        (MappingNode) ((MappingNode) nodeOptional.get()).getValue().get(0).getValueNode();
+
+    List<CommentLine> inLineComments = cm.getValue().get(0).getKeyNode().getInLineComments();
+    assertEquals(1, inLineComments.size());
+    assertEquals(CommentType.IN_LINE, inLineComments.get(0).getCommentType());
+    assertEquals(" inline", inLineComments.get(0).getValue());
+
+    List<CommentLine> blockComments = cm.getValue().get(1).getKeyNode().getBlockComments();
+    assertEquals(3, blockComments.size());
+    assertEquals(" comment 1", blockComments.get(0).getValue());
+    assertEquals(CommentType.BLANK_LINE, blockComments.get(1).getCommentType());
+    assertEquals(" comment 2", blockComments.get(2).getValue());
+  }
+
+  @Test
+  @DisplayName("Issue 92: the reproducer round trips - the comments are not merely present but "
+      + "positioned so that the emitter reproduces the input exactly")
+  void roundTripPreservesTheIndentedComments() {
+    String yaml = "cm:\n  foo: |\n    x\n  # comment 1\n\n  # comment 2\n  bar: 1\n";
+    Optional<Node> nodeOptional = new Compose(settings).composeString(yaml);
+    assertTrue(nodeOptional.isPresent());
+
+    DumpSettings dumpSettings = DumpSettings.builder().setDumpComments(true).build();
+    List<Event> events = new Serialize(dumpSettings).serializeOne(nodeOptional.get());
+    assertEquals(yaml, new Present(dumpSettings).emitToString(events.iterator()));
+  }
+
+  private List<CommentType> commentTypes(String yaml) {
+    List<CommentType> types = new ArrayList<>();
+    for (Event e : new Parse(settings).parseString(yaml)) {
+      if (e instanceof CommentEvent) {
+        types.add(((CommentEvent) e).getCommentType());
+      }
+    }
+    return types;
   }
 }
