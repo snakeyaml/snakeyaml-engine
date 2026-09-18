@@ -103,6 +103,10 @@ public class Composer implements Iterator<Node> {
     if (parser.checkEvent(Event.ID.StreamStart)) {
       parser.next();
     }
+    // An in-line comment on the same line as a document marker (e.g. "--- # comment" or
+    // "... # comment") is emitted as a standalone CommentEvent; if no document follows, it sits
+    // in front of STREAM-END and must not be mistaken for another document.
+    inlineCommentsCollector.collectEvents().consume();
     // If there are more documents available?
     return !parser.checkEvent(Event.ID.StreamEnd);
   }
@@ -155,7 +159,8 @@ public class Composer implements Iterator<Node> {
     inlineCommentsCollector.collectEvents().consume();
     if (parser.checkEvent(Event.ID.StreamEnd)) {
       List<CommentLine> commentLines = blockCommentsCollector.consume();
-      Optional<Mark> startMark = commentLines.get(0).getStartMark();
+      Optional<Mark> startMark =
+          commentLines.isEmpty() ? Optional.empty() : commentLines.get(0).getStartMark();
       List<NodeTuple> children = Collections.emptyList();
       Node node = new MappingNode(Tag.COMMENT, false, children, FlowStyle.BLOCK, startMark,
           Optional.empty());
