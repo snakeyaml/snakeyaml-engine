@@ -214,6 +214,11 @@ public class Composer implements Iterator<Node> {
       blockCommentsCollector.consume();
       inlineCommentsCollector.collectEvents().consume();
     } else {
+      // A block scalar's header comment (e.g. "> # comment") is emitted before the node's own
+      // event. Usually a preceding sibling node (e.g. a mapping key) absorbs it as a trailing
+      // inline comment; where there is none (e.g. this is a sequence entry), it would otherwise
+      // sit in front of the node event below and break the cast to NodeEvent.
+      List<CommentLine> leadingInlineComments = inlineCommentsCollector.collectEvents().consume();
       NodeEvent event = (NodeEvent) parser.peekEvent();
       Optional<Anchor> anchor = event.getAnchor();
       // the check for duplicate anchors has been removed (issue 174)
@@ -223,6 +228,13 @@ public class Composer implements Iterator<Node> {
         node = composeSequenceNode(anchor);
       } else {
         node = composeMappingNode(anchor);
+      }
+      if (!leadingInlineComments.isEmpty()) {
+        List<CommentLine> merged = new ArrayList<>(leadingInlineComments);
+        if (node.getInLineComments() != null) {
+          merged.addAll(node.getInLineComments());
+        }
+        node.setInLineComments(merged);
       }
     }
     parent.ifPresent(recursiveNodes::remove);
