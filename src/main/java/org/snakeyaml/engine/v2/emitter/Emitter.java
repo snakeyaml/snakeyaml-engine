@@ -848,10 +848,13 @@ public final class Emitter implements Emitable {
   private class ExpectBlockMappingValue implements EmitterState {
 
     public void expect() {
-      writeIndent();
-      writeIndicator(":", true, false, true);
+      // An explicit ("? key") key can itself carry a trailing in-line comment (e.g. a block
+      // scalar key's header comment); that comment must be written while still on the key's own
+      // line, before the value indicator, or it ends up orphaning the value below it.
       event = inlineCommentsCollector.collectEventsAndPoll(event);
       writeInlineComments();
+      writeIndent();
+      writeIndicator(":", true, false, true);
       event = blockCommentsCollector.collectEventsAndPoll(event);
       writeBlockComment();
       states.push(new ExpectBlockMappingKey(false));

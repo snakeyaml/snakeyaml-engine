@@ -775,6 +775,10 @@ public class ParserImpl implements Parser {
   private class ParseBlockMappingValue implements Production {
 
     public Event produce() {
+      if (scanner.checkToken(Token.ID.Comment)) {
+        state = Optional.of(new ParseBlockMappingValue());
+        return produceCommentEvent((CommentToken) scanner.next());
+      }
       if (scanner.checkToken(Token.ID.Value)) {
         Token token = scanner.next();
         if (scanner.checkToken(Token.ID.Comment)) {

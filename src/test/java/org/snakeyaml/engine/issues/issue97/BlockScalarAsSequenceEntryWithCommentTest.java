@@ -22,10 +22,14 @@ import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.snakeyaml.engine.v2.api.DumpSettings;
 import org.snakeyaml.engine.v2.api.Load;
 import org.snakeyaml.engine.v2.api.LoadSettings;
 import org.snakeyaml.engine.v2.api.lowlevel.Compose;
+import org.snakeyaml.engine.v2.api.lowlevel.Present;
+import org.snakeyaml.engine.v2.api.lowlevel.Serialize;
 import org.snakeyaml.engine.v2.comments.CommentLine;
+import org.snakeyaml.engine.v2.events.Event;
 import org.snakeyaml.engine.v2.nodes.MappingNode;
 import org.snakeyaml.engine.v2.nodes.Node;
 import org.snakeyaml.engine.v2.nodes.ScalarNode;
@@ -118,5 +122,29 @@ class BlockScalarAsSequenceEntryWithCommentTest {
     assertEquals(1, key.getInLineComments().size());
     assertEquals(" c", key.getInLineComments().get(0).getValue());
     assertEquals(List.of(), value.getInLineComments());
+  }
+
+  @Test
+  @DisplayName("Issue 97: an explicit block key that is itself a block scalar with a header "
+      + "comment round-trips - the comment must not end up orphaning the value")
+  void explicitBlockKeyWithHeaderCommentRoundTrips() {
+    String yaml = "? !!str | # c\n  text\n: v\n";
+    Node node = new Compose(settings).composeString(yaml).orElseThrow();
+
+    DumpSettings dumpSettings = DumpSettings.builder().setDumpComments(true).build();
+    List<Event> events = new Serialize(dumpSettings).serializeOne(node);
+    String dumped = new Present(dumpSettings).emitToString(events.iterator());
+
+    Object reloaded = new Load(settings).loadFromString(dumped);
+    assertEquals(Map.of("text\n", "v"), reloaded);
+  }
+
+  @Test
+  @DisplayName("Issue 97: a standalone comment between an explicit key's node and the ':' "
+      + "indicator loads instead of breaking the block mapping")
+  void standaloneCommentBetweenExplicitKeyAndValueIndicatorLoads() {
+    String yaml = "? |\n  text\n# c\n: v\n";
+    Object loaded = new Load(settings).loadFromString(yaml);
+    assertEquals(Map.of("text\n", "v"), loaded);
   }
 }
