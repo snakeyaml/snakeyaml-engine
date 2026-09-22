@@ -230,11 +230,7 @@ public class Composer implements Iterator<Node> {
         node = composeMappingNode(anchor);
       }
       if (!leadingInlineComments.isEmpty()) {
-        List<CommentLine> merged = new ArrayList<>(leadingInlineComments);
-        if (node.getInLineComments() != null) {
-          merged.addAll(node.getInLineComments());
-        }
-        node.setInLineComments(merged);
+        node.setInLineComments(leadingInlineComments);
       }
     }
     parent.ifPresent(recursiveNodes::remove);
