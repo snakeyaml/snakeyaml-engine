@@ -230,7 +230,14 @@ public class Composer implements Iterator<Node> {
         node = composeMappingNode(anchor);
       }
       if (!leadingInlineComments.isEmpty()) {
-        node.setInLineComments(leadingInlineComments);
+        // Merge rather than overwrite: composeScalarNode above may already have attached the
+        // NEXT node's leading comment as this node's trailing one (two adjacent block scalar
+        // entries, each with a header comment), and overwriting would drop it.
+        List<CommentLine> merged = new ArrayList<>(leadingInlineComments);
+        if (node.getInLineComments() != null) {
+          merged.addAll(node.getInLineComments());
+        }
+        node.setInLineComments(merged);
       }
     }
     parent.ifPresent(recursiveNodes::remove);

@@ -305,6 +305,33 @@ public class ComposerWithCommentEnabledTest {
   }
 
   @Test
+  public void test_adjacentBlockScalarsWithHeaderComments() {
+    // https://codeberg.org/snakeyaml/snakeyaml-engine/pulls/98
+    // The header comment of the second entry's block scalar ("two") must not be lost while
+    // composing the first entry's block scalar ("a").
+    String data = "" + //
+        "- > # one\n" + //
+        "  a\n" + //
+        "- > # two\n" + //
+        "  b\n";
+
+    String[] expected = new String[] { //
+        "SequenceNode", //
+        "    ScalarNode: a", //
+        "", //
+        "        InLine Comment", //
+        "        InLine Comment", //
+        "    ScalarNode: b" //
+    };
+
+    Composer sut = newComposerWithCommentsEnabled(data);
+    List<Node> result = getNodeList(sut);
+
+    printNodeList(result);
+    assertNodesEqual(expected, result);
+  }
+
+  @Test
   public void testDirectiveLineEndComment() {
     String data = "%YAML 1.1 #Comment\n---\n";
 
