@@ -7,6 +7,9 @@
     </properties>
     <body>
         <release version="3.2" date="in Git" description="Maintenance">
+            <action dev="asomov" type="fix" issue="99">
+                Accept TAB characters as whitespace (thanks to Marcin Stachniuk)
+            </action>
             <action dev="asomov" type="fix" issue="97">
                 CommentEvent cannot be cast to NodeEvent — comment on a block scalar indicator line inside a sequence (thanks to Marcin Stachniuk)
             </action>

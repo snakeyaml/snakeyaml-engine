@@ -30,15 +30,18 @@ final class SimpleKey {
   private final int line;
   private final int column;
   private final Optional<Mark> mark;
+  // the key is separated from the preceding token on the same line by TAB (block context only)
+  private final boolean tabSeparated;
 
   public SimpleKey(int tokenNumber, boolean required, int index, int line, int column,
-      Optional<Mark> mark) {
+      Optional<Mark> mark, boolean tabSeparated) {
     this.tokenNumber = tokenNumber;
     this.required = required;
     this.index = index;
     this.line = line;
     this.column = column;
     this.mark = mark;
+    this.tabSeparated = tabSeparated;
   }
 
   public int getTokenNumber() {
@@ -63,6 +66,10 @@ final class SimpleKey {
 
   public boolean isRequired() {
     return required;
+  }
+
+  public boolean isTabSeparated() {
+    return tabSeparated;
   }
 
   @Override

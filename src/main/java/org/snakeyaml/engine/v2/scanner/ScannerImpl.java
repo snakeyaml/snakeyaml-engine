@@ -159,6 +159,14 @@ public final class ScannerImpl implements Scanner {
   private boolean allowSimpleKey = true;
 
   /**
+   * True if the whitespace in front of the current token (on the same line) contains TAB, in the
+   * block context. TAB is valid separation, but it may not act as indentation. It means that such a
+   * token may not start a block collection: neither a block entry, nor an explicit key, nor a
+   * simple key (see issue 99 and Y79Y in the test suite).
+   */
+  private boolean tabSeparated = false;
+
+  /**
    * Create
    *
    * @param settings - configurable options
@@ -505,7 +513,7 @@ public final class ScannerImpl implements Scanner {
       removePossibleSimpleKey();
       int tokenNumber = this.tokensTaken + this.tokens.size();
       SimpleKey key = new SimpleKey(tokenNumber, required, reader.getIndex(), reader.getLine(),
-          this.reader.getColumn(), this.reader.getMark());
+          this.reader.getColumn(), this.reader.getMark(), this.tabSeparated);
       this.possibleSimpleKeys.put(this.flowLevel, key);
     }
   }
@@ -768,6 +776,9 @@ public final class ScannerImpl implements Scanner {
         throw new ScannerException("", Optional.empty(), "sequence entries are not allowed here",
             reader.getMark());
       }
+      if (this.tabSeparated) {
+        throw tabBeforeBlockIndicator("sequence entry");
+      }
 
       // We may need to add BLOCK-SEQUENCE-START.
       if (addIndent(this.reader.getColumn())) {
@@ -792,6 +803,12 @@ public final class ScannerImpl implements Scanner {
     addToken(token);
   }
 
+  private ScannerException tabBeforeBlockIndicator(String what) {
+    return new ScannerException("while scanning for the next token", Optional.empty(),
+        "found a " + what + " after \\t(TAB). (Do not use \\t(TAB) for indentation)",
+        reader.getMark());
+  }
+
   /**
    * Fetch a key in a block-style mapping.
    */
@@ -801,6 +818,9 @@ public final class ScannerImpl implements Scanner {
       // Are we allowed to start a key (not necessary a simple)?
       if (!this.allowSimpleKey) {
         throw new ScannerException("mapping keys are not allowed here", reader.getMark());
+      }
+      if (this.tabSeparated) {
+        throw tabBeforeBlockIndicator("mapping key");
       }
       // We may need to add BLOCK-MAPPING-START.
       if (addIndent(this.reader.getColumn())) {
@@ -829,6 +849,10 @@ public final class ScannerImpl implements Scanner {
     // Do we determine a simple key?
     SimpleKey key = this.possibleSimpleKeys.remove(this.flowLevel);
     if (key != null) {
+      if (key.isTabSeparated()) {
+        throw new ScannerException("while scanning a simple key", key.getMark(),
+            "found a key after \\t(TAB). (Do not use \\t(TAB) for indentation)", reader.getMark());
+      }
       // Add KEY.
       addToken(key.getTokenNumber() - this.tokensTaken, new KeyToken(key.getMark(), key.getMark()));
 
@@ -1109,16 +1133,10 @@ public final class ScannerImpl implements Scanner {
    * stream. We do not yet support BOM inside the stream as the
    * specification requires. Any such mark will be considered as a part
    * of the document.
-   * TODO: We need to make tab handling rules more sane. A good rule is
-   *   Tabs cannot precede tokens
-   *   BLOCK-SEQUENCE-START, BLOCK-MAPPING-START, BLOCK-END,
-   *   KEY(block), VALUE(block), BLOCK-ENTRY
-   * So the checking code is
-   *   if <TAB>:
-   *       self.allow_simple_keys = False
-   * We also need to add the check for `allow_simple_keys == True` to
-   * `unwind_indent` before issuing BLOCK-END.
-   * Scanners for block, flow, and plain scalars need to be modified.
+   * Tabs are separation whitespace after a token on the same line, but they
+   * cannot be indentation. A token preceded by a tab (see `tabSeparated`)
+   * cannot start a block collection: BLOCK-ENTRY, KEY(block) and a simple key
+   * are rejected (issue 99).
    * </pre>
    */
   private void scanToNextToken() {
@@ -1133,10 +1151,13 @@ public final class ScannerImpl implements Scanner {
     // of; every later iteration starts at a line break it scanned itself.
     boolean atLineStart = lineStartConsumedByBlockScalar;
     lineStartConsumedByBlockScalar = false;
+    tabSeparated = false;
     while (!found) {
       Optional<Mark> startMark = reader.getMark();
       int columnBeforeComment = atLineStart ? 0 : reader.getColumn();
       atLineStart = false;
+      // Is there a token before us on this line? Then any TAB we find is separation.
+      boolean afterTokenOnLine = columnBeforeComment != 0;
       boolean commentSeen = false;
       int ff = 0;
       // Peek ahead until we find the first non-space character, then
@@ -1166,6 +1187,12 @@ public final class ScannerImpl implements Scanner {
         if (next == '\n' || next == '\r' || next == '\0' || next == '#') {
           // Blank line: skip all trailing whitespace.
           ff = lookAhead;
+        } else if (afterTokenOnLine) {
+          // TAB after a token on the same line (e.g. 'key:<TAB>value' or
+          // '-<TAB>item') is separation whitespace (issue 99). The next token
+          // may not start a block collection, which is checked later.
+          ff = lookAhead;
+          tabSeparated = true;
         } else if (ff > 0 && reader.getColumn() == 0) {
           // Leading space(s) followed by tab at the start of a line: the tab
           // is a separator between indentation and content, not indentation
@@ -1173,6 +1200,7 @@ public final class ScannerImpl implements Scanner {
           while (reader.peek(ff) == '\t') {
             ff++;
           }
+          tabSeparated = true;
         }
       }
       if (ff > 0) {
@@ -1204,6 +1232,7 @@ public final class ScannerImpl implements Scanner {
       // simple keys may be allowed.
       Optional<String> breaksOpt = scanLineBreak();
       if (breaksOpt.isPresent()) { // found a line-break
+        tabSeparated = false;
         if (settings.getParseComments() && !commentSeen) {
           if (columnBeforeComment == 0) {
             addToken(new CommentToken(CommentType.BLANK_LINE, breaksOpt.get(), startMark,
@@ -1291,7 +1320,7 @@ public final class ScannerImpl implements Scanner {
     }
     String value = reader.prefixForward(length);
     c = reader.peek();
-    if (CharConstants.NULL_BL_LINEBR.hasNo(c)) {
+    if (CharConstants.NULL_BL_T_LINEBR.hasNo(c)) {
       final String s = String.valueOf(Character.toChars(c));
       throw new ScannerException(DIRECTIVE_PREFIX, startMark,
           EXPECTED_ALPHA_ERROR_PREFIX + s + "(" + c + ")", reader.getMark());
@@ -1301,7 +1330,7 @@ public final class ScannerImpl implements Scanner {
 
   private List<Integer> scanYamlDirectiveValue(Optional<Mark> startMark) {
     // See the specification for details.
-    while (reader.peek() == ' ') {
+    while (reader.peek() == ' ' || reader.peek() == '\t') {
       reader.forward();
     }
     Integer major = scanYamlDirectiveNumber(startMark);
@@ -1314,7 +1343,7 @@ public final class ScannerImpl implements Scanner {
     reader.forward();
     Integer minor = scanYamlDirectiveNumber(startMark);
     c = reader.peek();
-    if (CharConstants.NULL_BL_LINEBR.hasNo(c)) {
+    if (CharConstants.NULL_BL_T_LINEBR.hasNo(c)) {
       final String s = String.valueOf(Character.toChars(c));
       throw new ScannerException(DIRECTIVE_PREFIX, startMark,
           "expected a digit or ' ', but found " + s + "(" + c + ")", reader.getMark());
@@ -1362,11 +1391,11 @@ public final class ScannerImpl implements Scanner {
    */
   private List<String> scanTagDirectiveValue(Optional<Mark> startMark) {
     // See the specification for details.
-    while (reader.peek() == ' ') {
+    while (reader.peek() == ' ' || reader.peek() == '\t') {
       reader.forward();
     }
     String handle = scanTagDirectiveHandle(startMark);
-    while (reader.peek() == ' ') {
+    while (reader.peek() == ' ' || reader.peek() == '\t') {
       reader.forward();
     }
     String prefix = scanTagDirectivePrefix(startMark);
@@ -1386,7 +1415,7 @@ public final class ScannerImpl implements Scanner {
     // See the specification for details.
     String value = scanTagHandle("directive", startMark);
     int c = reader.peek();
-    if (c != ' ') {
+    if (c != ' ' && c != '\t') {
       final String s = String.valueOf(Character.toChars(c));
       throw new ScannerException(DIRECTIVE_PREFIX, startMark,
           "expected ' ', but found " + s + "(" + c + ")", reader.getMark());
@@ -1401,7 +1430,7 @@ public final class ScannerImpl implements Scanner {
     // See the specification for details.
     String value = scanTagUri("directive", CharConstants.URI_CHARS_FOR_TAG_PREFIX, startMark);
     int c = reader.peek();
-    if (CharConstants.NULL_BL_LINEBR.hasNo(c)) {
+    if (CharConstants.NULL_BL_T_LINEBR.hasNo(c)) {
       final String s = String.valueOf(Character.toChars(c));
       throw new ScannerException(DIRECTIVE_PREFIX, startMark,
           "expected ' ', but found " + s + "(" + c + ")", reader.getMark());
@@ -1411,7 +1440,7 @@ public final class ScannerImpl implements Scanner {
 
   private CommentToken scanDirectiveIgnoredLine(Optional<Mark> startMark) {
     // See the specification for details.
-    while (reader.peek() == ' ') {
+    while (reader.peek() == ' ' || reader.peek() == '\t') {
       reader.forward();
     }
     CommentToken commentToken = null;
@@ -1532,7 +1561,7 @@ public final class ScannerImpl implements Scanner {
       // is of the form !foo or !foo!bar.
       int length = 1;
       boolean useHandle = false;
-      while (CharConstants.NULL_BL_LINEBR.hasNo(c)) {
+      while (CharConstants.NULL_BL_T_LINEBR.hasNo(c)) {
         if (c == '!') {
           useHandle = true;
           break;
@@ -1553,7 +1582,7 @@ public final class ScannerImpl implements Scanner {
     c = reader.peek();
     // Check that the next character is allowed to follow a tag-property, if it is not, raise the
     // error.
-    if (CharConstants.NULL_BL_LINEBR.hasNo(c)) {
+    if (CharConstants.NULL_BL_T_LINEBR.hasNo(c)) {
       final String s = String.valueOf(Character.toChars(c));
       throw new ScannerException("while scanning a tag", startMark,
           "expected ' ', but found '" + s + "' (" + (c) + ")", reader.getMark());
@@ -1704,7 +1733,7 @@ public final class ScannerImpl implements Scanner {
       }
     }
     c = reader.peek();
-    if (CharConstants.NULL_BL_LINEBR.hasNo(c)) {
+    if (CharConstants.NULL_BL_T_LINEBR.hasNo(c)) {
       final String s = String.valueOf(Character.toChars(c));
       throw new ScannerException(SCANNING_SCALAR, startMark,
           "expected chomping or indentation indicators, but found " + s + "(" + c + ")",
@@ -1721,7 +1750,7 @@ public final class ScannerImpl implements Scanner {
     // See the specification for details.
 
     // Forward past any number of trailing spaces
-    while (reader.peek() == ' ') {
+    while (reader.peek() == ' ' || reader.peek() == '\t') {
       reader.forward();
     }
 

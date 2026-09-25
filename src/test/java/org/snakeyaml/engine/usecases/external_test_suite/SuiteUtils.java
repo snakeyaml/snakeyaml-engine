@@ -58,16 +58,12 @@ public class SuiteUtils {
       "4MUZ-01", // Flow mapping colon on line after key
       "4MUZ-02", // Flow mapping colon on line after key
       "UKK6-00", // Syntax character edge cases (Go, libyaml, PyYAML)
-      "K54U", // TODO Tab after document header
-      "Y79Y-010", // Tabs in various contexts
       "2JQS", // Block Mapping with Missing Keys (Go, libyaml, PyYAML)
       "6M2F", // Aliases in Explicit Block Mapping (Go, libyaml, PyYAML)
       "S3PD", // Spec Example 8.18. Implicit Block Mapping Entries (Go, libyaml, PyYAML)
       "FRK4", // Spec Example 7.3. Completely Empty Flow Nodes (Go, libyaml, PyYAML)
       "NHX8", // Empty Lines at End of Document (Go, libyaml, PyYAML)
       "M2N8-00", // Question mark edge cases (Go, libyaml, PyYAML)
-      "MUS6-03", // TODO Directive variants
-      "6BCT", // Spec Example 6.3. Separation Spaces
       "Q5MG", // Tab at beginning of line followed by a flow mapping
       "DBG4", // Spec Example 7.10. Plain Characters (Go, libyaml, PyYAML)
       "M7A3", // Spec Example 9.3. Bare Documents
@@ -77,8 +73,6 @@ public class SuiteUtils {
       "58MP", // Flow mapping edge cases (Go, libyaml, PyYAML)
       "UV7Q", // TODO Legal tab after indentation (PyYAML, Ruamel)
       "HM87-00", // Scalars in flow start with syntax char (Go, libyaml, PyYAML)
-      "A2M4", // Spec Example 6.2. Indentation Indicators
-      "J3BT", // Spec Example 5.12. Tabs and Spaces (PyYAML, Ruamel)
       "HS5T", // Spec Example 7.12. Plain Lines >> leading TAB (PyYAML, Ruamel)
       "UT92", // Spec Example 9.4. Explicit Documents
       "W4TN", // Spec Example 9.5. Directives Documents (Go, libyaml, PyYAML)
