@@ -117,6 +117,15 @@ class TabSeparationTest {
   }
 
   @Test
+  @DisplayName("Issue 99: TAB and space mixed in flow context")
+  void tabAndSpaceMixedInFlowContext() {
+    assertEquals(Map.of("a", Map.of("b", "c")), load("a: {b:\t c}\n"));
+    assertEquals(Map.of("a", List.of(1, 2)), load("a: [1,\t 2]"));
+    assertEquals(Map.of("a", List.of(1, 2)), load("a: [1, \t \t2]"));
+    assertEquals(Map.of("a", 1), load("{\n\t \"a\": 1\n}"));
+  }
+
+  @Test
   @DisplayName("Issue 99: TAB may not precede a block collection indicator")
   void tabBeforeBlockIndicatorFails() {
     assertFails("-\t-");

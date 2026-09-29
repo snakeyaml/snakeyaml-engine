@@ -75,6 +75,6 @@ final class SimpleKey {
   @Override
   public String toString() {
     return "SimpleKey - tokenNumber=" + tokenNumber + " required=" + required + " index=" + index
-        + " line=" + line + " column=" + column;
+        + " line=" + line + " column=" + column + " tabSeparated=" + tabSeparated;
   }
 }

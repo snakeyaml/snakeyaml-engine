@@ -1154,21 +1154,17 @@ public final class ScannerImpl implements Scanner {
     tabSeparated = false;
     while (!found) {
       Optional<Mark> startMark = reader.getMark();
-      int columnBeforeComment = atLineStart ? 0 : reader.getColumn();
+      int columnAtTokenStart = atLineStart ? 0 : reader.getColumn();
       atLineStart = false;
       // Is there a token before us on this line? Then any TAB we find is separation.
-      boolean afterTokenOnLine = columnBeforeComment != 0;
+      boolean afterTokenOnLine = columnAtTokenStart != 0;
       boolean commentSeen = false;
       int ff = 0;
       // Peek ahead until we find the first non-space character, then
       // move forward directly to that character.
-      while (reader.peek(ff) == ' ') {
-        ff++;
-      }
-      // unfortunately, this check is too simple, but it helps to ignore TABs in JSON
-      // which is always flow context (see issue 55 and tests)
-      // (this causes Y79Y-003 to fail)
-      while (reader.peek(ff) == '\t' && isFlowContext()) {
+      // In flow context a TAB is separation whitespace wherever a space is, so the two are
+      // skipped by the same loop (see issue 55 and tests). (this causes Y79Y-003 to fail)
+      while (reader.peek(ff) == ' ' || (reader.peek(ff) == '\t' && isFlowContext())) {
         ff++;
       }
       // In block context, tabs that are not acting as indentation should be
@@ -1213,7 +1209,7 @@ public final class ScannerImpl implements Scanner {
       if (reader.peek() == '#') {
         commentSeen = true;
         CommentType type;
-        if (columnBeforeComment != 0
+        if (columnAtTokenStart != 0
             && !(lastToken != null && lastToken.getTokenId() == Token.ID.BlockEntry)) {
           type = CommentType.IN_LINE;
           inlineStartColumn = reader.getColumn();
@@ -1234,7 +1230,7 @@ public final class ScannerImpl implements Scanner {
       if (breaksOpt.isPresent()) { // found a line-break
         tabSeparated = false;
         if (settings.getParseComments() && !commentSeen) {
-          if (columnBeforeComment == 0) {
+          if (columnAtTokenStart == 0) {
             addToken(new CommentToken(CommentType.BLANK_LINE, breaksOpt.get(), startMark,
                 reader.getMark()));
           }
