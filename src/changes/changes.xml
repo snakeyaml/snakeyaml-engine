@@ -6,7 +6,7 @@
         <author email="public.somov@gmail.com">Andrey Somov</author>
     </properties>
     <body>
-        <release version="3.2" date="in Git" description="Maintenance">
+        <release version="3.2" date="2026-10-03" description="Maintenance">
             <action dev="asomov" type="fix" issue="99">
                 Accept TAB characters as whitespace (thanks to Marcin Stachniuk)
             </action>
